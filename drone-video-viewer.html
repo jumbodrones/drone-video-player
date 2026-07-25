@@ -1,0 +1,2430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drone Video Viewer</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      flex-shrink: 0;
+    }
+    header h1 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #58a6ff;
+      letter-spacing: 0.3px;
+    }
+    .badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: #21262d;
+      color: #8b949e;
+      border: 1px solid #30363d;
+    }
+    .header-actions {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+    }
+    .btn {
+      padding: 5px 12px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: 1px solid #30363d;
+      background: #21262d;
+      color: #e6edf3;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn:hover { background: #30363d; }
+    .btn-primary {
+      background: #1f6feb;
+      border-color: #1f6feb;
+      color: #fff;
+    }
+    .btn-primary:hover { background: #388bfd; }
+
+    /* ── Main layout ── */
+    .main {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ── Left: video panel ── */
+    .video-panel {
+      display: flex;
+      flex-direction: column;
+      width: 55%;
+      flex-shrink: 0;
+      border-right: 1px solid #30363d;
+    }
+
+    .video-wrapper {
+      position: relative;
+      background: #000;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    video {
+      max-width: 100%;
+      max-height: 100%;
+      display: block;
+    }
+
+    /* Drop zone overlay */
+    .drop-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: #0d1117;
+      cursor: pointer;
+    }
+    .drop-overlay .icon {
+      font-size: 48px;
+      opacity: 0.4;
+    }
+    .drop-overlay p {
+      color: #8b949e;
+      font-size: 14px;
+    }
+    .drop-overlay em {
+      color: #58a6ff;
+      font-style: normal;
+    }
+    .drop-overlay.drag-over {
+      background: #0d2d4f;
+      border: 2px dashed #58a6ff;
+    }
+
+    /* HUD */
+    .hud {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      pointer-events: none;
+    }
+    .hud-row {
+      display: flex;
+      gap: 6px;
+    }
+    .hud-item {
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      min-width: 90px;
+    }
+    .hud-label {
+      color: #8b949e;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .hud-value {
+      color: #e6edf3;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .hud-value.highlight { color: #58a6ff; }
+    .hud { display: none; }
+    .hud.visible { display: flex; }
+
+    /* Video controls bar */
+    .video-controls {
+      padding: 8px 12px;
+      background: #161b22;
+      border-top: 1px solid #30363d;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .progress-bar-wrap {
+      position: relative;
+      height: 6px;
+      background: #30363d;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: #1f6feb;
+      border-radius: 3px;
+      pointer-events: none;
+      transition: width 0.05s linear;
+    }
+    .progress-thumb {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #58a6ff;
+      pointer-events: none;
+    }
+    .controls-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .ctrl-btn {
+      background: none;
+      border: none;
+      color: #8b949e;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      font-size: 16px;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+    .ctrl-btn:hover { color: #e6edf3; }
+    .time-display {
+      font-family: monospace;
+      font-size: 12px;
+      color: #8b949e;
+    }
+    .speed-select {
+      margin-left: auto;
+      background: #21262d;
+      border: 1px solid #30363d;
+      color: #e6edf3;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    /* ── Right: map panel ── */
+    .map-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .map-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      flex-shrink: 0;
+    }
+    .map-toolbar span {
+      font-size: 12px;
+      color: #8b949e;
+    }
+    .map-toolbar .map-title {
+      color: #e6edf3;
+      font-weight: 500;
+    }
+
+    #map {
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ── Footer: telemetry strip ── */
+    .telemetry-strip {
+      display: none;
+      align-items: center;
+      gap: 0;
+      background: #161b22;
+      border-top: 1px solid #30363d;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .telemetry-strip.visible { display: flex; }
+    .tel-item {
+      flex: 1;
+      padding: 6px 12px;
+      border-right: 1px solid #30363d;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .tel-item:last-child { border-right: none; }
+    .tel-label {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #8b949e;
+    }
+    .tel-value {
+      font-family: monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: #e6edf3;
+    }
+
+    /* ── File load sidebar (hidden initially) ── */
+    .file-status {
+      font-size: 11px;
+      color: #3fb950;
+      display: none;
+    }
+    .file-status.error { color: #f85149; }
+
+    /* Leaflet dark theme overrides */
+    .leaflet-tile-pane { filter: brightness(0.85) saturate(0.9); }
+    .leaflet-control-attribution { font-size: 9px !important; }
+
+    /* Flight path line */
+    .leaflet-interactive.flight-path { stroke-width: 2; }
+
+    /* ── Chart panel ── */
+    .chart-panel {
+      display: none;
+      flex-direction: column;
+      background: #0d1117;
+      border-top: 1px solid #30363d;
+      flex-shrink: 0;
+      height: 130px;
+    }
+    .chart-panel.visible { display: flex; }
+    .chart-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 4px 12px;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      flex-shrink: 0;
+    }
+    .chart-legend {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: #8b949e;
+    }
+    .legend-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    #telemetry-chart {
+      flex: 1;
+      width: 100%;
+      cursor: crosshair;
+    }
+
+    /* ── Ortho tabs ── */
+    .ortho-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid #30363d;
+      margin: -8px -12px 6px -12px;
+      padding: 0 4px;
+      flex-shrink: 0;
+    }
+    .ortho-tab {
+      font-size: 11px;
+      padding: 5px 12px;
+      color: #8b949e;
+      cursor: pointer;
+      border: none;
+      border-bottom: 2px solid transparent;
+      background: none;
+      transition: color 0.15s;
+    }
+    .ortho-tab:hover { color: #e6edf3; }
+    .ortho-tab.active { color: #58a6ff; border-bottom-color: #58a6ff; }
+    .ortho-tms-input {
+      background: #21262d;
+      border: 1px solid #30363d;
+      color: #e6edf3;
+      font-size: 11px;
+      padding: 3px 6px;
+      border-radius: 4px;
+      flex: 1;
+      min-width: 0;
+      font-family: monospace;
+    }
+    .ortho-tms-input::placeholder { color: #484f58; }
+    .ortho-tms-hint { font-size: 10px; color: #484f58; line-height: 1.4; }
+
+    /* ── Ortho panel ── */
+    .ortho-panel {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      padding: 8px 12px;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      flex-shrink: 0;
+    }
+    .ortho-panel.visible { display: flex; }
+    .ortho-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .ortho-input {
+      background: #21262d;
+      border: 1px solid #30363d;
+      color: #e6edf3;
+      font-size: 11px;
+      padding: 3px 6px;
+      border-radius: 4px;
+      width: 88px;
+    }
+    .ortho-input::placeholder { color: #484f58; }
+    .ortho-label { font-size: 11px; color: #8b949e; white-space: nowrap; }
+
+    /* ── Click-to-tag mode ── */
+    .video-wrapper.click-tag-active video { cursor: crosshair; }
+    .click-indicator {
+      position: absolute;
+      pointer-events: none;
+      width: 24px; height: 24px;
+      border: 2px solid #f0883e;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      animation: click-flash 0.55s ease-out forwards;
+    }
+    @keyframes click-flash {
+      from { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+      to   { opacity: 0; transform: translate(-50%,-50%) scale(2.5); }
+    }
+    .fov-label { font-size: 11px; color: #8b949e; white-space: nowrap; }
+    .fov-input {
+      background: #21262d;
+      border: 1px solid #30363d;
+      color: #e6edf3;
+      font-size: 11px;
+      padding: 2px 5px;
+      border-radius: 4px;
+      width: 45px;
+      text-align: center;
+    }
+
+    /* ── Feature tag modal ── */
+    .tag-modal-bg {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .tag-modal {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 300px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    }
+    .tag-modal h3 { font-size: 13px; color: #8b949e; font-weight: 500; }
+    .tag-modal-coords { font-size: 11px; color: #58a6ff; font-family: monospace; }
+    .tag-modal input[type=text] {
+      background: #21262d;
+      border: 1px solid #30363d;
+      color: #e6edf3;
+      font-size: 13px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      outline: none;
+      width: 100%;
+    }
+    .tag-modal input[type=text]:focus { border-color: #58a6ff; }
+    .tag-modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
+
+    /* ── Feature tag list panel ── */
+    .tag-list-panel {
+      display: none;
+      flex-direction: column;
+      background: #0d1117;
+      border-bottom: 1px solid #30363d;
+      flex-shrink: 0;
+      max-height: 160px;
+    }
+    .tag-list-panel.visible { display: flex; }
+    .tag-list-header {
+      display: flex;
+      align-items: center;
+      padding: 4px 12px;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      font-size: 11px;
+      color: #8b949e;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .tag-list-scroll { overflow-y: auto; flex: 1; }
+    .tag-list-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
+      border-bottom: 1px solid #161b22;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .tag-list-item:hover { background: #161b22; }
+    .tag-list-num {
+      background: #f0883e;
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .tag-list-label { font-weight: 600; color: #e6edf3; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tag-list-time { color: #58a6ff; font-family: monospace; flex-shrink: 0; }
+    .tag-list-coords { color: #8b949e; font-family: monospace; font-size: 10px; flex-shrink: 0; }
+    .tag-del-btn {
+      background: none; border: none; color: #484f58; cursor: pointer;
+      font-size: 14px; padding: 0 2px; border-radius: 3px; line-height: 1; flex-shrink: 0;
+    }
+    .tag-del-btn:hover { color: #f85149; }
+
+    /* Responsive */
+    @media (max-width: 800px) {
+      .main { flex-direction: column; }
+      .video-panel { width: 100%; border-right: none; border-bottom: 1px solid #30363d; height: 50vh; }
+      .map-panel { height: 50vh; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="logo.png" alt="Logo" style="height:32px; width:auto; object-fit:contain;">
+  <h1>Drone Video Viewer</h1>
+  <span class="badge" id="srt-badge">No SRT loaded</span>
+  <div class="header-actions">
+    <label class="btn btn-primary" style="cursor:pointer" title="Select video + SRT together">
+      📂 Load Files
+      <input type="file" id="combined-input" accept="video/*,.srt,.txt" multiple style="display:none">
+    </label>
+    <label class="btn" style="cursor:pointer">
+      📹 Video only
+      <input type="file" id="video-input" accept="video/*" style="display:none">
+    </label>
+    <label class="btn" style="cursor:pointer">
+      📄 SRT only
+      <input type="file" id="srt-input" accept=".srt,.txt" style="display:none">
+    </label>
+
+    <button class="btn" id="chart-toggle-btn" style="display:none">📊 Charts</button>
+    <button class="btn" id="export-csv-btn" style="display:none">⬇ CSV</button>
+  </div>
+</header>
+
+<div class="main">
+  <!-- Video Panel -->
+  <div class="video-panel">
+    <div class="video-wrapper" id="video-wrapper">
+      <!-- Drop overlay -->
+      <div class="drop-overlay" id="drop-overlay">
+        <div class="icon">🎬</div>
+        <p>Drop <em>video + SRT</em> here together, or use <em>Load Files</em> above</p>
+        <p style="font-size:12px; margin-top:4px; color:#8b949e">Both files can be dropped at once</p>
+      </div>
+
+      <!-- Video element (hidden until loaded) -->
+      <video id="video" style="display:none" preload="metadata"></video>
+
+      <!-- HUD overlay -->
+      <div class="hud" id="hud">
+        <div class="hud-row">
+          <div class="hud-item">
+            <div class="hud-label">Altitude</div>
+            <div class="hud-value highlight" id="hud-alt">— m</div>
+          </div>
+          <div class="hud-item">
+            <div class="hud-label">Speed</div>
+            <div class="hud-value" id="hud-spd">— m/s</div>
+          </div>
+          <div class="hud-item">
+            <div class="hud-label">Dist (home)</div>
+            <div class="hud-value" id="hud-dist">— m</div>
+          </div>
+        </div>
+        <div class="hud-row">
+          <div class="hud-item" style="min-width:180px">
+            <div class="hud-label">Coordinates</div>
+            <div class="hud-value" id="hud-coords" style="font-size:11px">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="video-controls">
+      <div class="progress-bar-wrap" id="progress-bar">
+        <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+        <div class="progress-thumb" id="progress-thumb" style="left:0%"></div>
+      </div>
+      <div class="controls-row">
+        <button class="ctrl-btn" id="play-btn" title="Play/Pause">▶</button>
+        <button class="ctrl-btn" id="skip-back-btn" title="-10s">⏪</button>
+        <button class="ctrl-btn" id="skip-fwd-btn" title="+10s">⏩</button>
+        <button class="ctrl-btn" id="mute-btn" title="Mute">🔊</button>
+        <button class="ctrl-btn" id="tag-btn" title="Tag feature at current position (T)">🏷</button>
+        <button class="ctrl-btn" id="click-tag-btn" title="Click video pixels to tag features (C)" style="display:none">🎯</button>
+        <span id="fov-row" style="display:none; align-items:center; gap:3px; flex-wrap:wrap;">
+          <select id="drone-model-select" class="fov-input" style="width:auto; max-width:95px; font-size:10px; cursor:pointer" title="Preset HFOV for common DJI models (16:9 video mode). Computed from manufacturer DFOV specs.">
+            <option value="">Model…</option>
+            <optgroup label="Consumer">
+              <option value="75">Mini 2 / 2 SE</option>
+              <option value="74">Mini 3 / 3 Pro</option>
+              <option value="74">Mini 4 Pro</option>
+              <option value="74">Air 3 (24mm)</option>
+              <option value="80">Air 2S</option>
+              <option value="75">Mavic 3 / Classic</option>
+              <option value="74">Phantom 4 Pro</option>
+            </optgroup>
+            <optgroup label="Enterprise">
+              <option value="83">Mavic 3 Enterprise (Wide)</option>
+              <option value="84">Mavic 3M (RGB Wide)</option>
+              <option value="61">Mavic 3M (Multispectral)</option>
+              <option value="71">Matrice 30T (Wide) [DFOV 84°]</option>
+              <option value="49">Matrice 30T (Thermal) [DFOV 61°]</option>
+              <option value="82">Matrice 4T (Wide) [FOV 82°]</option>
+              <option value="36">Matrice 4T (Thermal) [DFOV 45°]</option>
+            </optgroup>
+          </select>
+          <span class="fov-label">HFoV</span>
+          <input type="number" class="fov-input" id="fov-input" value="73" min="20" max="160" step="0.5" title="Horizontal field of view in degrees. Use model preset or enter manually. Affects projection scale.">
+          <span class="fov-label">°&nbsp; Pitch</span>
+          <input type="number" class="fov-input" id="pitch-override-input" value="-90" min="-90" max="30" step="1" title="Gimbal pitch override (-90=nadir, 0=horizontal). Ignored when SRT contains live pitch data.">
+          <span class="fov-label">°</span>
+          <span id="pitch-live-indicator" class="fov-label" style="display:none; color:#3fb950; margin-left:2px"></span>
+          <span class="fov-label" style="margin-left:4px">Hdg±</span>
+          <input type="number" class="fov-input" id="heading-offset-input" value="0" min="-180" max="180" step="5" title="Heading offset (degrees). Rotates the projection. Use when SRT has no drone_yaw — GPS travel direction ≠ camera orientation. Adjust until footprint aligns with orthomosaic.">
+          <span class="fov-label">°</span>
+          <span id="heading-live-indicator" class="fov-label" style="display:none; color:#58a6ff; margin-left:2px"></span>
+          <button class="btn" id="mirror-h-btn" style="font-size:10px; padding:2px 6px; margin-left:4px" title="Flip horizontal axis — click if projected points appear on the wrong left/right side of the drone">↔ Flip</button>
+        </span>
+        <span class="time-display" id="time-display">0:00 / 0:00</span>
+        <select class="speed-select" id="speed-select">
+          <option value="0.5">0.5×</option>
+          <option value="1" selected>1×</option>
+          <option value="1.5">1.5×</option>
+          <option value="2">2×</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map Panel -->
+  <div class="map-panel">
+    <div class="map-toolbar">
+      <span class="map-title">Flight Map</span>
+      <span id="map-status">No track loaded</span>
+      <button class="btn" id="center-btn" style="margin-left:auto; font-size:11px; padding:3px 8px">⊕ Re-center</button>
+      <button class="btn" id="toggle-satellite" style="font-size:11px; padding:3px 8px">🛰 Satellite</button>
+      <button class="btn" id="toggle-ortho" style="font-size:11px; padding:3px 8px" title="Load orthomosaic overlay">🖼 Ortho</button>
+      <button class="btn" id="toggle-tags" style="font-size:11px; padding:3px 8px" title="Show tagged features">🏷 Tags<span id="tag-count-badge"></span></button>
+      <button class="btn" id="toggle-footprint" style="font-size:11px; padding:3px 8px" title="Show projected camera footprint on map (calibrate FOV + heading offset)">📐 Footprint</button>
+    </div>
+
+    <!-- Ortho panel (collapsed by default) -->
+    <div class="ortho-panel" id="ortho-panel">
+
+      <!-- Tabs -->
+      <div class="ortho-tabs">
+        <button class="ortho-tab active" id="ortho-tab-file">📁 File</button>
+        <button class="ortho-tab" id="ortho-tab-tms">🌐 TMS / XYZ</button>
+      </div>
+
+      <!-- File section -->
+      <div id="ortho-file-section">
+        <div class="ortho-row">
+          <label class="btn" style="cursor:pointer; font-size:11px; padding:3px 8px">
+            📁 Image
+            <input type="file" id="ortho-file-input" accept=".png,.jpg,.jpeg,.tif,.tiff" style="display:none">
+          </label>
+          <span id="ortho-filename" class="ortho-label" style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">No file selected</span>
+          <label class="btn" title="Load world file (.pgw/.jgw/.tfw) for automatic bounds" style="cursor:pointer; font-size:11px; padding:3px 8px">
+            📐 World file
+            <input type="file" id="ortho-world-input" accept=".pgw,.jgw,.tfw,.wld" style="display:none">
+          </label>
+        </div>
+        <div class="ortho-row">
+          <span class="ortho-label">Bounds:</span>
+          <span class="ortho-label">N</span><input class="ortho-input" id="ortho-n" type="number" step="0.00001" placeholder="lat">
+          <span class="ortho-label">S</span><input class="ortho-input" id="ortho-s" type="number" step="0.00001" placeholder="lat">
+          <span class="ortho-label">E</span><input class="ortho-input" id="ortho-e" type="number" step="0.00001" placeholder="lon">
+          <span class="ortho-label">W</span><input class="ortho-input" id="ortho-w" type="number" step="0.00001" placeholder="lon">
+          <button class="btn" id="ortho-from-flight" style="font-size:11px; padding:3px 8px" title="Fill from loaded flight path">📍 Flight</button>
+          <button class="btn" id="ortho-from-map" style="font-size:11px; padding:3px 8px" title="Fill from current map view">🗺 Map view</button>
+        </div>
+      </div>
+
+      <!-- TMS / XYZ section -->
+      <div id="ortho-tms-section" style="display:none">
+        <div class="ortho-row" style="gap:6px">
+          <span class="ortho-label" style="flex-shrink:0">URL</span>
+          <input class="ortho-tms-input" id="ortho-tms-url" type="text"
+            placeholder="https://tiles.example.com/{z}/{x}/{y}.png">
+          <button class="btn" id="ortho-tms-format" style="font-size:10px; padding:2px 8px; flex-shrink:0"
+            title="XYZ = standard (OpenStreetMap, Mapbox). TMS = inverted Y (older TileCache, WebODM sometimes). Toggle if tiles look flipped.">XYZ</button>
+        </div>
+        <div class="ortho-row" style="padding-top:0">
+          <span class="ortho-tms-hint">
+            WebODM: <code style="color:#8b949e">/api/projects/1/tasks/&lt;id&gt;/map/tiles/{z}/{x}/{y}.png?jwt=TOKEN</code>
+            &nbsp;·&nbsp; GeoServer WMS-C / WMTS &nbsp;·&nbsp; MapTiler &nbsp;·&nbsp; any XYZ tile server
+          </span>
+        </div>
+      </div>
+
+      <!-- Shared: opacity · load · remove · status -->
+      <div class="ortho-row">
+        <span class="ortho-label">Opacity</span>
+        <input type="range" id="ortho-opacity" min="0" max="100" value="75" style="width:90px">
+        <span id="ortho-opacity-val" class="ortho-label" style="width:28px">75%</span>
+        <button class="btn btn-primary" id="ortho-load-btn" style="font-size:11px; padding:3px 10px">Load</button>
+        <button class="btn" id="ortho-remove-btn" style="font-size:11px; padding:3px 8px; display:none; border-color:#f85149; color:#f85149">✕ Remove</button>
+        <span id="ortho-status" class="ortho-label" style="flex:1"></span>
+      </div>
+    </div>
+
+    <!-- Feature tags panel -->
+    <div class="tag-list-panel" id="tag-list-panel">
+      <div class="tag-list-header">
+        📍 Tagged Features
+        <button class="btn" id="export-tags-btn" style="font-size:10px; padding:2px 6px; margin-left:auto; display:none">⬇ CSV</button>
+      </div>
+      <div class="tag-list-scroll" id="tag-list-scroll"></div>
+    </div>
+
+    <div id="map"></div>
+  </div>
+</div>
+
+<!-- Chart panel -->
+<div class="chart-panel" id="chart-panel">
+  <div class="chart-header">
+    <span class="chart-legend"><span class="legend-dot" style="background:#58a6ff"></span>Altitude (m)</span>
+    <span class="chart-legend"><span class="legend-dot" style="background:#f0883e"></span>Speed (m/s)</span>
+    <span id="chart-hover-info" style="margin-left:auto; font-size:11px; color:#8b949e; font-family:monospace"></span>
+  </div>
+  <canvas id="telemetry-chart"></canvas>
+</div>
+
+<!-- Telemetry strip -->
+<div class="telemetry-strip" id="tel-strip">
+  <div class="tel-item">
+    <div class="tel-label">Latitude</div>
+    <div class="tel-value" id="tel-lat">—</div>
+  </div>
+  <div class="tel-item">
+    <div class="tel-label">Longitude</div>
+    <div class="tel-value" id="tel-lon">—</div>
+  </div>
+  <div class="tel-item">
+    <div class="tel-label">Altitude (rel)</div>
+    <div class="tel-value" id="tel-alt">—</div>
+  </div>
+  <div class="tel-item">
+    <div class="tel-label">Altitude (abs)</div>
+    <div class="tel-value" id="tel-altabs">—</div>
+  </div>
+  <div class="tel-item">
+    <div class="tel-label">H.Speed</div>
+    <div class="tel-value" id="tel-hspd">—</div>
+  </div>
+  <div class="tel-item">
+    <div class="tel-label">V.Speed</div>
+    <div class="tel-value" id="tel-vspd">—</div>
+  </div>
+  <div class="tel-item">
+    <div class="tel-label">Satellites</div>
+    <div class="tel-value" id="tel-sats">—</div>
+  </div>
+  <div class="tel-item">
+    <div class="tel-label">Heading</div>
+    <div class="tel-value" id="tel-hdg">—</div>
+  </div>
+</div>
+
+<!-- Feature tag modal -->
+<div class="tag-modal-bg" id="tag-modal-bg" style="display:none">
+  <div class="tag-modal">
+    <h3>Tag Feature</h3>
+    <div class="tag-modal-coords" id="tag-modal-coords">—</div>
+    <input type="text" id="tag-label-input" placeholder="e.g. Erosion, Structure, Tree" maxlength="60">
+    <div class="tag-modal-btns">
+      <button class="btn" id="tag-cancel-btn">Cancel</button>
+      <button class="btn btn-primary" id="tag-confirm-btn">📍 Tag</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DJI SRT PARSER
+// Handles multiple DJI firmware SRT formats
+// ═══════════════════════════════════════════════
+
+function parseDjiSrt(text) {
+  const frames = [];
+
+  // Split into subtitle blocks
+  const blocks = text.trim().split(/\n\s*\n/);
+
+  for (const block of blocks) {
+    const lines = block.trim().split('\n');
+    if (lines.length < 2) continue;
+
+    // Line 0: index (ignore)
+    // Line 1: timecode  00:00:00,000 --> 00:00:00,033
+    const tcLine = lines[1];
+    const tcMatch = tcLine.match(/(\d+):(\d+):(\d+)[,.](\d+)\s*-->/);
+    if (!tcMatch) continue;
+
+    const startSec = parseInt(tcMatch[1]) * 3600
+                   + parseInt(tcMatch[2]) * 60
+                   + parseInt(tcMatch[3])
+                   + parseInt(tcMatch[4]) / 1000;
+
+    // Remaining lines: metadata payload
+    const payload = lines.slice(2).join(' ');
+
+    const frame = { t: startSec };
+
+    // ── Format A: newer DJI firmware ──────────────────────────────────────
+    // [iso:100] [shutter:1/1000] [fnum:280] [ev:0] [ct:5500]
+    // [color_md:off] [focal_len:24] [dzoom_ratio:10000] [latitude: 42.3601]
+    // [longitude: -71.0589] [rel_alt: 12.300 abs_alt: 89.210]
+
+    let m;
+
+    m = payload.match(/\[latitude[:\s]+([-\d.]+)\]/i);
+    if (m) frame.lat = parseFloat(m[1]);
+
+    m = payload.match(/\[longitude[:\s]+([-\d.]+)\]/i);
+    if (m) frame.lon = parseFloat(m[1]);
+
+    m = payload.match(/\[rel_alt[:\s]+([-\d.]+)/i);
+    if (m) frame.altRel = parseFloat(m[1]);
+
+    m = payload.match(/abs_alt[:\s]+([-\d.]+)/i);
+    if (m) frame.altAbs = parseFloat(m[1]);
+
+    // Format D: some firmware uses just [altitude:] (e.g. Air 3, newer models)
+    if (frame.altRel === undefined) {
+      m = payload.match(/\[altitude[:\s]+([-\d.]+)\]/i);
+      if (m) { frame.altRel = parseFloat(m[1]); frame.altAbs = frame.altRel; }
+    }
+
+    // ── Format B: older DJI firmware ─────────────────────────────────────
+    // GPS(42.3601,-71.0589,89.2) BAROMETER:12.3
+    // or: GPS (-71.0589,42.3601,89)
+
+    if (frame.lat === undefined) {
+      m = payload.match(/GPS[:\s(]+([-\d.]+)[,\s]+([-\d.]+)[,\s]+([-\d.]+)/i);
+      if (m) {
+        // DJI GPS order varies: sometimes lon,lat,alt; sometimes lat,lon,alt
+        // Heuristic: absolute value of first coord > 90 means it's longitude
+        const a = parseFloat(m[1]), b = parseFloat(m[2]), c = parseFloat(m[3]);
+        if (Math.abs(a) > 90) { frame.lon = a; frame.lat = b; }
+        else { frame.lat = a; frame.lon = b; }
+        frame.altAbs = c;
+      }
+    }
+
+    m = payload.match(/BAROMETER[:\s]+([-\d.]+)/i);
+    if (m) frame.altRel = parseFloat(m[1]);
+
+    // ── Format C: Mini/Air series ─────────────────────────────────────────
+    // HOME(42.360,-71.058,H:89.2) ... GPS(42.361,-71.059,89.3) ...
+    // [H: 12.30m] [V: 0.00m/s] [H.Speed: 5.20m/s] [V.Speed: 0.10m/s]
+
+    if (frame.lat === undefined) {
+      m = payload.match(/\bGPS\s*\(\s*([-\d.]+)\s*,\s*([-\d.]+)\s*,\s*([-\d.]+)\s*\)/i);
+      if (m) {
+        frame.lat = parseFloat(m[1]);
+        frame.lon = parseFloat(m[2]);
+        frame.altAbs = parseFloat(m[3]);
+      }
+    }
+
+    m = payload.match(/\[H:\s*([-\d.]+)m\]/i);
+    if (m) frame.altRel = parseFloat(m[1]);
+
+    m = payload.match(/H\.Speed[:\s]*([\d.]+)/i);
+    if (m) frame.hSpeed = parseFloat(m[1]);
+
+    m = payload.match(/V\.Speed[:\s]*([-\d.]+)/i);
+    if (m) frame.vSpeed = parseFloat(m[1]);
+
+    m = payload.match(/\[Satellites:\s*(\d+)\]/i);
+    if (m) frame.sats = parseInt(m[1]);
+
+    // Also try generic speed fields
+    if (frame.hSpeed === undefined) {
+      m = payload.match(/\[speed[:\s]+([\d.]+)\]/i);
+      if (m) frame.hSpeed = parseFloat(m[1]);
+    }
+
+    // Heading / gimbal — try all known DJI field names
+    // drone_yaw       : absolute world-frame nose heading (most reliable)
+    // gimbal_yaw      : in newer firmware = absolute world-frame camera heading
+    //                   in older firmware = body-relative (add to drone_yaw)
+    // gb_yaw          : Mavic 3 Enterprise / newer firmware; always absolute world-frame
+    // compass_heading : alias for drone_yaw on some models
+    m = payload.match(/\[drone_yaw[:\s]+([-\d.]+)\]/i);
+    if (m) frame.droneYaw = parseFloat(m[1]);
+
+    m = payload.match(/\[compass_heading[:\s]+([-\d.]+)\]/i);
+    if (m) frame.compassHeading = parseFloat(m[1]);
+
+    m = payload.match(/\[gimbal_yaw[:\s]+([-\d.]+)\]/i);
+    if (!m) m = payload.match(/\bRC_GimbalYaw[:\s]+([-\d.]+)/i);
+    if (!m) m = payload.match(/\[gb_yaw[:\s]+([-\d.]+)\]/i);   // Mavic 3 Enterprise / newer DJI firmware
+    if (m) frame.gimbalYaw = parseFloat(m[1]);
+
+    // gimbal_pitch: -90 = straight down (nadir), 0 = horizontal, positive = above horizon
+    m = payload.match(/\[gimbal_pitch[:\s]+([-\d.]+)\]/i);
+    if (!m) m = payload.match(/\bRC_GimbalPitch[:\s]+([-\d.]+)/i);
+    if (m) {
+      frame.gimbalPitch = parseFloat(m[1]); // standard convention: -90=nadir, 0=horizontal
+    } else {
+      // Mavic 3 Enterprise / newer DJI firmware uses gb_pitch where 0=nadir (not 0=horizontal).
+      // Offset by -90 to convert to standard convention (-90=nadir).
+      m = payload.match(/\[gb_pitch[:\s]+([-\d.]+)\]/i);
+      if (m) frame.gimbalPitch = parseFloat(m[1]) - 90;
+    }
+
+    m = payload.match(/\[gimbal_roll[:\s]+([-\d.]+)\]/i);
+    if (!m) m = payload.match(/\bRC_GimbalRoll[:\s]+([-\d.]+)/i);
+    if (m) frame.gimbalRoll = parseFloat(m[1]);
+
+    // Home point (first occurrence)
+    m = payload.match(/HOME\s*\(\s*([-\d.]+)\s*,\s*([-\d.]+)/i);
+    if (m && frames.length === 0) {
+      frame.homeLat = parseFloat(m[1]);
+      frame.homeLon = parseFloat(m[2]);
+    }
+
+    if (frame.lat !== undefined && frame.lon !== undefined) {
+      frames.push(frame);
+    }
+  }
+
+  return frames;
+}
+
+
+// ═══════════════════════════════════════════════
+// HAVERSINE DISTANCE
+// ═══════════════════════════════════════════════
+
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371000;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2
+           + Math.cos(lat1 * Math.PI/180)
+           * Math.cos(lat2 * Math.PI/180)
+           * Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ═══════════════════════════════════════════════
+// BEARING (compass degrees, 0=N, 90=E)
+// ═══════════════════════════════════════════════
+
+function bearing(lat1, lon1, lat2, lon2) {
+  const toRad = d => d * Math.PI / 180;
+  const dLon = toRad(lon2 - lon1);
+  const y = Math.sin(dLon) * Math.cos(toRad(lat2));
+  const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2))
+           - Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLon);
+  return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+}
+
+function computeBearings(frames) {
+  // GPS travel bearings with lookahead window.
+  // Consecutive frames often move < 0.5 m (high-rate GPS, slow flight), so a single-frame
+  // check misses nearly all bearings. Instead, look up to LOOK frames ahead for the first
+  // point ≥ MIN_D metres away, then use that pair for a stable bearing.
+  const LOOK  = 90;   // ~3 s at 30 fps
+  const MIN_D = 0.5;  // metres
+
+  const gpsBrg = new Array(frames.length).fill(null);
+  for (let i = 0; i < frames.length; i++) {
+    for (let j = 1; j <= LOOK && i + j < frames.length; j++) {
+      const d = haversine(frames[i].lat, frames[i].lon,
+                          frames[i+j].lat, frames[i+j].lon);
+      if (d >= MIN_D) {
+        gpsBrg[i] = bearing(frames[i].lat, frames[i].lon,
+                            frames[i+j].lat, frames[i+j].lon);
+        break;
+      }
+    }
+  }
+
+  // Forward pass: propagate last known bearing into mid-flight / trailing null gaps
+  let lastGps = null;
+  for (let i = 0; i < frames.length; i++) {
+    if (gpsBrg[i] !== null) lastGps = gpsBrg[i];
+    else if (lastGps !== null) gpsBrg[i] = lastGps;
+  }
+
+  // Backward pass: fill leading nulls (stationary at launch) with first flight bearing
+  lastGps = null;
+  for (let i = frames.length - 1; i >= 0; i--) {
+    if (gpsBrg[i] !== null) lastGps = gpsBrg[i];
+    else if (lastGps !== null) gpsBrg[i] = lastGps;
+  }
+
+  for (let i = 0; i < frames.length; i++) {
+    const f = frames[i];
+
+    // ── FLIGHT HEADING (drone nose / direction of travel) ────────────────
+    // Priority: drone_yaw  >  compass_heading  >  GPS travel  >  null
+    if (f.droneYaw !== undefined) {
+      f.flightHeading = (f.droneYaw + 360) % 360;
+    } else if (f.compassHeading !== undefined) {
+      f.flightHeading = (f.compassHeading + 360) % 360;
+    } else if (gpsBrg[i] !== null) {
+      f.flightHeading = gpsBrg[i];
+    } else {
+      f.flightHeading = null; // truly unknown — show circle only
+    }
+
+    // ── CAMERA HEADING (where the lens is pointing) ──────────────────────
+    // Priority: droneYaw + gimbalYaw (body-relative offset)
+    //           gimbalYaw alone (treat as absolute world-frame)
+    //           null (no independent camera data)
+    if (f.droneYaw !== undefined && f.gimbalYaw !== undefined) {
+      // gimbal_yaw is body-relative on most DJI firmware: 0 = straight ahead
+      f.cameraHeading = ((f.droneYaw + 360) % 360 + f.gimbalYaw + 360) % 360;
+    } else if (f.gimbalYaw !== undefined) {
+      // gimbal_yaw alone — treat as absolute
+      f.cameraHeading = (f.gimbalYaw + 360) % 360;
+    } else {
+      f.cameraHeading = null;
+    }
+
+    // Legacy .heading for any remaining references
+    f.heading = f.cameraHeading ?? f.flightHeading ?? 0;
+  }
+}
+
+// ═══════════════════════════════════════════════
+// APP STATE
+// ═══════════════════════════════════════════════
+
+let telFrames = [];       // parsed SRT frames
+let homePoint = null;     // {lat, lon}
+
+// Map
+const map = L.map('map', { zoomControl: true });
+const osmLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors, © <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>',
+  subdomains: 'abcd',
+  maxZoom: 20
+});
+const satelliteLayer = L.tileLayer(
+  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  attribution: 'Tiles © Esri', maxNativeZoom: 19, maxZoom: 22
+});
+// Label overlay shown on top of satellite so road names remain visible
+const labelOverlay = L.tileLayer(
+  'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+  attribution: '', maxNativeZoom: 19, maxZoom: 22, opacity: 0.8
+});
+let currentTileLayer = osmLayer;
+osmLayer.addTo(map);
+map.setView([42.4075, -71.1190], 14);
+
+let flightPath = null;
+let droneMarker = null;
+let homeMarker = null;
+let satelliteActive = false;
+
+// Drone icon — three independently-controlled SVG groups:
+//   .drone-cone  : camera FOV (yellow pie-slice), shown only when cameraHeading known
+//   .drone-nose  : flight direction triangle (white), shown only when flightHeading known
+//   body / dot   : always visible; if neither heading is known, just the plain circle
+//
+// All rotation is applied at runtime via setAttribute('transform','rotate(H 24 24)')
+// Cone geometry: apex at circle front edge (24,15), ±40° spread, 32 px range, arc cap.
+function makeDroneIcon() {
+  return L.divIcon({
+    html: `<div style="width:48px;height:48px;">
+      <svg width="48" height="48" viewBox="0 0 48 48" style="overflow:visible;">
+        <!-- Camera FOV cone (hidden until cameraHeading known) -->
+        <g class="drone-cone" transform="rotate(0 24 24)" style="display:none">
+          <path d="M24,15 L3.4,-9.5 A32,32 0 0,1 44.6,-9.5 Z"
+                fill="rgba(255,220,50,0.22)" stroke="rgba(255,210,30,0.85)"
+                stroke-width="1.5" stroke-linejoin="round"/>
+        </g>
+        <!-- Glow ring (static) -->
+        <circle cx="24" cy="24" r="13"
+                fill="none" stroke="rgba(31,111,235,0.3)" stroke-width="4"/>
+        <!-- Drone body (static) -->
+        <circle cx="24" cy="24" r="9"
+                fill="#1f6feb" stroke="white" stroke-width="2.5"/>
+        <!-- Flight direction triangle (hidden until flightHeading known) -->
+        <g class="drone-nose" transform="rotate(0 24 24)" style="display:none">
+          <polygon points="24,9 19,16 29,16" fill="white"/>
+        </g>
+        <!-- Center dot (static) -->
+        <circle cx="24" cy="24" r="2" fill="rgba(255,255,255,0.5)"/>
+      </svg>
+    </div>`,
+    iconSize: [48, 48],
+    iconAnchor: [24, 24],
+    className: '',
+  });
+}
+
+const homeIcon = L.divIcon({
+  html: `<div style="
+    width:16px; height:16px; background:#3fb950;
+    border:2px solid #fff; border-radius:3px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:9px;
+  ">H</div>`,
+  iconSize: [16, 16],
+  iconAnchor: [8, 8],
+  className: '',
+});
+
+// ═══════════════════════════════════════════════
+// VIDEO ELEMENT
+// ═══════════════════════════════════════════════
+
+const video = document.getElementById('video');
+const dropOverlay = document.getElementById('drop-overlay');
+const hud = document.getElementById('hud');
+
+// ─── Shared file router ────────────────────────
+function routeFiles(files) {
+  const videoFile = [...files].find(f => f.type.startsWith('video/'));
+  const srtFile   = [...files].find(f => /\.(srt|txt)$/i.test(f.name));
+  if (videoFile) {
+    video.src = URL.createObjectURL(videoFile);
+    video.style.display = 'block';
+    dropOverlay.style.display = 'none';
+    hud.classList.add('visible');
+  }
+  if (srtFile) {
+    const reader = new FileReader();
+    reader.onload = ev => loadTelemetry(ev.target.result);
+    reader.readAsText(srtFile);
+  }
+}
+
+// ─── Combined file input (video + SRT together) ─
+document.getElementById('combined-input').addEventListener('change', e => {
+  routeFiles(e.target.files);
+});
+
+// ─── Video-only input ──────────────────────────
+document.getElementById('video-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  video.src = URL.createObjectURL(file);
+  video.style.display = 'block';
+  dropOverlay.style.display = 'none';
+  hud.classList.add('visible');
+});
+
+// ─── Drag & drop video ────────────────────────
+const wrapper = document.getElementById('video-wrapper');
+wrapper.addEventListener('dragover', e => {
+  e.preventDefault();
+  dropOverlay.classList.add('drag-over');
+});
+wrapper.addEventListener('dragleave', () => dropOverlay.classList.remove('drag-over'));
+wrapper.addEventListener('drop', e => {
+  e.preventDefault();
+  dropOverlay.classList.remove('drag-over');
+  routeFiles(e.dataTransfer.files);
+});
+
+// ─── SRT-only input ────────────────────────────
+document.getElementById('srt-input').addEventListener('change', e => {
+  routeFiles(e.target.files);
+});
+
+
+
+// ═══════════════════════════════════════════════
+// TELEMETRY LOAD
+// ═══════════════════════════════════════════════
+
+function loadTelemetry(srtText) {
+  const frames = parseDjiSrt(srtText);
+  if (frames.length === 0) {
+    document.getElementById('srt-badge').textContent = 'SRT parse failed';
+    document.getElementById('srt-badge').style.color = '#f85149';
+    return;
+  }
+  telFrames = frames;
+  computeBearings(telFrames);
+  initMap();
+  updateBadge(`${frames.length} GPS frames`);
+  document.getElementById('map-status').textContent = `${frames.length} frames loaded`;
+  document.getElementById('tel-strip').classList.add('visible');
+  showChartControls();
+}
+
+function updateBadge(text) {
+  const b = document.getElementById('srt-badge');
+  b.textContent = text;
+  b.style.color = '#3fb950';
+  b.style.borderColor = '#3fb950';
+}
+
+// ═══════════════════════════════════════════════
+// MAP INIT — flight path + home marker
+// ═══════════════════════════════════════════════
+
+function initMap() {
+  if (!telFrames.length) return;
+
+  // Remove old layers
+  if (flightPath) map.removeLayer(flightPath);
+  if (droneMarker) map.removeLayer(droneMarker);
+  if (homeMarker) map.removeLayer(homeMarker);
+
+  const latlngs = telFrames.map(f => [f.lat, f.lon]);
+
+  // Color-coded altitude gradient path (split into segments)
+  const maxAlt = Math.max(...telFrames.map(f => f.altRel || 0));
+  const pathGroup = L.layerGroup().addTo(map);
+
+  for (let i = 0; i < latlngs.length - 1; i++) {
+    const alt = telFrames[i].altRel || 0;
+    const pct = maxAlt > 0 ? alt / maxAlt : 0;
+    // Blue (low) → cyan → green → yellow → red (high)
+    const hue = (1 - pct) * 240;
+    const color = `hsl(${hue},80%,55%)`;
+    L.polyline([latlngs[i], latlngs[i+1]], {
+      color, weight: 2.5, opacity: 0.85
+    }).addTo(pathGroup);
+  }
+  flightPath = pathGroup;
+
+  // Find home
+  const first = telFrames[0];
+  if (first.homeLat !== undefined) {
+    homePoint = { lat: first.homeLat, lon: first.homeLon };
+  } else {
+    homePoint = { lat: first.lat, lon: first.lon };
+  }
+  homeMarker = L.marker([homePoint.lat, homePoint.lon], { icon: homeIcon })
+    .bindPopup('Home point')
+    .addTo(map);
+
+  // Drone marker at start
+  droneMarker = L.marker([first.lat, first.lon], { icon: makeDroneIcon() })
+    .bindPopup('Drone position')
+    .addTo(map);
+
+  // Fit bounds
+  const bounds = L.latLngBounds(latlngs);
+  map.fitBounds(bounds, { padding: [40, 40] });
+}
+
+// ═══════════════════════════════════════════════
+// TIME → FRAME LOOKUP (binary search)
+// ═══════════════════════════════════════════════
+
+function getFrameAt(t) {
+  if (!telFrames.length) return null;
+  let lo = 0, hi = telFrames.length - 1;
+  while (lo < hi) {
+    const mid = (lo + hi + 1) >> 1;
+    if (telFrames[mid].t <= t) lo = mid;
+    else hi = mid - 1;
+  }
+  return telFrames[lo];
+}
+
+// ═══════════════════════════════════════════════
+// SYNC LOOP — runs on video timeupdate
+// ═══════════════════════════════════════════════
+
+function syncTelemetry(t) {
+  const f = getFrameAt(t);
+  if (!f) return;
+
+  // ── Move drone marker + update icon groups ──────
+  if (droneMarker) {
+    droneMarker.setLatLng([f.lat, f.lon]);
+
+    const el = droneMarker.getElement();
+    const svg = el && el.querySelector('svg');
+    if (svg) {
+      const noseG = svg.querySelector('.drone-nose');
+      const coneG = svg.querySelector('.drone-cone');
+
+      // Flight direction triangle
+      if (noseG) {
+        if (f.flightHeading !== null && f.flightHeading !== undefined) {
+          noseG.setAttribute('transform', `rotate(${f.flightHeading.toFixed(1)} 24 24)`);
+          noseG.style.display = '';
+        } else {
+          noseG.style.display = 'none';
+        }
+      }
+
+      // Camera FOV cone — only when we have independent camera data
+      if (coneG) {
+        if (f.cameraHeading !== null && f.cameraHeading !== undefined) {
+          coneG.setAttribute('transform', `rotate(${f.cameraHeading.toFixed(1)} 24 24)`);
+          coneG.style.display = '';
+        } else {
+          coneG.style.display = 'none';
+        }
+      }
+    }
+  }
+
+  // ── HUD ─────────────────────────────────────────
+  document.getElementById('hud-alt').textContent =
+    f.altRel !== undefined ? `${f.altRel.toFixed(1)} m`
+    : f.altAbs !== undefined ? `${f.altAbs.toFixed(1)} m` : '—';
+  document.getElementById('hud-spd').textContent =
+    f.hSpeed !== undefined ? `${f.hSpeed.toFixed(1)} m/s` : '—';
+
+  const dist = homePoint
+    ? haversine(f.lat, f.lon, homePoint.lat, homePoint.lon).toFixed(0) + ' m'
+    : '—';
+  document.getElementById('hud-dist').textContent = dist;
+  document.getElementById('hud-coords').textContent =
+    `${f.lat.toFixed(6)}, ${f.lon.toFixed(6)}`;
+
+  // ── Telemetry strip ──────────────────────────────
+  document.getElementById('tel-lat').textContent = f.lat.toFixed(6);
+  document.getElementById('tel-lon').textContent = f.lon.toFixed(6);
+  document.getElementById('tel-alt').textContent =
+    f.altRel !== undefined ? `${f.altRel.toFixed(1)} m` : '—';
+  document.getElementById('tel-altabs').textContent =
+    f.altAbs !== undefined ? `${f.altAbs.toFixed(1)} m` : '—';
+  document.getElementById('tel-hspd').textContent =
+    f.hSpeed !== undefined ? `${f.hSpeed.toFixed(2)} m/s` : '—';
+  document.getElementById('tel-vspd').textContent =
+    f.vSpeed !== undefined ? `${f.vSpeed.toFixed(2)} m/s` : '—';
+  document.getElementById('tel-sats').textContent =
+    f.sats !== undefined ? f.sats : '—';
+  const fltStr = f.flightHeading !== null && f.flightHeading !== undefined
+    ? `${f.flightHeading.toFixed(0)}°` : '—';
+  const camStr = f.cameraHeading !== null && f.cameraHeading !== undefined
+    ? `${f.cameraHeading.toFixed(0)}°` : '—';
+  document.getElementById('tel-hdg').textContent =
+    camStr !== '—' ? `flt:${fltStr} cam:${camStr}` : `flt:${fltStr}`;
+
+  // ── Chart ────────────────────────────────────────
+  currentChartTime = t;
+  if (chartVisible) drawChart(t);
+
+  // ── Live pitch + heading indicators (click-tag mode) ────────
+  if (clickTagMode) {
+    const pitchInd  = document.getElementById('pitch-live-indicator');
+    const hdgInd    = document.getElementById('heading-live-indicator');
+    const pitchInput = document.getElementById('pitch-override-input');
+    const headingOffset = parseFloat(document.getElementById('heading-offset-input')?.value) || 0;
+
+    if (f.gimbalPitch !== undefined) {
+      pitchInd.textContent = `⚡ live: ${f.gimbalPitch.toFixed(0)}°`;
+      pitchInd.style.display = '';
+      pitchInput.style.opacity = '0.35';
+      pitchInput.title = 'Live pitch from SRT is being used — this override is inactive';
+    } else {
+      pitchInd.style.display = 'none';
+      pitchInput.style.opacity = '';
+      pitchInput.title = 'Gimbal pitch override (-90=nadir, 0=horizontal). Ignored when SRT contains live pitch data.';
+    }
+
+    // Show effective camera heading so user can verify it rotates with drone
+    const effHdg = (f.droneYaw !== undefined
+      ? f.flightHeading
+      : (f.cameraHeading ?? f.flightHeading)
+    );
+    if (effHdg !== null && effHdg !== undefined) {
+      const total = ((effHdg + headingOffset) % 360 + 360) % 360;
+      const src = f.droneYaw !== undefined ? 'yaw' : (f.cameraHeading !== null ? 'gb_yaw' : 'GPS');
+      hdgInd.textContent = `📐 ${total.toFixed(0)}° (${src})`;
+      hdgInd.style.display = '';
+    } else {
+      hdgInd.style.display = 'none';
+    }
+  }
+
+  // ── Camera footprint overlay (independent of click-tag mode) ────────
+  updateFootprint(f);
+}
+
+// ═══════════════════════════════════════════════
+// VIDEO CONTROLS
+// ═══════════════════════════════════════════════
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}:${sec.toString().padStart(2,'0')}`;
+}
+
+const playBtn = document.getElementById('play-btn');
+const muteBtn = document.getElementById('mute-btn');
+const progressBar = document.getElementById('progress-bar');
+const progressFill = document.getElementById('progress-fill');
+const progressThumb = document.getElementById('progress-thumb');
+const timeDisplay = document.getElementById('time-display');
+
+video.addEventListener('timeupdate', () => {
+  const t = video.currentTime;
+  const dur = video.duration || 0;
+  const pct = dur > 0 ? (t / dur) * 100 : 0;
+  progressFill.style.width = `${pct}%`;
+  progressThumb.style.left = `${pct}%`;
+  timeDisplay.textContent = `${formatTime(t)} / ${formatTime(dur)}`;
+  syncTelemetry(t);
+});
+
+playBtn.addEventListener('click', () => {
+  if (video.paused) { video.play(); playBtn.textContent = '⏸'; }
+  else { video.pause(); playBtn.textContent = '▶'; }
+});
+
+document.getElementById('skip-back-btn').addEventListener('click', () => {
+  video.currentTime = Math.max(0, video.currentTime - 10);
+});
+document.getElementById('skip-fwd-btn').addEventListener('click', () => {
+  video.currentTime = Math.min(video.duration, video.currentTime + 10);
+});
+
+muteBtn.addEventListener('click', () => {
+  video.muted = !video.muted;
+  muteBtn.textContent = video.muted ? '🔇' : '🔊';
+});
+
+document.getElementById('speed-select').addEventListener('change', e => {
+  video.playbackRate = parseFloat(e.target.value);
+});
+
+// Progress bar scrub
+let scrubbing = false;
+function scrubTo(e) {
+  const rect = progressBar.getBoundingClientRect();
+  const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+
+  if (video.duration) video.currentTime = pct * video.duration;
+}
+progressBar.addEventListener('mousedown', e => { scrubbing = true; scrubTo(e); });
+document.addEventListener('mousemove', e => { if (scrubbing) scrubTo(e); });
+document.addEventListener('mouseup', () => { scrubbing = false; });
+
+video.addEventListener('ended', () => { playBtn.textContent = '▶'; });
+
+// ═══════════════════════════════════════════════
+// MAP CONTROLS
+// ═══════════════════════════════════════════════
+
+document.getElementById('center-btn').addEventListener('click', () => {
+  if (droneMarker) map.panTo(droneMarker.getLatLng());
+  else map.setView([42.4075, -71.1190], 14);
+});
+
+document.getElementById('toggle-satellite').addEventListener('click', () => {
+  if (satelliteActive) {
+    map.removeLayer(satelliteLayer);
+    map.removeLayer(labelOverlay);
+    currentTileLayer = osmLayer;
+    osmLayer.addTo(map);
+    document.getElementById('toggle-satellite').textContent = '🛰 Satellite';
+  } else {
+    map.removeLayer(osmLayer);
+    currentTileLayer = satelliteLayer;
+    satelliteLayer.addTo(map);
+    labelOverlay.addTo(map);
+    document.getElementById('toggle-satellite').textContent = '🗺 Street';
+  }
+  satelliteActive = !satelliteActive;
+});
+
+// ═══════════════════════════════════════════════
+// TELEMETRY CHART
+// ═══════════════════════════════════════════════
+
+const chartCanvas = document.getElementById('telemetry-chart');
+const chartCtx = chartCanvas.getContext('2d');
+let chartVisible = false;
+let currentChartTime = 0;
+
+function drawChart(currentT) {
+  if (!chartVisible || !telFrames.length) return;
+
+  const W = chartCanvas.offsetWidth;
+  const H = chartCanvas.offsetHeight;
+  chartCanvas.width = W;
+  chartCanvas.height = H;
+
+  const PAD_L = 42, PAD_R = 42, PAD_T = 8, PAD_B = 18;
+  const plotW = W - PAD_L - PAD_R;
+  const plotH = H - PAD_T - PAD_B;
+
+  const maxT = telFrames[telFrames.length - 1].t;
+  const minT = telFrames[0].t;
+
+  // Compute value ranges
+  const alts  = telFrames.map(f => f.altRel ?? f.altAbs ?? 0);
+  const speeds = telFrames.map(f => f.hSpeed ?? 0);
+  const maxAlt   = Math.max(...alts,   1);
+  const maxSpeed = Math.max(...speeds, 1);
+
+  const tx = t  => PAD_L + ((t - minT) / (maxT - minT)) * plotW;
+  const yAlt = v  => PAD_T + plotH - (v / maxAlt)   * plotH;
+  const ySpd = v  => PAD_T + plotH - (v / maxSpeed) * plotH;
+
+  // Background
+  chartCtx.fillStyle = '#0d1117';
+  chartCtx.fillRect(0, 0, W, H);
+
+  // Grid lines (horizontal)
+  chartCtx.strokeStyle = '#21262d';
+  chartCtx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = PAD_T + (plotH / 4) * i;
+    chartCtx.beginPath(); chartCtx.moveTo(PAD_L, y); chartCtx.lineTo(W - PAD_R, y); chartCtx.stroke();
+  }
+
+  // Y axis labels — altitude (left)
+  chartCtx.fillStyle = '#58a6ff';
+  chartCtx.font = '9px monospace';
+  chartCtx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const v = maxAlt * (1 - i / 4);
+    const y = PAD_T + (plotH / 4) * i;
+    chartCtx.fillText(v.toFixed(0) + 'm', PAD_L - 4, y + 3);
+  }
+
+  // Y axis labels — speed (right)
+  chartCtx.fillStyle = '#f0883e';
+  chartCtx.textAlign = 'left';
+  for (let i = 0; i <= 4; i++) {
+    const v = maxSpeed * (1 - i / 4);
+    const y = PAD_T + (plotH / 4) * i;
+    chartCtx.fillText(v.toFixed(1), W - PAD_R + 4, y + 3);
+  }
+
+  // X axis time labels
+  chartCtx.fillStyle = '#8b949e';
+  chartCtx.textAlign = 'center';
+  const tickCount = Math.min(8, Math.floor(plotW / 60));
+  for (let i = 0; i <= tickCount; i++) {
+    const t = minT + (maxT - minT) * (i / tickCount);
+    chartCtx.fillText(formatTime(t), tx(t), H - 4);
+  }
+
+  // Filled area under altitude
+  chartCtx.beginPath();
+  chartCtx.moveTo(tx(telFrames[0].t), PAD_T + plotH);
+  for (const f of telFrames) {
+    chartCtx.lineTo(tx(f.t), yAlt(f.altRel ?? f.altAbs ?? 0));
+  }
+  chartCtx.lineTo(tx(telFrames[telFrames.length-1].t), PAD_T + plotH);
+  chartCtx.closePath();
+  chartCtx.fillStyle = 'rgba(88,166,255,0.12)';
+  chartCtx.fill();
+
+  // Altitude line
+  chartCtx.beginPath();
+  chartCtx.strokeStyle = '#58a6ff';
+  chartCtx.lineWidth = 1.5;
+  telFrames.forEach((f, i) => {
+    const x = tx(f.t), y = yAlt(f.altRel ?? f.altAbs ?? 0);
+    i === 0 ? chartCtx.moveTo(x, y) : chartCtx.lineTo(x, y);
+  });
+  chartCtx.stroke();
+
+  // Speed line
+  chartCtx.beginPath();
+  chartCtx.strokeStyle = '#f0883e';
+  chartCtx.lineWidth = 1.5;
+  telFrames.forEach((f, i) => {
+    const x = tx(f.t), y = ySpd(f.hSpeed ?? 0);
+    i === 0 ? chartCtx.moveTo(x, y) : chartCtx.lineTo(x, y);
+  });
+  chartCtx.stroke();
+
+  // Playhead
+  const px = tx(Math.max(minT, Math.min(maxT, currentT)));
+  chartCtx.strokeStyle = 'rgba(255,255,255,0.6)';
+  chartCtx.lineWidth = 1;
+  chartCtx.setLineDash([3, 3]);
+  chartCtx.beginPath(); chartCtx.moveTo(px, PAD_T); chartCtx.lineTo(px, PAD_T + plotH); chartCtx.stroke();
+  chartCtx.setLineDash([]);
+
+  // Dots at current frame
+  const f = getFrameAt(currentT);
+  if (f) {
+    // Alt dot
+    chartCtx.beginPath();
+    chartCtx.arc(px, yAlt(f.altRel ?? f.altAbs ?? 0), 4, 0, Math.PI * 2);
+    chartCtx.fillStyle = '#58a6ff'; chartCtx.fill();
+    // Speed dot
+    chartCtx.beginPath();
+    chartCtx.arc(px, ySpd(f.hSpeed ?? 0), 4, 0, Math.PI * 2);
+    chartCtx.fillStyle = '#f0883e'; chartCtx.fill();
+  }
+}
+
+// Chart hover info
+chartCanvas.addEventListener('mousemove', e => {
+  if (!telFrames.length) return;
+  const rect = chartCanvas.getBoundingClientRect();
+  const PAD_L = 42, PAD_R = 42;
+  const plotW = chartCanvas.offsetWidth - PAD_L - PAD_R;
+  const x = e.clientX - rect.left - PAD_L;
+  const pct = Math.max(0, Math.min(1, x / plotW));
+  const maxT = telFrames[telFrames.length - 1].t;
+  const hT = pct * maxT;
+  const hf = getFrameAt(hT);
+  if (hf) {
+    document.getElementById('chart-hover-info').textContent =
+      `t=${formatTime(hT)}  alt=${(hf.altRel ?? hf.altAbs ?? 0).toFixed(1)}m  spd=${(hf.hSpeed ?? 0).toFixed(2)}m/s`;
+  }
+  // Redraw with hover line
+  drawChart(currentChartTime);
+  const W = chartCanvas.offsetWidth, H = chartCanvas.offsetHeight;
+  const PAD_T = 8, PAD_B = 18;
+  const plotH = H - PAD_T - PAD_B;
+  const hx = PAD_L + pct * plotW;
+  chartCtx.strokeStyle = 'rgba(255,255,255,0.2)';
+  chartCtx.lineWidth = 1;
+  chartCtx.beginPath(); chartCtx.moveTo(hx, PAD_T); chartCtx.lineTo(hx, PAD_T + plotH); chartCtx.stroke();
+});
+
+// Click chart to scrub
+chartCanvas.addEventListener('click', e => {
+  if (!telFrames.length) return;
+  const rect = chartCanvas.getBoundingClientRect();
+  const PAD_L = 42, PAD_R = 42;
+  const plotW = chartCanvas.offsetWidth - PAD_L - PAD_R;
+  const x = e.clientX - rect.left - PAD_L;
+  const pct = Math.max(0, Math.min(1, x / plotW));
+  const maxT = telFrames[telFrames.length - 1].t;
+  const t = pct * maxT;
+  if (video.duration) { video.currentTime = (t / maxT) * video.duration; }
+});
+
+// Chart toggle button
+document.getElementById('chart-toggle-btn').addEventListener('click', () => {
+  chartVisible = !chartVisible;
+  document.getElementById('chart-panel').classList.toggle('visible', chartVisible);
+  document.getElementById('chart-toggle-btn').style.borderColor = chartVisible ? '#58a6ff' : '';
+  document.getElementById('chart-toggle-btn').style.color = chartVisible ? '#58a6ff' : '';
+  if (chartVisible) setTimeout(() => drawChart(currentChartTime), 50);
+});
+
+// Show chart button when telemetry loaded
+function showChartControls() {
+  document.getElementById('chart-toggle-btn').style.display = '';
+  document.getElementById('export-csv-btn').style.display = '';
+  document.getElementById('click-tag-btn').style.display = '';
+}
+
+// ═══════════════════════════════════════════════
+// CSV EXPORT
+// ═══════════════════════════════════════════════
+
+document.getElementById('export-csv-btn').addEventListener('click', () => {
+  if (!telFrames.length) return;
+  const header = 'time_s,latitude,longitude,alt_rel_m,alt_abs_m,h_speed_ms,v_speed_ms,satellites';
+  const rows = telFrames.map(f => [
+    f.t.toFixed(3),
+    f.lat ?? '',
+    f.lon ?? '',
+    f.altRel !== undefined ? f.altRel.toFixed(2) : '',
+    f.altAbs !== undefined ? f.altAbs.toFixed(2) : '',
+    f.hSpeed !== undefined ? f.hSpeed.toFixed(2) : '',
+    f.vSpeed !== undefined ? f.vSpeed.toFixed(2) : '',
+    f.sats ?? ''
+  ].join(','));
+  const csv = [header, ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'drone_telemetry.csv';
+  a.click();
+});
+
+// ═══════════════════════════════════════════════
+// ORTHOMOSAIC OVERLAY
+// ═══════════════════════════════════════════════
+
+let orthoLayer = null;
+let orthoImageFile = null;
+
+document.getElementById('toggle-ortho').addEventListener('click', () => {
+  const panel = document.getElementById('ortho-panel');
+  const visible = panel.classList.toggle('visible');
+  document.getElementById('toggle-ortho').style.borderColor = visible ? '#58a6ff' : '';
+  document.getElementById('toggle-ortho').style.color = visible ? '#58a6ff' : '';
+});
+
+document.getElementById('ortho-opacity').addEventListener('input', e => {
+  const val = parseInt(e.target.value);
+  document.getElementById('ortho-opacity-val').textContent = `${val}%`;
+  if (orthoLayer) orthoLayer.setOpacity(val / 100);
+});
+
+let orthoRenderedUrl = null; // canvas-rendered JPEG blob URL for GeoTIFF
+
+// ── Image file input ──────────────────────────────────
+document.getElementById('ortho-file-input').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  orthoImageFile = file;
+  orthoRenderedUrl = null;
+  document.getElementById('ortho-filename').textContent = file.name;
+  setOrthoStatus('');
+
+  if (/\.tiff?$/i.test(file.name)) {
+    // GeoTIFF: extract bounds AND render pixels to canvas (browsers can't display raw TIFF)
+    setOrthoStatus('Loading GeoTIFF library…');
+    try { await processGeoTiff(file); }
+    catch(err) { setOrthoStatus('GeoTIFF error: ' + err.message + ' — try exporting as PNG/JPG + world file'); }
+  }
+});
+
+// ── World file input (.pgw / .jgw / .tfw) ────────────
+document.getElementById('ortho-world-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!orthoImageFile) { setOrthoStatus('⚠ Load image first, then world file'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const lines = ev.target.result.trim().split(/\r?\n/).map(l => parseFloat(l.trim()));
+    if (lines.length < 6 || lines.some(isNaN)) { setOrthoStatus('Could not parse world file'); return; }
+    const [pixW, , , pixH, ulX, ulY] = lines; // rotation terms (lines 2&3) ignored
+    const img = new Image();
+    img.onload = () => {
+      const w = img.naturalWidth, h = img.naturalHeight;
+      const north = ulY - pixH * 0.5;
+      const west  = ulX - pixW * 0.5;
+      const south = north + pixH * h;
+      const east  = west  + pixW * w;
+      document.getElementById('ortho-n').value = north.toFixed(6);
+      document.getElementById('ortho-s').value = south.toFixed(6);
+      document.getElementById('ortho-e').value = east.toFixed(6);
+      document.getElementById('ortho-w').value = west.toFixed(6);
+      setOrthoStatus('✓ Bounds from world file — click Load to display', '#3fb950');
+      URL.revokeObjectURL(img.src);
+    };
+    img.onerror = () => setOrthoStatus('Could not read image dimensions');
+    img.src = URL.createObjectURL(orthoImageFile);
+  };
+  reader.readAsText(file);
+});
+
+// ── GeoTIFF: bounds + pixel rendering ────────────────
+// Lazy-loads geotiff.js, extracts WGS84 bbox, renders raster to canvas,
+// stores a JPEG blob URL so Leaflet imageOverlay can display it.
+async function processGeoTiff(file) {
+  if (!window.GeoTIFF) {
+    setOrthoStatus('Downloading geotiff.js…');
+    await new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/geotiff@2.1.3/dist-browser/geotiff.js';
+      s.onload = resolve; s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  setOrthoStatus('Reading GeoTIFF metadata…');
+  // fromBlob uses byte-range reads — much more efficient than loading the whole file
+  const tiff = await GeoTIFF.fromBlob(file);
+  const img  = await tiff.getImage();
+  const bbox = img.getBoundingBox(); // [xmin, ymin, xmax, ymax]
+
+  if (Math.abs(bbox[0]) > 180 || Math.abs(bbox[1]) > 90 ||
+      Math.abs(bbox[2]) > 180 || Math.abs(bbox[3]) > 90) {
+    throw new Error('Projected CRS (UTM/etc) — reproject to WGS84 in QGIS first');
+  }
+
+  // Fill bounds fields
+  document.getElementById('ortho-w').value = bbox[0].toFixed(6);
+  document.getElementById('ortho-s').value = bbox[1].toFixed(6);
+  document.getElementById('ortho-e').value = bbox[2].toFixed(6);
+  document.getElementById('ortho-n').value = bbox[3].toFixed(6);
+
+  // Render raster — cap at 4096px on longest side to stay within canvas limits
+  const srcW = img.getWidth(), srcH = img.getHeight();
+  const scale = Math.min(1, 4096 / Math.max(srcW, srcH));
+  const tgtW  = Math.max(1, Math.round(srcW * scale));
+  const tgtH  = Math.max(1, Math.round(srcH * scale));
+
+  setOrthoStatus(`Rendering ${srcW}×${srcH}px → ${tgtW}×${tgtH}px (this may take a moment)…`);
+
+  // readRGB returns a flat Uint8Array of [R,G,B, R,G,B, …]
+  const rgb = await img.readRGB({ width: tgtW, height: tgtH });
+
+  // Convert to RGBA for ImageData
+  const rgba = new Uint8ClampedArray(tgtW * tgtH * 4);
+  for (let i = 0; i < tgtW * tgtH; i++) {
+    rgba[i*4]   = rgb[i*3];
+    rgba[i*4+1] = rgb[i*3+1];
+    rgba[i*4+2] = rgb[i*3+2];
+    rgba[i*4+3] = 255;
+  }
+
+  const canvas = document.createElement('canvas');
+  canvas.width = tgtW; canvas.height = tgtH;
+  canvas.getContext('2d').putImageData(new ImageData(rgba, tgtW, tgtH), 0, 0);
+
+  orthoRenderedUrl = await new Promise(res =>
+    canvas.toBlob(b => res(URL.createObjectURL(b)), 'image/jpeg', 0.88)
+  );
+
+  setOrthoStatus('✓ GeoTIFF ready — click Load to display on map', '#3fb950');
+}
+
+// ── Pre-fill helpers ──────────────────────────────────
+document.getElementById('ortho-from-flight').addEventListener('click', () => {
+  if (!telFrames.length) { setOrthoStatus('⚠ No flight path loaded'); return; }
+  const lats = telFrames.map(f => f.lat), lons = telFrames.map(f => f.lon);
+  const pad = 0.0015;
+  document.getElementById('ortho-n').value = (Math.max(...lats) + pad).toFixed(6);
+  document.getElementById('ortho-s').value = (Math.min(...lats) - pad).toFixed(6);
+  document.getElementById('ortho-e').value = (Math.max(...lons) + pad).toFixed(6);
+  document.getElementById('ortho-w').value = (Math.min(...lons) - pad).toFixed(6);
+  setOrthoStatus('Bounds from flight path — adjust if ortho extends further');
+});
+
+document.getElementById('ortho-from-map').addEventListener('click', () => {
+  const b = map.getBounds();
+  document.getElementById('ortho-n').value = b.getNorth().toFixed(6);
+  document.getElementById('ortho-s').value = b.getSouth().toFixed(6);
+  document.getElementById('ortho-e').value = b.getEast().toFixed(6);
+  document.getElementById('ortho-w').value = b.getWest().toFixed(6);
+  setOrthoStatus('Bounds from current map view');
+});
+
+// ── Ortho tab switching ───────────────────────────────
+let orthoMode = 'file'; // 'file' | 'tms'
+
+document.getElementById('ortho-tab-file').addEventListener('click', () => {
+  orthoMode = 'file';
+  document.getElementById('ortho-tab-file').classList.add('active');
+  document.getElementById('ortho-tab-tms').classList.remove('active');
+  document.getElementById('ortho-file-section').style.display = '';
+  document.getElementById('ortho-tms-section').style.display = 'none';
+});
+
+document.getElementById('ortho-tab-tms').addEventListener('click', () => {
+  orthoMode = 'tms';
+  document.getElementById('ortho-tab-tms').classList.add('active');
+  document.getElementById('ortho-tab-file').classList.remove('active');
+  document.getElementById('ortho-file-section').style.display = 'none';
+  document.getElementById('ortho-tms-section').style.display = '';
+});
+
+// ── TMS format toggle (XYZ ↔ TMS) ────────────────────
+// XYZ = standard slippy-map Y ordering (OSM, Mapbox, WebODM default)
+// TMS = inverted Y (old TileCache servers; toggle if tiles look flipped)
+document.getElementById('ortho-tms-format').addEventListener('click', e => {
+  const btn = e.currentTarget;
+  const next = btn.textContent === 'XYZ' ? 'TMS' : 'XYZ';
+  btn.textContent = next;
+  btn.style.borderColor = next === 'TMS' ? '#f0883e' : '';
+  btn.style.color        = next === 'TMS' ? '#f0883e' : '';
+});
+
+// ── Load ──────────────────────────────────────────────
+document.getElementById('ortho-load-btn').addEventListener('click', () => {
+  const opacity = parseInt(document.getElementById('ortho-opacity').value) / 100;
+  if (orthoLayer) { map.removeLayer(orthoLayer); orthoLayer = null; }
+
+  if (orthoMode === 'tms') {
+    // ── TMS / XYZ tile layer ──────────────────────────
+    const url = document.getElementById('ortho-tms-url').value.trim();
+    if (!url) { setOrthoStatus('⚠ Enter a TMS/XYZ URL'); return; }
+    // Validate it looks like a tile URL template
+    if (!url.includes('{z}') || !url.includes('{x}') || !url.includes('{y}')) {
+      setOrthoStatus('⚠ URL must contain {z}, {x}, {y} placeholders'); return;
+    }
+    const isTms = document.getElementById('ortho-tms-format').textContent === 'TMS';
+    orthoLayer = L.tileLayer(url, {
+      opacity,
+      tms: isTms,
+      maxZoom: 24,
+      maxNativeZoom: 22,
+      attribution: '© Orthomosaic',
+      crossOrigin: true,   // required for CORS tiles (GeoNadir, WebODM, etc.)
+    }).addTo(map);
+    // Keep ortho ON TOP of base tiles (satellite/OSM) so it's visible.
+    // bringToBack() would hide it behind the base layer — don't call it.
+    // Vector layers (flight path, markers) live in separate Leaflet panes
+    // and are always rendered above tile layers automatically.
+    document.getElementById('ortho-remove-btn').style.display = '';
+    // Don't declare success immediately — wait for an actual tile to arrive.
+    // tileerror fires on CORS failures, expired tokens, or missing tiles.
+    setOrthoStatus('⏳ Requesting tiles…');
+    let tileLoadedOnce = false;
+    let tileErrorCount  = 0;
+    orthoLayer.on('tileload', () => {
+      if (!tileLoadedOnce) {
+        tileLoadedOnce = true;
+        setOrthoStatus(`✓ TMS layer loaded (${isTms ? 'TMS' : 'XYZ'})`, '#3fb950');
+      }
+    });
+    orthoLayer.on('tileerror', (e) => {
+      tileErrorCount++;
+      // Only show once — don't spam on every missing tile
+      if (tileErrorCount === 1) {
+        const hint = url.includes('jwt=') ? ' (token may have expired)' : ' (check URL / CORS)';
+        setOrthoStatus(`⚠ Tile load error${hint}`, '#f85149');
+      }
+    });
+
+  } else {
+    // ── Static image overlay (file) ───────────────────
+    if (!orthoImageFile) { setOrthoStatus('⚠ No image selected'); return; }
+    const n = parseFloat(document.getElementById('ortho-n').value);
+    const s = parseFloat(document.getElementById('ortho-s').value);
+    const e = parseFloat(document.getElementById('ortho-e').value);
+    const w = parseFloat(document.getElementById('ortho-w').value);
+    if ([n, s, e, w].some(v => isNaN(v))) { setOrthoStatus('⚠ Enter all four bounds'); return; }
+    if (n <= s) { setOrthoStatus('⚠ North must be greater than South'); return; }
+    if (e <= w) { setOrthoStatus('⚠ East must be greater than West'); return; }
+    const imageUrl = orthoRenderedUrl ?? URL.createObjectURL(orthoImageFile);
+    orthoLayer = L.imageOverlay(imageUrl, [[s, w], [n, e]], { opacity, interactive: false });
+    orthoLayer.addTo(map);
+    if (flightPath) orthoLayer.bringToBack();
+    document.getElementById('ortho-remove-btn').style.display = '';
+    setOrthoStatus('✓ Orthomosaic displayed', '#3fb950');
+    map.fitBounds([[s, w], [n, e]], { padding: [20, 20] });
+  }
+});
+
+// ── Remove ────────────────────────────────────────────
+document.getElementById('ortho-remove-btn').addEventListener('click', () => {
+  if (orthoLayer) { map.removeLayer(orthoLayer); orthoLayer = null; }
+  document.getElementById('ortho-remove-btn').style.display = 'none';
+  // Clear file-mode state
+  orthoImageFile = null; orthoRenderedUrl = null;
+  document.getElementById('ortho-filename').textContent = 'No file selected';
+  document.getElementById('ortho-file-input').value = '';
+  document.getElementById('ortho-world-input').value = '';
+  ['ortho-n','ortho-s','ortho-e','ortho-w'].forEach(id => document.getElementById(id).value = '');
+  // Clear TMS-mode state
+  document.getElementById('ortho-tms-url').value = '';
+  setOrthoStatus('Overlay removed');
+});
+
+function setOrthoStatus(msg, color = '#8b949e') {
+  const el = document.getElementById('ortho-status');
+  el.textContent = msg; el.style.color = color;
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+  if (e.code === 'Space') { e.preventDefault(); playBtn.click(); }
+  if (e.code === 'ArrowLeft') document.getElementById('skip-back-btn').click();
+  if (e.code === 'ArrowRight') document.getElementById('skip-fwd-btn').click();
+  if (e.code === 'KeyM') muteBtn.click();
+  if (e.code === 'KeyT') openTagModal();
+  if (e.code === 'KeyC') { const btn = document.getElementById('click-tag-btn'); if (btn.style.display !== 'none') btn.click(); }
+});
+
+// ═══════════════════════════════════════════════
+// FEATURE TAGGING
+// ═══════════════════════════════════════════════
+
+let tags = [];
+let tagSeq = 0;
+
+function makeTagIcon(num) {
+  return L.divIcon({
+    html: `<div style="
+      background:#f0883e; color:#fff; font-size:10px; font-weight:700;
+      width:22px; height:22px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      border:2px solid #fff; box-shadow:0 1px 5px rgba(0,0,0,0.6);
+    ">${num}</div>`,
+    iconSize: [22, 22], iconAnchor: [11, 11], className: '',
+  });
+}
+
+let pendingTagGeo = null; // {lat, lon} from pixel click, or null for drone position
+
+function openTagModal(geoOverride) {
+  if (!telFrames.length) return;
+  const f = getFrameAt(video.currentTime);
+  if (!f) return;
+  pendingTagGeo = geoOverride ?? null;
+  const geo = geoOverride ?? { lat: f.lat, lon: f.lon };
+  const alt = f.altRel ?? f.altAbs ?? 0;
+  let coordLine = `${formatTime(video.currentTime)}  •  ${geo.lat.toFixed(6)}, ${geo.lon.toFixed(6)}`;
+  if (geoOverride) {
+    const pitchStr = geoOverride.pitch !== undefined ? `${geoOverride.pitch.toFixed(0)}°` : '—';
+    const pitchSrc = geoOverride.usedLivePitch ? 'SRT' : 'override';
+    coordLine += `  •  pitch ${pitchStr} (${pitchSrc})`;
+  } else {
+    coordLine += `  •  ${alt.toFixed(1)} m (drone position)`;
+  }
+  document.getElementById('tag-modal-coords').textContent = coordLine;
+  document.getElementById('tag-label-input').value = '';
+  document.getElementById('tag-modal-bg').style.display = 'flex';
+  setTimeout(() => document.getElementById('tag-label-input').focus(), 50);
+}
+
+function closeTagModal() {
+  pendingTagGeo = null;
+  document.getElementById('tag-modal-bg').style.display = 'none';
+}
+
+function confirmTag() {
+  const label = document.getElementById('tag-label-input').value.trim() || 'Feature';
+  const t = video.currentTime;
+  const f = getFrameAt(t);
+  if (!f) return;
+  const geo = pendingTagGeo ?? { lat: f.lat, lon: f.lon };
+  closeTagModal();
+
+  tagSeq++;
+  const num = tagSeq;
+  const tag = { id: num, t, lat: geo.lat, lon: geo.lon, alt: f.altRel ?? f.altAbs ?? 0, label, fromPixel: !!pendingTagGeo };
+
+  const projNote = tag.fromPixel
+    ? `<div style="color:#f0883e; font-size:10px; margin-bottom:4px;">📐 pixel projection · pitch ${(geo.pitch ?? -90).toFixed(0)}°</div>`
+    : '';
+
+  const marker = L.marker([geo.lat, geo.lon], { icon: makeTagIcon(num) })
+    .bindPopup(`
+      <div style="font-size:12px; min-width:150px;">
+        <div style="font-weight:600; margin-bottom:4px;">${label}</div>
+        ${projNote}
+        <div style="color:#888; font-size:10px; margin-bottom:2px;">⏱ ${formatTime(t)}</div>
+        <div style="color:#888; font-size:10px; margin-bottom:6px;">${geo.lat.toFixed(6)}, ${geo.lon.toFixed(6)}</div>
+        <a href="#" onclick="seekToTag(${num}); return false;"
+           style="color:#1f6feb; font-size:11px; text-decoration:none;">▶ Jump to this moment</a>
+      </div>
+    `)
+    .addTo(map);
+  tag.marker = marker;
+  tags.push(tag);
+  renderTagList();
+}
+
+function seekToTag(id) {
+  const tag = tags.find(t => t.id === id);
+  if (!tag || !video.duration || !telFrames.length) return;
+  const maxT = telFrames[telFrames.length - 1].t;
+  video.currentTime = (tag.t / maxT) * video.duration;
+}
+
+function deleteTag(id) {
+  const idx = tags.findIndex(t => t.id === id);
+  if (idx === -1) return;
+  if (tags[idx].marker) map.removeLayer(tags[idx].marker);
+  tags.splice(idx, 1);
+  renderTagList();
+}
+
+function renderTagList() {
+  const scroll = document.getElementById('tag-list-scroll');
+  document.getElementById('tag-count-badge').textContent = tags.length ? ` (${tags.length})` : '';
+  document.getElementById('export-tags-btn').style.display = tags.length ? '' : 'none';
+
+  if (tags.length === 0) {
+    scroll.innerHTML = '<div style="padding:10px 12px; color:#484f58; font-size:11px;">No tags yet — press T or 🏷 while video is playing</div>';
+    return;
+  }
+  scroll.innerHTML = tags.map(tag => `
+    <div class="tag-list-item" onclick="seekToTag(${tag.id})">
+      <div class="tag-list-num">${tag.id}</div>
+      <div class="tag-list-label">${tag.label}</div>
+      <div class="tag-list-time">${formatTime(tag.t)}</div>
+      <div class="tag-list-coords">${tag.lat.toFixed(5)}, ${tag.lon.toFixed(5)}</div>
+      <button class="tag-del-btn" onclick="event.stopPropagation(); deleteTag(${tag.id})" title="Remove">✕</button>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════
+// PIXEL → GEO PROJECTION (nadir / flat-ground model)
+// Projects a screen pixel through the camera frustum
+// onto the ground plane using drone pos + heading.
+// Assumes nadir (downward-looking) camera.
+// ═══════════════════════════════════════════════
+
+let clickTagMode = false;
+let showFootprint = false;
+let footprintLayer = null;
+let mirrorH = false; // horizontal flip for cameras with reversed u-axis
+let hoverGeoMarker = null;
+
+const hoverCrosshairIcon = L.divIcon({
+  html: `<div style="position:relative;width:20px;height:20px;">
+    <div style="position:absolute;left:50%;top:0;bottom:0;width:1.5px;background:#f0883e;transform:translateX(-50%);opacity:0.9"></div>
+    <div style="position:absolute;top:50%;left:0;right:0;height:1.5px;background:#f0883e;transform:translateY(-50%);opacity:0.9"></div>
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:6px;height:6px;border-radius:50%;border:1.5px solid #f0883e;background:rgba(240,136,62,0.35);"></div>
+  </div>`,
+  iconSize: [20, 20], iconAnchor: [10, 10], className: '',
+});
+
+// Returns the actual displayed video content rect within the video element
+// (accounts for letterboxing/pillarboxing from object-fit:contain default)
+function getVideoContentRect() {
+  if (!video.videoWidth || !video.videoHeight) return null;
+  const rect = video.getBoundingClientRect();
+  const videoAspect = video.videoWidth / video.videoHeight;
+  const elemAspect  = rect.width / rect.height;
+  let displayW, displayH, offsetX, offsetY;
+  if (videoAspect > elemAspect) {
+    // Letterbox: black bars top + bottom
+    displayW = rect.width;
+    displayH = rect.width / videoAspect;
+    offsetX  = 0;
+    offsetY  = (rect.height - displayH) / 2;
+  } else {
+    // Pillarbox: black bars left + right
+    displayH = rect.height;
+    displayW = rect.height * videoAspect;
+    offsetX  = (rect.width - displayW) / 2;
+    offsetY  = 0;
+  }
+  return { rect, displayW, displayH, offsetX, offsetY };
+}
+
+// Full 3D ray-cast: project a normalised image coordinate (u,v) through the
+// camera frustum onto the flat ground plane, accounting for yaw AND pitch.
+//
+// World frame: E = East, N = North, U = Up (metres, origin at drone)
+// Camera absolute yaw ψ: 0 = North, 90 = East, clockwise.
+// Camera pitch p: 0 = horizontal, -90 = straight down (nadir).
+//
+// Camera basis vectors in world frame:
+//   Forward = [sin(ψ)cos(p),  cos(ψ)cos(p),  sin(p)]
+//   Right   = [cos(ψ),       -sin(ψ),          0    ]
+//   CamUp   = [-sin(ψ)sin(p), -cos(ψ)sin(p), cos(p)]
+//
+// Image coords u ∈ [-1,1] (left→right) and v ∈ [-1,1] (top→bottom):
+//   ray = u·tan(hfov/2)·Right  −  v·tan(vfov/2)·CamUp  +  Forward
+//
+// Ground intersection: ray[U] must be < 0 (pointing downward).
+//   t = -alt / ray[U]      → ground offset = t * ray[E, N]
+//
+// projectUV is shared by pixelToGeo (click) and updateFootprint (4 corners).
+function projectUV(u, v, frame) {
+  // Apply horizontal mirror if toggled (fixes cameras with reversed u-axis convention)
+  const ue = mirrorH ? -u : u;
+  u = ue;
+  const hFovDeg = parseFloat(document.getElementById('fov-input').value) || 73;
+  const hFovRad = hFovDeg * Math.PI / 180;
+  const aspect  = video.videoWidth / video.videoHeight;
+  const vFovRad = 2 * Math.atan(Math.tan(hFovRad / 2) / aspect);
+
+  const alt = frame.altRel ?? frame.altAbs ?? 0;
+  if (alt < 0.5) return null;
+
+  // Heading strategy depends on what the SRT provides:
+  //
+  // Case A — drone_yaw present (Mini/Air/Mavic consumer series):
+  //   flightHeading = drone_yaw.  Use it alone.
+  //   cameraHeading = drone_yaw + gimbal_yaw, but newer DJI firmware reports gimbal_yaw in the
+  //   absolute world frame, so adding it doubles the heading — DON'T use cameraHeading.
+  //
+  // Case B — no drone_yaw (Mavic 3 Enterprise: only gb_yaw in SRT):
+  //   cameraHeading = gb_yaw = absolute world-frame camera compass heading. Use it directly.
+  //   flightHeading = GPS travel bearing (direction of movement, NOT camera orientation).
+  //   Fall back to GPS bearing only if cameraHeading is also unavailable.
+  const headingOffset = parseFloat(document.getElementById('heading-offset-input')?.value) || 0;
+  const psiDeg = (frame.droneYaw !== undefined
+    ? frame.flightHeading          // Case A: drone_yaw available — use it (avoids double-add)
+    : (frame.cameraHeading ?? frame.flightHeading) // Case B: use gb_yaw absolute, then GPS fallback
+  ?? 0) + headingOffset;
+
+  // Pitch: live SRT gimbal_pitch takes priority over UI override
+  const usedLivePitch = frame.gimbalPitch !== undefined;
+  const pDeg = usedLivePitch
+    ? frame.gimbalPitch
+    : (parseFloat(document.getElementById('pitch-override-input').value) ?? -90);
+
+  const psi = psiDeg * Math.PI / 180;
+  const p   = pDeg   * Math.PI / 180;
+
+  // Camera basis vectors in world frame (E, N, U)
+  const fwd  = [ Math.sin(psi)*Math.cos(p),  Math.cos(psi)*Math.cos(p),  Math.sin(p) ];
+  const rgt  = [ Math.cos(psi),             -Math.sin(psi),              0            ];
+  const cup  = [-Math.sin(psi)*Math.sin(p), -Math.cos(psi)*Math.sin(p),  Math.cos(p) ];
+
+  const th = Math.tan(hFovRad / 2);
+  const tv = Math.tan(vFovRad / 2);
+
+  // Ray in world frame: u drives right, v drives image-down (= -camUp)
+  const ray = [
+    u*th*rgt[0] - v*tv*cup[0] + fwd[0],
+    u*th*rgt[1] - v*tv*cup[1] + fwd[1],
+    u*th*rgt[2] - v*tv*cup[2] + fwd[2],
+  ];
+
+  // Ray must point downward to intersect ground
+  if (ray[2] >= 0) return null;
+
+  const t = -alt / ray[2];
+  const E_world = t * ray[0];
+  const N_world = t * ray[1];
+
+  // Cap at 5 km to avoid extreme projections at very shallow angles
+  if (Math.abs(E_world) > 5000 || Math.abs(N_world) > 5000) return null;
+
+  const R   = 6371000;
+  const lat = frame.lat + (N_world / R) * (180 / Math.PI);
+  const lon = frame.lon + (E_world / (R * Math.cos(frame.lat * Math.PI / 180))) * (180 / Math.PI);
+
+  return { lat, lon, pitch: pDeg, yaw: psiDeg, usedLivePitch };
+}
+
+function pixelToGeo(clientX, clientY, frame) {
+  const dr = getVideoContentRect();
+  if (!dr) return null;
+
+  const px = clientX - dr.rect.left - dr.offsetX;
+  const py = clientY - dr.rect.top  - dr.offsetY;
+  if (px < 0 || px > dr.displayW || py < 0 || py > dr.displayH) return null;
+
+  const u = (px / dr.displayW) * 2 - 1;  // -1 = left,  +1 = right
+  const v = (py / dr.displayH) * 2 - 1;  // -1 = top,   +1 = bottom
+
+  return projectUV(u, v, frame);
+}
+
+// Camera footprint polygon — projects all 4 corners of the video frame to ground.
+// Updated every frame in syncTelemetry when showFootprint is true.
+// Lets you visually dial in HFoV (scale) and heading offset (rotation) without clicking.
+function updateFootprint(frame) {
+  if (!showFootprint || !frame || !video.videoWidth) {
+    if (footprintLayer) { map.removeLayer(footprintLayer); footprintLayer = null; }
+    return;
+  }
+  // UV corners: TL, TR, BR, BL
+  const corners = [
+    projectUV(-1, -1, frame),
+    projectUV( 1, -1, frame),
+    projectUV( 1,  1, frame),
+    projectUV(-1,  1, frame),
+  ];
+  if (corners.some(c => !c)) {
+    if (footprintLayer) { map.removeLayer(footprintLayer); footprintLayer = null; }
+    return;
+  }
+  const latlngs = corners.map(c => [c.lat, c.lon]);
+  if (!footprintLayer) {
+    footprintLayer = L.polygon(latlngs, {
+      color: '#f0883e', weight: 2, opacity: 0.9,
+      fillColor: '#f0883e', fillOpacity: 0.07,
+      interactive: false, dashArray: null,
+    }).addTo(map);
+  } else {
+    footprintLayer.setLatLngs(latlngs);
+  }
+}
+
+function setClickTagMode(active) {
+  clickTagMode = active;
+  const btn     = document.getElementById('click-tag-btn');
+  const fovRow  = document.getElementById('fov-row');
+  const wrapper = document.getElementById('video-wrapper');
+  btn.style.borderColor = active ? '#f0883e' : '';
+  btn.style.color       = active ? '#f0883e' : '';
+  fovRow.style.display  = active ? 'flex' : 'none';
+  wrapper.classList.toggle('click-tag-active', active);
+  if (!active && hoverGeoMarker) {
+    map.removeLayer(hoverGeoMarker);
+    hoverGeoMarker = null;
+  }
+}
+
+document.getElementById('click-tag-btn').addEventListener('click', () => {
+  setClickTagMode(!clickTagMode);
+});
+
+// Drone model preset → auto-fill HFoV
+document.getElementById('drone-model-select').addEventListener('change', e => {
+  if (e.target.value) {
+    document.getElementById('fov-input').value = e.target.value;
+  }
+});
+
+// Re-render footprint immediately when projection controls change (works while video is paused)
+function refreshFootprintNow() {
+  if (!showFootprint || !telFrames.length) return;
+  const f = getFrameAt(video.currentTime);
+  if (f) updateFootprint(f);
+}
+['fov-input', 'pitch-override-input', 'heading-offset-input'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', refreshFootprintNow);
+});
+
+// Horizontal mirror toggle
+document.getElementById('mirror-h-btn').addEventListener('click', () => {
+  mirrorH = !mirrorH;
+  const btn = document.getElementById('mirror-h-btn');
+  btn.style.borderColor = mirrorH ? '#f0883e' : '';
+  btn.style.color       = mirrorH ? '#f0883e' : '';
+  btn.title = mirrorH
+    ? 'Horizontal flip ON — u-axis is inverted. Click to disable.'
+    : 'Flip horizontal axis — click if projected points appear on the wrong left/right side of the drone';
+  refreshFootprintNow();
+});
+
+// Camera footprint toggle
+document.getElementById('toggle-footprint').addEventListener('click', () => {
+  showFootprint = !showFootprint;
+  const btn = document.getElementById('toggle-footprint');
+  btn.style.borderColor = showFootprint ? '#f0883e' : '';
+  btn.style.color       = showFootprint ? '#f0883e' : '';
+  if (!showFootprint && footprintLayer) {
+    map.removeLayer(footprintLayer);
+    footprintLayer = null;
+  } else if (showFootprint && telFrames.length) {
+    // Render immediately at current position rather than waiting for next frame
+    const f = getFrameAt(video.currentTime);
+    if (f) updateFootprint(f);
+  }
+});
+
+// Click on video → project pixel → open tag modal
+video.addEventListener('click', e => {
+  if (!clickTagMode || !telFrames.length) return;
+  e.preventDefault();
+  const f = getFrameAt(video.currentTime);
+  if (!f) return;
+  const geo = pixelToGeo(e.clientX, e.clientY, f);
+  if (!geo) return;
+
+  // Brief flash indicator at click point (relative to video-wrapper)
+  const wrapper = document.getElementById('video-wrapper');
+  const wRect   = wrapper.getBoundingClientRect();
+  const indicator = document.createElement('div');
+  indicator.className = 'click-indicator';
+  indicator.style.left = (e.clientX - wRect.left) + 'px';
+  indicator.style.top  = (e.clientY - wRect.top)  + 'px';
+  wrapper.appendChild(indicator);
+  setTimeout(() => indicator.remove(), 600);
+
+  openTagModal(geo);
+});
+
+// Hover over video → live crosshair preview on map
+let _hoverThrottle = 0;
+video.addEventListener('mousemove', e => {
+  if (!clickTagMode || !telFrames.length) return;
+  const now = Date.now();
+  if (now - _hoverThrottle < 40) return; // ~25 fps
+  _hoverThrottle = now;
+  const f = getFrameAt(video.currentTime);
+  if (!f) return;
+  const geo = pixelToGeo(e.clientX, e.clientY, f);
+  if (!geo) {
+    if (hoverGeoMarker) { map.removeLayer(hoverGeoMarker); hoverGeoMarker = null; }
+    return;
+  }
+  if (!hoverGeoMarker) {
+    hoverGeoMarker = L.marker([geo.lat, geo.lon],
+      { icon: hoverCrosshairIcon, interactive: false, zIndexOffset: 500 }).addTo(map);
+  } else {
+    hoverGeoMarker.setLatLng([geo.lat, geo.lon]);
+  }
+});
+
+video.addEventListener('mouseleave', () => {
+  if (hoverGeoMarker) { map.removeLayer(hoverGeoMarker); hoverGeoMarker = null; }
+});
+
+document.getElementById('tag-btn').addEventListener('click', openTagModal);
+document.getElementById('tag-confirm-btn').addEventListener('click', confirmTag);
+document.getElementById('tag-cancel-btn').addEventListener('click', closeTagModal);
+document.getElementById('tag-modal-bg').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeTagModal();
+});
+document.getElementById('tag-label-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') confirmTag();
+  if (e.key === 'Escape') closeTagModal();
+});
+
+document.getElementById('toggle-tags').addEventListener('click', () => {
+  const panel = document.getElementById('tag-list-panel');
+  const visible = panel.classList.toggle('visible');
+  const btn = document.getElementById('toggle-tags');
+  btn.style.borderColor = visible ? '#f0883e' : '';
+  btn.style.color = visible ? '#f0883e' : '';
+  if (visible) renderTagList();
+});
+
+document.getElementById('export-tags-btn').addEventListener('click', () => {
+  if (!tags.length) return;
+  const header = 'id,time_s,time_hms,latitude,longitude,altitude_m,label';
+  const rows = tags.map(tag => [
+    tag.id, tag.t.toFixed(3), formatTime(tag.t),
+    tag.lat.toFixed(6), tag.lon.toFixed(6),
+    tag.alt.toFixed(1),
+    `"${tag.label.replace(/"/g, '""')}"`
+  ].join(','));
+  const blob = new Blob([[header, ...rows].join('\n')], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'feature_tags.csv';
+  a.click();
+});
+</script>
+
+</body>
+</html>
