@@ -1,4 +1,4 @@
-# Drone Video Viewer
+# Drone Video Player
 
 A browser-based tool for exploring DJI drone footage with synchronized GPS telemetry, live flight maps, altitude/speed charts, and geographic feature tagging. No installation or server required — open the HTML file in any modern browser.
 
