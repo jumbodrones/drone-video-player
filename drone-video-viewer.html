@@ -249,7 +249,9 @@
       background: #161b22;
       border-bottom: 1px solid #30363d;
       flex-shrink: 0;
+      flex-wrap: wrap;            /* wrap whole buttons onto a 2nd row instead of squashing them */
     }
+    .map-toolbar .btn, .map-toolbar span { white-space: nowrap; }
     .map-toolbar span {
       font-size: 12px;
       color: #8b949e;
@@ -541,13 +543,13 @@
 <body>
 
 <header>
-  <img src="logo.png" alt="Logo" style="height:32px; width:auto; object-fit:contain;">
+  <img src="data:image/png;base64,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" alt="Logo" style="height:32px; width:auto; object-fit:contain;">
   <h1>Drone Video Viewer</h1>
   <span class="badge" id="srt-badge">No SRT loaded</span>
   <div class="header-actions">
     <label class="btn btn-primary" style="cursor:pointer" title="Select video + SRT together">
       📂 Load Files
-      <input type="file" id="combined-input" accept="video/*,.srt,.txt" multiple style="display:none">
+      <input type="file" id="combined-input" accept="video/*,.srt,.txt,.csv" multiple style="display:none">
     </label>
     <label class="btn" style="cursor:pointer">
       📹 Video only
@@ -555,7 +557,7 @@
     </label>
     <label class="btn" style="cursor:pointer">
       📄 SRT only
-      <input type="file" id="srt-input" accept=".srt,.txt" style="display:none">
+      <input type="file" id="srt-input" accept=".srt,.txt,.csv" multiple style="display:none">
     </label>
 
     <button class="btn" id="chart-toggle-btn" style="display:none">📊 Charts</button>
@@ -589,7 +591,7 @@
             <div class="hud-value" id="hud-spd">— m/s</div>
           </div>
           <div class="hud-item">
-            <div class="hud-label">Dist (home)</div>
+            <div class="hud-label" id="hud-dist-label">Dist (home)</div>
             <div class="hud-value" id="hud-dist">— m</div>
           </div>
         </div>
@@ -666,6 +668,7 @@
       <span class="map-title">Flight Map</span>
       <span id="map-status">No track loaded</span>
       <button class="btn" id="center-btn" style="margin-left:auto; font-size:11px; padding:3px 8px">⊕ Re-center</button>
+      <button class="btn" id="set-home-btn" style="font-size:11px; padding:3px 8px" title="Click the map to set the takeoff / home point (you can also drag the H marker)">🏠 Set Home</button>
       <button class="btn" id="toggle-satellite" style="font-size:11px; padding:3px 8px">🛰 Satellite</button>
       <button class="btn" id="toggle-ortho" style="font-size:11px; padding:3px 8px" title="Load orthomosaic overlay">🖼 Ortho</button>
       <button class="btn" id="toggle-tags" style="font-size:11px; padding:3px 8px" title="Show tagged features">🏷 Tags<span id="tag-count-badge"></span></button>
@@ -811,8 +814,23 @@
 // Handles multiple DJI firmware SRT formats
 // ═══════════════════════════════════════════════
 
+// True for a usable WGS84 coordinate. Rejects NaN, out-of-range values and the
+// 0,0 placeholder DJI writes before the aircraft has a GPS lock.
+function isValidCoord(lat, lon) {
+  return Number.isFinite(lat) && Number.isFinite(lon)
+      && Math.abs(lat) <= 90 && Math.abs(lon) <= 180
+      && !(Math.abs(lat) < 1e-6 && Math.abs(lon) < 1e-6);
+}
+
+// DJI GPS(...) / HOME(...) are written lon-first. Returns [lat, lon].
+function djiLatLon(a, b) {
+  if (Math.abs(b) > 90 && Math.abs(a) <= 90) return [a, b];   // clearly lat,lon
+  return [b, a];                                              // DJI default: lon,lat
+}
+
 function parseDjiSrt(text) {
   const frames = [];
+  let homeFromSrt = null;   // first valid HOME(...) found in any block
 
   // Split into subtitle blocks
   const blocks = text.trim().split(/\n\s*\n/);
@@ -869,11 +887,13 @@ function parseDjiSrt(text) {
     if (frame.lat === undefined) {
       m = payload.match(/GPS[:\s(]+([-\d.]+)[,\s]+([-\d.]+)[,\s]+([-\d.]+)/i);
       if (m) {
-        // DJI GPS order varies: sometimes lon,lat,alt; sometimes lat,lon,alt
-        // Heuristic: absolute value of first coord > 90 means it's longitude
-        const a = parseFloat(m[1]), b = parseFloat(m[2]), c = parseFloat(m[3]);
-        if (Math.abs(a) > 90) { frame.lon = a; frame.lat = b; }
-        else { frame.lat = a; frame.lon = b; }
+        // DJI writes GPS(lon,lat,alt) on Phantom / Mavic / Mini firmware. The old check
+        // (|first| > 90 ⇒ longitude) silently swapped coordinates anywhere |lon| < 90 —
+        // e.g. all of New England (lon ≈ -71). Now: lon,lat by default; only treat the
+        // first value as latitude if the second one can't be a latitude (|value| > 90).
+        const [lat, lon] = djiLatLon(parseFloat(m[1]), parseFloat(m[2]));
+        frame.lat = lat; frame.lon = lon;
+        const c = parseFloat(m[3]);
         frame.altAbs = c;
       }
     }
@@ -926,8 +946,12 @@ function parseDjiSrt(text) {
 
     m = payload.match(/\[gimbal_yaw[:\s]+([-\d.]+)\]/i);
     if (!m) m = payload.match(/\bRC_GimbalYaw[:\s]+([-\d.]+)/i);
-    if (!m) m = payload.match(/\[gb_yaw[:\s]+([-\d.]+)\]/i);   // Mavic 3 Enterprise / newer DJI firmware
-    if (m) frame.gimbalYaw = parseFloat(m[1]);
+    if (m) {
+      frame.gimbalYaw = parseFloat(m[1]);       // convention (absolute vs body-relative) detected per file in computeBearings()
+    } else {
+      m = payload.match(/\[gb_yaw[:\s]+([-\d.]+)\]/i);   // Mavic 3 Enterprise / newer DJI firmware
+      if (m) { frame.gimbalYaw = parseFloat(m[1]); frame.gimbalYawAbsolute = true; }
+    }
 
     // gimbal_pitch: -90 = straight down (nadir), 0 = horizontal, positive = above horizon
     m = payload.match(/\[gimbal_pitch[:\s]+([-\d.]+)\]/i);
@@ -945,18 +969,21 @@ function parseDjiSrt(text) {
     if (!m) m = payload.match(/\bRC_GimbalRoll[:\s]+([-\d.]+)/i);
     if (m) frame.gimbalRoll = parseFloat(m[1]);
 
-    // Home point (first occurrence)
+    // Home point — first valid HOME(...) in any block, same lon,lat order as GPS().
+    // 0,0 (written before GPS lock) is ignored.
     m = payload.match(/HOME\s*\(\s*([-\d.]+)\s*,\s*([-\d.]+)/i);
-    if (m && frames.length === 0) {
-      frame.homeLat = parseFloat(m[1]);
-      frame.homeLon = parseFloat(m[2]);
+    if (m && !homeFromSrt) {
+      const [lat, lon] = djiLatLon(parseFloat(m[1]), parseFloat(m[2]));
+      if (isValidCoord(lat, lon)) homeFromSrt = { lat, lon };
     }
 
-    if (frame.lat !== undefined && frame.lon !== undefined) {
+    // Drop frames with no fix (0,0 / NaN) so they don't wreck the map extent
+    if (isValidCoord(frame.lat, frame.lon)) {
       frames.push(frame);
     }
   }
 
+  frames.srtHome = homeFromSrt;   // null when the SRT has no HOME field (most current DJI models)
   return frames;
 }
 
@@ -994,17 +1021,20 @@ function computeBearings(frames) {
   // Consecutive frames often move < 0.5 m (high-rate GPS, slow flight), so a single-frame
   // check misses nearly all bearings. Instead, look up to LOOK frames ahead for the first
   // point ≥ MIN_D metres away, then use that pair for a stable bearing.
-  const LOOK  = 90;   // ~3 s at 30 fps
-  const MIN_D = 0.5;  // metres
+  // Window is in SECONDS (not frames) so it behaves the same for 30 fps and 1 Hz SRTs.
+  // MIN_D is large enough that GPS jitter while hovering doesn't spin the arrow;
+  // when the drone is (nearly) stationary the last good bearing is held instead.
+  const LOOK_S = 5;   // seconds of lookahead
+  const MIN_D  = 2;   // metres
 
   const gpsBrg = new Array(frames.length).fill(null);
   for (let i = 0; i < frames.length; i++) {
-    for (let j = 1; j <= LOOK && i + j < frames.length; j++) {
+    for (let j = i + 1; j < frames.length && frames[j].t - frames[i].t <= LOOK_S; j++) {
       const d = haversine(frames[i].lat, frames[i].lon,
-                          frames[i+j].lat, frames[i+j].lon);
+                          frames[j].lat, frames[j].lon);
       if (d >= MIN_D) {
         gpsBrg[i] = bearing(frames[i].lat, frames[i].lon,
-                            frames[i+j].lat, frames[i+j].lon);
+                            frames[j].lat, frames[j].lon);
         break;
       }
     }
@@ -1024,33 +1054,61 @@ function computeBearings(frames) {
     else if (lastGps !== null) gpsBrg[i] = lastGps;
   }
 
+  // ── GIMBAL YAW CONVENTION (detected once per file) ───────────────────
+  // DJI firmware reports gimbal_yaw either as an ABSOLUTE compass heading (it moves with
+  // drone_yaw as the aircraft turns) or BODY-RELATIVE (0 = straight ahead; it stays put
+  // when the aircraft turns). Whichever reading is steadier across the flight is the
+  // body-relative one. If the drone barely turned, pick the reading closest to "forward".
+  const norm360 = a => ((a % 360) + 360) % 360;
+  const angDiff = (a, b) => ((a - b) % 360 + 540) % 360 - 180;     // signed, -180..180
+  const circSpread = arr => {                                       // 0 = constant, 1 = uniform
+    let sx = 0, sy = 0;
+    for (const a of arr) { sx += Math.cos(a * Math.PI / 180); sy += Math.sin(a * Math.PI / 180); }
+    return 1 - Math.hypot(sx, sy) / arr.length;
+  };
+  let gimbalIsRelative = false;
+  const both = frames.filter(f => f.droneYaw !== undefined && f.gimbalYaw !== undefined && !f.gimbalYawAbsolute);
+  if (both.length) {
+    const spreadIfRelative = circSpread(both.map(f => f.gimbalYaw));
+    const spreadIfAbsolute = circSpread(both.map(f => angDiff(f.gimbalYaw, f.droneYaw)));
+    if (Math.abs(spreadIfRelative - spreadIfAbsolute) > 0.02) {
+      gimbalIsRelative = spreadIfRelative < spreadIfAbsolute;
+    } else {
+      const avg = arr => arr.reduce((s, v) => s + v, 0) / arr.length;
+      gimbalIsRelative = avg(both.map(f => Math.abs(angDiff(f.gimbalYaw, 0))))
+                       < avg(both.map(f => Math.abs(angDiff(f.gimbalYaw, f.droneYaw))));
+    }
+  }
+  frames.gimbalYawMode = both.length ? (gimbalIsRelative ? 'relative' : 'absolute') : null;
+
   for (let i = 0; i < frames.length; i++) {
     const f = frames[i];
 
-    // ── FLIGHT HEADING (drone nose / direction of travel) ────────────────
-    // Priority: drone_yaw  >  compass_heading  >  GPS travel  >  null
-    if (f.droneYaw !== undefined) {
-      f.flightHeading = (f.droneYaw + 360) % 360;
-    } else if (f.compassHeading !== undefined) {
-      f.flightHeading = (f.compassHeading + 360) % 360;
-    } else if (gpsBrg[i] !== null) {
-      f.flightHeading = gpsBrg[i];
+    // ── CAMERA HEADING (where the lens is pointing) ──────────────────────
+    if (f.gimbalYaw === undefined) {
+      f.cameraHeading = null;
+    } else if (gimbalIsRelative && !f.gimbalYawAbsolute && f.droneYaw !== undefined) {
+      f.cameraHeading = norm360(f.droneYaw + f.gimbalYaw);   // body-relative offset
     } else {
-      f.flightHeading = null; // truly unknown — show circle only
+      f.cameraHeading = norm360(f.gimbalYaw);                // absolute world-frame
     }
 
-    // ── CAMERA HEADING (where the lens is pointing) ──────────────────────
-    // Priority: droneYaw + gimbalYaw (body-relative offset)
-    //           gimbalYaw alone (treat as absolute world-frame)
-    //           null (no independent camera data)
-    if (f.droneYaw !== undefined && f.gimbalYaw !== undefined) {
-      // gimbal_yaw is body-relative on most DJI firmware: 0 = straight ahead
-      f.cameraHeading = ((f.droneYaw + 360) % 360 + f.gimbalYaw + 360) % 360;
-    } else if (f.gimbalYaw !== undefined) {
-      // gimbal_yaw alone — treat as absolute
-      f.cameraHeading = (f.gimbalYaw + 360) % 360;
+    // ── NOSE HEADING (which way the drone is facing) ─────────────────────
+    // Priority: drone_yaw > compass_heading > absolute gimbal yaw (gb_yaw; the gimbal on
+    // these airframes only pans a few degrees, so it ≈ nose) > GPS travel bearing.
+    // GPS travel is only the direction of MOVEMENT — a drone flying sideways or backwards
+    // (common on mapping/orbit flights) faces a different way — so it is flagged as 'gps'
+    // and drawn as a hollow arrow.
+    if (f.droneYaw !== undefined) {
+      f.flightHeading = norm360(f.droneYaw);       f.headingSource = 'yaw';
+    } else if (f.compassHeading !== undefined) {
+      f.flightHeading = norm360(f.compassHeading); f.headingSource = 'compass';
+    } else if (f.gimbalYawAbsolute && f.cameraHeading !== null) {
+      f.flightHeading = f.cameraHeading;           f.headingSource = 'gimbal';
+    } else if (gpsBrg[i] !== null) {
+      f.flightHeading = gpsBrg[i];                 f.headingSource = 'gps';
     } else {
-      f.cameraHeading = null;
+      f.flightHeading = null;                      f.headingSource = null; // unknown — circle only
     }
 
     // Legacy .heading for any remaining references
@@ -1067,10 +1125,10 @@ let homePoint = null;     // {lat, lon}
 
 // Map
 const map = L.map('map', { zoomControl: true });
-const osmLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-  attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors, © <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>',
-  subdomains: 'abcd',
-  maxZoom: 20
+// ── Street basemap: Esri World Street Map (no API key, no watermark) ──
+const osmLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+  attribution: 'Tiles © <a href="https://www.esri.com" target="_blank" rel="noopener noreferrer">Esri</a> — Sources: Esri, HERE, Garmin, USGS, NGA, EPA, USDA, NPS',
+  maxNativeZoom: 19, maxZoom: 22
 });
 const satelliteLayer = L.tileLayer(
   'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -1100,7 +1158,7 @@ let satelliteActive = false;
 function makeDroneIcon() {
   return L.divIcon({
     html: `<div style="width:48px;height:48px;">
-      <svg width="48" height="48" viewBox="0 0 48 48" style="overflow:visible;">
+      <svg width="48" height="48" viewBox="0 0 48 48" style="overflow:visible; filter:drop-shadow(0 0 1.5px rgba(0,0,0,.85));">
         <!-- Camera FOV cone (hidden until cameraHeading known) -->
         <g class="drone-cone" transform="rotate(0 24 24)" style="display:none">
           <path d="M24,15 L3.4,-9.5 A32,32 0 0,1 44.6,-9.5 Z"
@@ -1115,7 +1173,8 @@ function makeDroneIcon() {
                 fill="#1f6feb" stroke="white" stroke-width="2.5"/>
         <!-- Flight direction triangle (hidden until flightHeading known) -->
         <g class="drone-nose" transform="rotate(0 24 24)" style="display:none">
-          <polygon points="24,9 19,16 29,16" fill="white"/>
+          <!-- Arrow sits just outside the glow ring (ring outer edge ≈ y 9) so it isn't hidden by the body -->
+          <polygon class="drone-nose-shape" points="24,-4 17,9 31,9" fill="white" stroke="#1f6feb" stroke-width="2" stroke-linejoin="round"/>
         </g>
         <!-- Center dot (static) -->
         <circle cx="24" cy="24" r="2" fill="rgba(255,255,255,0.5)"/>
@@ -1127,17 +1186,152 @@ function makeDroneIcon() {
   });
 }
 
-const homeIcon = L.divIcon({
-  html: `<div style="
-    width:16px; height:16px; background:#3fb950;
-    border:2px solid #fff; border-radius:3px;
-    display:flex; align-items:center; justify-content:center;
-    font-size:9px;
-  ">H</div>`,
-  iconSize: [16, 16],
-  iconAnchor: [8, 8],
-  className: '',
+// Home marker. Green "H" = a real home/takeoff point (SRT HOME field, flight-log CSV, or set
+// by hand). Amber dashed "S" = fallback to the first video frame, i.e. where RECORDING
+// started — not necessarily where the drone took off.
+let homeSource = null;   // 'srt' | 'log' | 'manual' | 'video-start'
+const HOME_TEXT = {
+  'srt':         'Home point (from SRT HOME field)',
+  'log':         'Home point (from flight log)',
+  'manual':      'Home point (set manually)',
+  'video-start': 'Video start — takeoff point unknown',
+};
+function makeHomeIcon(source) {
+  const unknown = source === 'video-start';
+  return L.divIcon({
+    html: `<div title="${HOME_TEXT[source]}" style="
+      width:18px; height:18px; box-sizing:border-box;
+      background:${unknown ? '#d29922' : '#3fb950'};
+      border:2px ${unknown ? 'dashed' : 'solid'} #fff; border-radius:3px;
+      display:flex; align-items:center; justify-content:center;
+      font:bold 10px sans-serif; color:#fff; box-shadow:0 0 3px rgba(0,0,0,.7);
+    ">${unknown ? 'S' : 'H'}</div>`,
+    iconSize: [18, 18],
+    iconAnchor: [9, 9],
+    className: '',
+  });
+}
+
+function setHome(lat, lon, source) {
+  if (!isValidCoord(lat, lon)) return false;
+  homePoint = { lat, lon };
+  homeSource = source;
+  if (homeMarker) map.removeLayer(homeMarker);
+  const popup = source === 'video-start'
+    ? `<b>${HOME_TEXT[source]}</b><br>This SRT has no HOME field, so this marks where the
+       video began recording, not where the drone took off. Drag this marker, use
+       <b>🏠 Set Home</b>, or load a flight-log CSV (AirData, Flight Reader, PhantomHelp)
+       to set the real home point.`
+    : `<b>${HOME_TEXT[source]}</b><br>${lat.toFixed(6)}, ${lon.toFixed(6)}<br>
+       <span style="color:#8b949e">Drag to adjust.</span>`;
+  homeMarker = L.marker([lat, lon], {
+      icon: makeHomeIcon(source), draggable: true, zIndexOffset: 1000,
+      title: HOME_TEXT[source],
+    })
+    .bindPopup(popup)
+    .addTo(map);
+  homeMarker.on('dragend', e => {
+    const ll = e.target.getLatLng();
+    setHome(ll.lat, ll.lng, 'manual');
+  });
+  const lbl = document.getElementById('hud-dist-label');
+  if (lbl) lbl.textContent = source === 'video-start' ? 'Dist (start)' : 'Dist (home)';
+  updateMapLegend();
+  if (telFrames.length && droneMarker && map.hasLayer(droneMarker))
+    syncTelemetry(video.currentTime || 0);   // refresh distance readout
+  return true;
+}
+
+// ── "Set Home" click mode ─────────────────────────
+let setHomeMode = false;
+function setHomeModeActive(on) {
+  setHomeMode = on;
+  const b = document.getElementById('set-home-btn');
+  b.classList.toggle('btn-primary', on);
+  b.textContent = on ? '🏠 Click map…' : '🏠 Set Home';
+  map.getContainer().classList.toggle('leaflet-crosshair', on);
+}
+document.getElementById('set-home-btn').addEventListener('click', () => setHomeModeActive(!setHomeMode));
+map.on('click', e => {
+  if (!setHomeMode) return;
+  setHome(e.latlng.lat, e.latlng.lng, 'manual');
+  setHomeModeActive(false);
 });
+
+// ── Flight-log CSV → home point ───────────────────
+// Works with AirData, Flight Reader and PhantomHelp exports. Uses HOME lat/lon columns
+// when present; otherwise the first valid aircraft GPS fix in the log (the log starts at
+// power-on, so that is the takeoff position).
+function splitCsvLine(line) {
+  const out = []; let cur = '', q = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') { if (q && line[i+1] === '"') { cur += '"'; i++; } else q = !q; }
+    else if (c === ',' && !q) { out.push(cur); cur = ''; }
+    else cur += c;
+  }
+  out.push(cur);
+  return out.map(v => v.trim());
+}
+function importHomeFromLog(text, name) {
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  const hi = lines.findIndex(l => /lat/i.test(l) && /lon/i.test(l));
+  if (hi < 0) { alert(`${name}: no latitude/longitude columns found.`); return; }
+  const hdr = splitCsvLine(lines[hi]);
+  const col = re => hdr.findIndex(h => re.test(h));
+  let latI = col(/home.*lat/i), lonI = col(/home.*lon/i), how = 'HOME columns';
+  if (latI < 0 || lonI < 0) {
+    latI = col(/^(osd[._ ]?)?lat(itude)?\b/i);
+    lonI = col(/^(osd[._ ]?)?lon(g|gitude)?\b/i);
+    how = 'first GPS fix';
+  }
+  if (latI < 0 || lonI < 0) { alert(`${name}: couldn't identify latitude/longitude columns.`); return; }
+  for (let r = hi + 1; r < lines.length; r++) {
+    const c = splitCsvLine(lines[r]);
+    const lat = parseFloat(c[latI]), lon = parseFloat(c[lonI]);
+    if (isValidCoord(lat, lon)) {
+      setHome(lat, lon, 'log');
+      homeMarker.setPopupContent(`<b>${HOME_TEXT.log}</b><br>${name} (${how})<br>
+        ${lat.toFixed(6)}, ${lon.toFixed(6)}<br><span style="color:#8b949e">Drag to adjust.</span>`);
+      document.getElementById('map-status').textContent = `Home set from ${name}`;
+      return;
+    }
+  }
+  alert(`${name}: no valid coordinates found.`);
+}
+
+// DJI FlightRecord_*.txt logs are encrypted binary, not SRT subtitles.
+function looksLikeDjiFlightRecord(text) {
+  const head = text.slice(0, 4000);
+  return !/-->/.test(head) && /[\x00-\x08\x0E-\x1F]/.test(head);
+}
+
+// ── Map legend (explains the icons for students) ──
+const mapLegend = L.control({ position: 'bottomleft' });
+mapLegend.onAdd = () => {
+  const d = L.DomUtil.create('div');
+  d.id = 'map-legend';
+  d.style.cssText = 'background:rgba(13,17,23,.85);color:#c9d1d9;font:11px/1.45 sans-serif;'
+    + 'padding:6px 8px;border-radius:6px;border:1px solid #30363d;max-width:230px;display:none';
+  return d;
+};
+mapLegend.addTo(map);
+function updateMapLegend() {
+  const el = document.getElementById('map-legend');
+  if (!el || !telFrames.length) return;
+  const count = s => telFrames.filter(f => f.headingSource === s).length;
+  const gps = count('gps'), real = count('yaw') + count('compass') + count('gimbal');
+  const hasCam = telFrames.some(f => f.cameraHeading !== null && f.headingSource !== 'gimbal');
+  const rows = [];
+  if (real >= gps && real > 0) rows.push('▲ Nose heading (compass data in SRT)');
+  else if (gps > 0) rows.push('△ Direction of travel — SRT has no compass data, so this is the GPS track, not necessarily where the nose points');
+  if (hasCam) rows.push('<span style="color:#ffd232">◔</span> Camera view direction');
+  rows.push(homeSource === 'video-start'
+    ? '<span style="color:#d29922">S</span> Video start — takeoff point unknown'
+    : '<span style="color:#3fb950">H</span> ' + (HOME_TEXT[homeSource] || 'Home point'));
+  el.innerHTML = rows.join('<br>');
+  el.style.display = '';
+}
 
 // ═══════════════════════════════════════════════
 // VIDEO ELEMENT
@@ -1149,19 +1343,40 @@ const hud = document.getElementById('hud');
 
 // ─── Shared file router ────────────────────────
 function routeFiles(files) {
-  const videoFile = [...files].find(f => f.type.startsWith('video/'));
-  const srtFile   = [...files].find(f => /\.(srt|txt)$/i.test(f.name));
+  const list = [...files];
+  const videoFile = list.find(f => f.type.startsWith('video/'));
+  // Prefer .srt; a .txt may be a DJI FlightRecord log rather than subtitles
+  const srtFile   = list.find(f => /\.srt$/i.test(f.name)) || list.find(f => /\.txt$/i.test(f.name));
+  const logFile   = list.find(f => /\.csv$/i.test(f.name));
   if (videoFile) {
     video.src = URL.createObjectURL(videoFile);
     video.style.display = 'block';
     dropOverlay.style.display = 'none';
     hud.classList.add('visible');
   }
-  if (srtFile) {
-    const reader = new FileReader();
-    reader.onload = ev => loadTelemetry(ev.target.result);
-    reader.readAsText(srtFile);
-  }
+  const readText = f => new Promise(res => {
+    const r = new FileReader();
+    r.onload = ev => res(ev.target.result);
+    r.readAsText(f);
+  });
+  (async () => {
+    if (srtFile) {
+      const txt = await readText(srtFile);
+      if (looksLikeDjiFlightRecord(txt)) {
+        alert(`${srtFile.name} looks like an encrypted DJI flight record, not an SRT.\n\n`
+          + 'Browsers can\'t decode these. Export it to CSV with AirData, Flight Reader or '
+          + 'phantomhelp.com/LogViewer, then load the CSV to set the home point.');
+      } else {
+        loadTelemetry(txt);
+      }
+    }
+    // Apply the log AFTER the SRT so its home point isn't overwritten by the SRT fallback
+    if (logFile) {
+      const txt = await readText(logFile);
+      if (!telFrames.length) alert('Load the SRT first, then the flight-log CSV.');
+      else importHomeFromLog(txt, logFile.name);
+    }
+  })();
 }
 
 // ─── Combined file input (video + SRT together) ─
@@ -1256,16 +1471,11 @@ function initMap() {
   }
   flightPath = pathGroup;
 
-  // Find home
+  // Home: SRT HOME field if present, otherwise fall back to the first video frame
+  // (clearly labelled as "video start"). A flight-log CSV or manual pick can override.
   const first = telFrames[0];
-  if (first.homeLat !== undefined) {
-    homePoint = { lat: first.homeLat, lon: first.homeLon };
-  } else {
-    homePoint = { lat: first.lat, lon: first.lon };
-  }
-  homeMarker = L.marker([homePoint.lat, homePoint.lon], { icon: homeIcon })
-    .bindPopup('Home point')
-    .addTo(map);
+  if (telFrames.srtHome) setHome(telFrames.srtHome.lat, telFrames.srtHome.lon, 'srt');
+  else                   setHome(first.lat, first.lon, 'video-start');
 
   // Drone marker at start
   droneMarker = L.marker([first.lat, first.lon], { icon: makeDroneIcon() })
@@ -1315,6 +1525,13 @@ function syncTelemetry(t) {
         if (f.flightHeading !== null && f.flightHeading !== undefined) {
           noseG.setAttribute('transform', `rotate(${f.flightHeading.toFixed(1)} 24 24)`);
           noseG.style.display = '';
+          // Solid = true facing direction (compass); hollow = GPS travel direction only
+          const shape = noseG.querySelector('.drone-nose-shape');
+          if (shape) {
+            const gps = f.headingSource === 'gps';
+            shape.setAttribute('fill',   gps ? 'rgba(31,111,235,0.25)' : 'white');
+            shape.setAttribute('stroke', gps ? 'white' : '#1f6feb');
+          }
         } else {
           noseG.style.display = 'none';
         }
@@ -1363,8 +1580,9 @@ function syncTelemetry(t) {
     ? `${f.flightHeading.toFixed(0)}°` : '—';
   const camStr = f.cameraHeading !== null && f.cameraHeading !== undefined
     ? `${f.cameraHeading.toFixed(0)}°` : '—';
+  const hdgTag = f.headingSource === 'gps' ? 'trk' : 'hdg';   // trk = GPS track, hdg = nose heading
   document.getElementById('tel-hdg').textContent =
-    camStr !== '—' ? `flt:${fltStr} cam:${camStr}` : `flt:${fltStr}`;
+    camStr !== '—' ? `${hdgTag}:${fltStr} cam:${camStr}` : `${hdgTag}:${fltStr}`;
 
   // ── Chart ────────────────────────────────────────
   currentChartTime = t;
@@ -1389,13 +1607,11 @@ function syncTelemetry(t) {
     }
 
     // Show effective camera heading so user can verify it rotates with drone
-    const effHdg = (f.droneYaw !== undefined
-      ? f.flightHeading
-      : (f.cameraHeading ?? f.flightHeading)
-    );
+    // cameraHeading already resolves absolute vs body-relative gimbal yaw (see computeBearings)
+    const effHdg = f.cameraHeading ?? f.flightHeading;
     if (effHdg !== null && effHdg !== undefined) {
       const total = ((effHdg + headingOffset) % 360 + 360) % 360;
-      const src = f.droneYaw !== undefined ? 'yaw' : (f.cameraHeading !== null ? 'gb_yaw' : 'GPS');
+      const src = f.cameraHeading !== null ? 'camera' : (f.headingSource || 'GPS');
       hdgInd.textContent = `📐 ${total.toFixed(0)}° (${src})`;
       hdgInd.style.display = '';
     } else {
@@ -2174,22 +2390,11 @@ function projectUV(u, v, frame) {
   const alt = frame.altRel ?? frame.altAbs ?? 0;
   if (alt < 0.5) return null;
 
-  // Heading strategy depends on what the SRT provides:
-  //
-  // Case A — drone_yaw present (Mini/Air/Mavic consumer series):
-  //   flightHeading = drone_yaw.  Use it alone.
-  //   cameraHeading = drone_yaw + gimbal_yaw, but newer DJI firmware reports gimbal_yaw in the
-  //   absolute world frame, so adding it doubles the heading — DON'T use cameraHeading.
-  //
-  // Case B — no drone_yaw (Mavic 3 Enterprise: only gb_yaw in SRT):
-  //   cameraHeading = gb_yaw = absolute world-frame camera compass heading. Use it directly.
-  //   flightHeading = GPS travel bearing (direction of movement, NOT camera orientation).
-  //   Fall back to GPS bearing only if cameraHeading is also unavailable.
+  // Heading: cameraHeading is the lens direction with the gimbal-yaw convention
+  // (absolute vs body-relative) already resolved per file in computeBearings().
+  // Fall back to the nose heading (drone_yaw / compass / GPS track) if there is no gimbal yaw.
   const headingOffset = parseFloat(document.getElementById('heading-offset-input')?.value) || 0;
-  const psiDeg = (frame.droneYaw !== undefined
-    ? frame.flightHeading          // Case A: drone_yaw available — use it (avoids double-add)
-    : (frame.cameraHeading ?? frame.flightHeading) // Case B: use gb_yaw absolute, then GPS fallback
-  ?? 0) + headingOffset;
+  const psiDeg = (frame.cameraHeading ?? frame.flightHeading ?? 0) + headingOffset;
 
   // Pitch: live SRT gimbal_pitch takes priority over UI override
   const usedLivePitch = frame.gimbalPitch !== undefined;

@@ -56,7 +56,9 @@ A row at the bottom of the screen displays real-time values synchronized to the 
 
 ### Map Panel
 
-The map shows the drone's flight path as a color-coded line (blue = low altitude, red = high altitude). The drone icon moves in real time as the video plays, with an arrow indicating flight direction and a cone indicating camera heading when available. A green **H** marker shows the home point.
+The map shows the drone's flight path as a color-coded line (blue = low altitude, red = high altitude). The drone icon moves in real time as the video plays. A **solid arrow** shows the direction the drone's nose is facing (from compass data in the SRT); a **hollow arrow** means the SRT has no compass data, so it shows the GPS direction of travel instead — a drone flying sideways or backwards will face a different way. A yellow cone shows the camera view direction when gimbal yaw is available. A small legend in the lower-left corner of the map explains which one you're seeing.
+
+A green **H** marks the home (takeoff) point when it's known — from a `HOME(...)` field in the SRT, a flight-log CSV, or set by hand. Most current DJI SRT files don't record the home point, so the app falls back to an amber dashed **S** at the spot where the video *started recording*, and the HUD shows **Dist (start)** instead of **Dist (home)**. To set the real home point: drag the marker, click **🏠 Set Home** and then click the map, or load a flight-log CSV exported from AirData, Flight Reader or phantomhelp.com/LogViewer. DJI `FlightRecord_*.txt` files are encrypted and can't be read directly in the browser.
 
 **Map toolbar buttons:**
 - **⊕ Re-center** — Pan the map to the current drone position
