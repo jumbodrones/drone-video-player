@@ -538,6 +538,168 @@
       .video-panel { width: 100%; border-right: none; border-bottom: 1px solid #30363d; height: 50vh; }
       .map-panel { height: 50vh; }
     }
+    /* ── Frame grabs ── */
+    .grab-menu {
+      display: none; position: fixed; z-index: 3000; min-width: 260px;
+      background: #161b22; border: 1px solid #30363d; border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5); padding: 4px;
+    }
+    .grab-menu button {
+      display: block; width: 100%; text-align: left; background: none; border: none;
+      color: #e6edf3; font-size: 12px; padding: 7px 10px; border-radius: 5px; cursor: pointer;
+    }
+    .grab-menu button:hover { background: #21262d; }
+    .grab-menu small { display: block; color: #8b949e; font-size: 10px; margin-top: 1px; }
+    .grab-menu-note { font-size: 10px; color: #6e7681; padding: 4px 10px 3px; border-top: 1px solid #21262d; margin-top: 2px; }
+    .grab-flash {
+      position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 50;
+      background: rgba(13,17,23,0.85); color: #3fb950; border: 1px solid #3fb950;
+      font-size: 12px; padding: 5px 12px; border-radius: 6px; pointer-events: none;
+      animation: grabfade 1.4s ease forwards;
+    }
+    @keyframes grabfade { 0%,70% { opacity: 1; } 100% { opacity: 0; } }
+    .batch-grid { display: grid; grid-template-columns: auto 1fr; gap: 8px 10px; align-items: center; }
+    .batch-bar { height: 6px; background: #21262d; border-radius: 3px; overflow: hidden; }
+    .batch-bar > div { height: 100%; width: 0%; background: #1f6feb; transition: width 0.15s; }
+
+    /* ── 3D view ── */
+    #view3d { display: none; flex: 1; min-height: 0; position: relative; flex-direction: column; background: #0d1117; }
+    #view3d.visible { display: flex; }
+    #v3d-canvas { flex: 1; min-height: 0; width: 100%; display: block; cursor: grab; touch-action: none; }
+    #v3d-profile { height: 104px; flex-shrink: 0; width: 100%; display: block; border-top: 1px solid #30363d; cursor: crosshair; }
+    .v3d-controls {
+      position: absolute; top: 8px; left: 8px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+      background: rgba(22,27,34,0.88); border: 1px solid #30363d; border-radius: 6px; padding: 5px 8px;
+      max-width: calc(100% - 80px);
+    }
+    .v3d-hint { position: absolute; left: 10px; bottom: 126px; font-size: 10px; color: #6e7681; pointer-events: none; }
+    /* ── Inspection report ── */
+    #report-view { display: none; position: fixed; inset: 0; z-index: 2000; background: #0d1117; flex-direction: column; }
+    #report-view.visible { display: flex; }
+    .rp-top { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: #161b22; border-bottom: 1px solid #30363d; flex-wrap: wrap; }
+    .rp-hint { font-size: 11px; color: #f0e130; }
+    .rp-scroll { flex: 1; overflow: auto; padding: 0 14px 40px; }
+    .rp-muted { font-size: 11px; color: #6e7681; }
+    .rp-restore { margin: 10px 0 0; padding: 8px 12px; border: 1px solid #1f6feb; background: rgba(31,111,235,0.12); border-radius: 6px; font-size: 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .rp-head { padding: 12px 0 14px; border-bottom: 1px solid #30363d; }
+    .rp-fields { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 12px; }
+    .rp-fields label { display: flex; flex-direction: column; gap: 3px; font-size: 10px; color: #8b949e; letter-spacing: 0.5px; text-transform: uppercase; }
+    .rp-in { background: #0d1117; border: 1px solid #30363d; color: #e6edf3; border-radius: 6px; padding: 6px 8px; font: inherit; font-size: 13px; }
+    .rp-in:focus, .rp-notes textarea:focus { outline: none; border-color: #3fd7ff; box-shadow: 0 0 0 1px #3fd7ff55; }
+    #rp-area { width: 100%; resize: vertical; font-size: 12px; line-height: 1.5; margin-top: 6px; }
+    .rp-headgrid { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(280px, 1.3fr); gap: 18px; }
+    #rp-map { width: 100%; max-width: 760px; border-radius: 6px; border: 1px solid #30363d; display: block; }
+    .rp-sec { font-size: 10px; color: #8b949e; letter-spacing: 1px; margin-bottom: 6px; font-family: ui-monospace, Menlo, monospace; }
+    .rp-dl { display: grid; grid-template-columns: auto 1fr; gap: 5px 14px; font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; }
+    .rp-dl span { color: #8b949e; font-size: 10.5px; letter-spacing: 0.5px; }
+    .rp-dl b { color: #79c0ff; font-weight: 600; }
+    .rp-dl i { color: #6e7681; font-style: normal; font-weight: 400; }
+    .rp-cols-h, .rp-row { display: grid; grid-template-columns: minmax(300px, 1.25fr) minmax(250px, 1fr) minmax(260px, 1.15fr); gap: 22px; }
+    .rp-cols-h { position: sticky; top: 0; z-index: 2; background: #0d1117; padding: 10px 0 8px; border-bottom: 1px solid #30363d;
+                 font-size: 10px; color: #8b949e; letter-spacing: 1px; font-family: ui-monospace, Menlo, monospace; }
+    .rp-row { padding: 14px 0; border-bottom: 1px solid #21262d; }
+    .rp-row.editing { background: linear-gradient(90deg, rgba(240,225,48,0.04), transparent); }
+    .rp-frame-bar { display: flex; align-items: center; gap: 5px; margin-bottom: 7px; flex-wrap: wrap; }
+    .rp-nudge { display: flex; gap: 4px; margin-left: 6px; }
+    .rp-num { font-family: ui-monospace, monospace; font-size: 11px; color: #8b949e; }
+    .rp-mini { background: #161b22; border: 1px solid #30363d; color: #c9d1d9; font-size: 10px; padding: 3px 7px; border-radius: 5px; cursor: pointer; font-family: ui-monospace, monospace; }
+    .rp-mini:hover { border-color: #8b949e; }
+    .rp-imgwrap { position: relative; line-height: 0; }
+    .rp-imgwrap img { width: 100%; border-radius: 4px; display: block; }
+    .rp-ann { position: absolute; left: 0; top: 0; pointer-events: none; border-radius: 4px; }
+    .rp-ann.active { pointer-events: auto; cursor: crosshair; outline: 2px solid #f0e130; outline-offset: -2px; touch-action: none; }
+    .rp-diags { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+    .rp-diags svg { border: 1px solid #30363d; border-radius: 4px; display: block; }
+    .rp-diag-t { font-size: 9px; color: #8b949e; letter-spacing: 0.6px; margin-bottom: 4px; font-family: ui-monospace, monospace; }
+    .rp-diag-c { font-size: 10px; color: #79c0ff; text-align: center; margin-top: 3px; font-family: ui-monospace, monospace; }
+    .rp-notes { display: flex; flex-direction: column; gap: 8px; }
+    .rp-notes textarea { width: 100%; min-height: 84px; resize: vertical; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #e6edf3;
+                         font: 12.5px/1.5 ui-monospace, Menlo, monospace; padding: 9px 10px; }
+    .rp-tools { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
+    .rp-tool { background: #161b22; border: 1px solid #30363d; color: #c9d1d9; font-size: 12px; min-width: 28px; padding: 3px 7px; border-radius: 5px; cursor: pointer; }
+    .rp-tool.on { border-color: #f0e130; color: #f0e130; background: rgba(240,225,48,0.08); }
+    .rp-measure-btn { width: 100%; text-align: left; border-color: #9e8a1f; color: #f0e130; font-family: ui-monospace, monospace; font-size: 11.5px; padding: 6px 10px; }
+    .rp-swatches { display: inline-flex; gap: 3px; margin: 0 4px; }
+    .rp-sw { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #30363d; cursor: pointer; padding: 0; }
+    .rp-sw.on { border-color: #e6edf3; box-shadow: 0 0 0 1px #0d1117 inset; }
+    .rp-measures { display: flex; gap: 12px; flex-wrap: wrap; font-family: ui-monospace, monospace; font-size: 11.5px; color: #c9d1d9; }
+    .rp-measures b { color: #f0e130; }
+    .rp-del { align-self: flex-start; background: none; border: none; color: #6e7681; font-size: 11px; cursor: pointer; padding: 2px 0; }
+    .rp-del:hover { color: #f85149; }
+    .rp-empty { padding: 40px 0; text-align: center; color: #8b949e; font-size: 13px; }
+    @media (max-width: 1000px) {
+      .rp-cols-h { display: none; }
+      .rp-row, .rp-headgrid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Printed report (light theme) ── */
+    #print-report { display: none; }
+    @media print {
+      @page { size: letter; margin: 14mm 13mm 16mm; @bottom-right { content: "Page " counter(page) " of " counter(pages); font: 8pt sans-serif; color: #666; } }
+      html, body { background: #fff !important; height: auto !important; overflow: visible !important; display: block !important; }
+      body > *:not(#print-report) { display: none !important; }
+      #print-report { display: block !important; color: #1f2328; font: 10pt/1.45 -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+                      -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      #print-report h1 { font-size: 20pt; margin: 0 0 2mm; color: #0b1f3a; }
+      #print-report h2 { font-size: 12.5pt; margin: 6mm 0 2.5mm; color: #0b1f3a; border-bottom: 1.5px solid #0b1f3a; padding-bottom: 1mm; }
+      #print-report h3 { font-size: 11pt; margin: 0 0 2mm; color: #0b1f3a; display: flex; justify-content: space-between; align-items: baseline; gap: 4mm; }
+      #print-report h3 span { font-size: 8.5pt; font-weight: 400; color: #57606a; }
+      #print-report h4 { font-size: 9pt; margin: 0 0 1mm; text-transform: uppercase; letter-spacing: 0.5px; color: #57606a; }
+      #print-report p { margin: 0 0 2mm; }
+      .pr-head { border-bottom: 3px solid #0b1f3a; padding-bottom: 3mm; }
+      .pr-meta { color: #57606a; font-size: 10pt; }
+      .pr-summary { display: grid; grid-template-columns: 0.9fr 1.4fr; gap: 6mm; align-items: start; break-inside: avoid; }
+      .pr-summary figure { margin: 6mm 0 0; }
+      .pr-summary figure img { width: 100%; border: 1px solid #d0d7de; }
+      .pr-summary figcaption, .pr-muted { font-size: 8pt; color: #57606a; }
+      #print-report table { border-collapse: collapse; width: 100%; font-size: 9pt; }
+      #print-report th { text-align: left; color: #57606a; font-weight: 500; padding: 1mm 3mm 1mm 0; vertical-align: top; white-space: nowrap; }
+      #print-report td { padding: 1mm 0; border-bottom: 0.5px solid #eaeef2; }
+      .pr-area { break-inside: avoid; }
+      .pr-obs-h { break-before: page; }
+      .pr-obs { break-inside: avoid; page-break-inside: avoid; margin: 0 0 7mm; padding-bottom: 5mm; border-bottom: 1px solid #d0d7de; }
+      .pr-img { width: 100%; max-height: 118mm; object-fit: contain; background: #000; display: block; margin-bottom: 3mm; }
+      .pr-cols { display: grid; grid-template-columns: 1.05fr 1fr; gap: 6mm; }
+      .pr-diags { display: flex; gap: 3mm; margin-top: 2mm; }
+      .pr-diags svg { border: 0.5px solid #d0d7de; width: 34mm; height: auto; }
+      .pr-diags svg:last-child { width: 23mm; }
+      .pr-notes ul { margin: 0 0 1mm 4mm; padding: 0; }
+      .pr-foot { margin-top: 8mm; font-size: 7.5pt; color: #57606a; border-top: 1px solid #d0d7de; padding-top: 2mm; }
+    }
+    /* ── Capture button + tray ── */
+    .capture-group { display: inline-flex; align-items: center; background: rgba(240,136,62,0.12); border: 1px solid #f0883e88; border-radius: 6px; }
+    .capture-group .ctrl-btn { padding: 3px 6px; }
+    .capture-more { font-size: 10px !important; color: #f0883e !important; border-left: 1px solid #f0883e55 !important; border-radius: 0 !important; }
+    .capture-tray { display: none; align-items: center; gap: 10px; padding: 6px 12px 8px; background: #0d1117; border-top: 1px solid #30363d; flex-shrink: 0; }
+    .capture-tray.visible { display: flex; }
+    .ct-label { font: 10px ui-monospace, Menlo, monospace; color: #8b949e; letter-spacing: 1px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .ct-label b { font-size: 16px; color: #f0883e; letter-spacing: 0; }
+    .ct-strip { flex: 1; display: flex; gap: 6px; overflow-x: auto; overflow-y: hidden; padding: 2px 0 4px; min-width: 0; scrollbar-width: thin; }
+    .ct-item { position: relative; flex: 0 0 auto; height: 54px; border-radius: 4px; overflow: hidden; border: 2px solid #30363d; cursor: pointer; background: #000; }
+    .ct-item:hover { border-color: #8b949e; }
+    .ct-item.flash { border-color: #f0883e; box-shadow: 0 0 0 2px #f0883e66; }
+    .ct-item img { height: 100%; display: block; }
+    .ct-n { position: absolute; top: 2px; left: 2px; background: rgba(13,17,23,0.85); color: #f0883e; font: 700 10px ui-monospace, monospace; padding: 0 4px; border-radius: 3px; }
+    .ct-t { position: absolute; bottom: 2px; left: 2px; background: rgba(13,17,23,0.8); color: #c9d1d9; font: 9px ui-monospace, monospace; padding: 0 3px; border-radius: 3px; }
+    .ct-dot { position: absolute; bottom: 4px; right: 4px; width: 7px; height: 7px; border-radius: 50%; background: #f0e130; box-shadow: 0 0 0 1px #0d1117; }
+    .ct-x { position: absolute; top: 1px; right: 1px; width: 17px; height: 17px; line-height: 15px; border-radius: 50%; border: none; background: rgba(13,17,23,0.85); color: #e6edf3; font-size: 12px; cursor: pointer; display: none; padding: 0; }
+    .ct-item:hover .ct-x { display: block; }
+    .ct-x:hover { background: #da3633; }
+    .ct-restore { font-size: 12px; color: #8b949e; display: flex; align-items: center; gap: 8px; }
+    .ct-open { white-space: nowrap; flex-shrink: 0; }
+    .shutter-flash { position: absolute; inset: 0; background: #fff; opacity: 0.55; pointer-events: none; z-index: 40; animation: shutter 0.35s ease-out forwards; }
+    @keyframes shutter { to { opacity: 0; } }
+    .grab-menu-opt { display: flex; gap: 6px; align-items: flex-start; font-size: 11px; color: #c9d1d9; padding: 6px 10px; border-top: 1px solid #21262d; cursor: pointer; }
+    .rp-cam { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 10px; padding: 6px 8px; border: 1px solid #30363d; border-radius: 6px; font-size: 11px; color: #8b949e; }
+    .rp-cam.need { border-color: #9e6a03; background: rgba(210,153,34,0.08); }
+    .rp-cam label { display: inline-flex; align-items: center; gap: 4px; }
+    .rp-num-in { width: 54px; background: #0d1117; border: 1px solid #30363d; color: #e6edf3; border-radius: 4px; padding: 2px 4px; font: 11px ui-monospace, monospace; }
+    .rp-cam .rp-mini.on { border-color: #f0e130; color: #f0e130; }
+    .rp-warn { color: #d29922 !important; }
+    .rp-pitchwarn { margin: 10px 0 0; padding: 8px 12px; border: 1px solid #9e6a03; background: rgba(210,153,34,0.1); color: #e3b341; border-radius: 6px; font-size: 12px; line-height: 1.5; }
+    .hdr-drone { display: inline-flex; align-items: center; gap: 4px; padding: 3px 6px; }
+    .hdr-drone select { background: transparent; border: none; color: #e6edf3; font: inherit; font-size: 12px; max-width: 170px; cursor: pointer; outline: none; }
+    .hdr-drone select option, .hdr-drone select optgroup { background: #161b22; color: #e6edf3; }
   </style>
 </head>
 <body>
@@ -560,6 +722,8 @@
       <input type="file" id="srt-input" accept=".srt,.txt,.csv" multiple style="display:none">
     </label>
 
+    <label class="btn hdr-drone" title="Drone / camera — sets the field of view used for footprints, map cones, horizon tilt and measurements">🚁 <select id="hdr-model"></select></label>
+    <button class="btn" id="report-btn" title="Inspection report: annotated frames, notes, measurements → PDF">📝 Report<span id="report-count"></span></button>
     <button class="btn" id="chart-toggle-btn" style="display:none">📊 Charts</button>
     <button class="btn" id="export-csv-btn" style="display:none">⬇ CSV</button>
   </div>
@@ -616,6 +780,7 @@
         <button class="ctrl-btn" id="skip-fwd-btn" title="+10s">⏩</button>
         <button class="ctrl-btn" id="mute-btn" title="Mute">🔊</button>
         <button class="ctrl-btn" id="tag-btn" title="Tag feature at current position (T)">🏷</button>
+        <span class="capture-group"><button class="ctrl-btn" id="capture-btn" title="Capture this frame for the report (G)">📸</button><button class="ctrl-btn capture-more" id="grab-btn" title="More capture options (download JPG, overlay, batch extract)">▾</button></span>
         <button class="ctrl-btn" id="click-tag-btn" title="Click video pixels to tag features (C)" style="display:none">🎯</button>
         <span id="fov-row" style="display:none; align-items:center; gap:3px; flex-wrap:wrap;">
           <select id="drone-model-select" class="fov-input" style="width:auto; max-width:95px; font-size:10px; cursor:pointer" title="Preset HFOV for common DJI models (16:9 video mode). Computed from manufacturer DFOV specs.">
@@ -660,6 +825,13 @@
         </select>
       </div>
     </div>
+
+    <!-- Capture tray: frames captured for the report -->
+    <div class="capture-tray" id="capture-tray">
+      <div class="ct-label">CAPTURES<b id="ct-count">0</b></div>
+      <div class="ct-strip" id="ct-strip"></div>
+      <button class="btn btn-primary ct-open" id="ct-open" title="Annotate, add notes and measurements, then print / save PDF">📝 Report →</button>
+    </div>
   </div>
 
   <!-- Map Panel -->
@@ -672,6 +844,7 @@
       <button class="btn" id="toggle-satellite" style="font-size:11px; padding:3px 8px">🛰 Satellite</button>
       <button class="btn" id="toggle-ortho" style="font-size:11px; padding:3px 8px" title="Load orthomosaic overlay">🖼 Ortho</button>
       <button class="btn" id="toggle-tags" style="font-size:11px; padding:3px 8px" title="Show tagged features">🏷 Tags<span id="tag-count-badge"></span></button>
+      <button class="btn" id="toggle-3d" style="font-size:11px; padding:3px 8px; display:none" title="3D flight path + altitude profile (key 3)">🧊 3D</button>
       <button class="btn" id="toggle-footprint" style="font-size:11px; padding:3px 8px" title="Show projected camera footprint on map (calibrate FOV + heading offset)">📐 Footprint</button>
     </div>
 
@@ -737,6 +910,24 @@
     </div>
 
     <!-- Feature tags panel -->
+    <!-- Footprint panel (shown while 📐 Footprint is on) -->
+    <div class="ortho-panel" id="footprint-panel">
+      <div class="ortho-row">
+        <span class="ortho-label" style="color:#f0883e; font-weight:600">📐 Camera footprint</span>
+        <label class="ortho-label" title="Draw dashed rays from the drone to the four image corners"><input type="checkbox" id="fp-cone" checked> View cone</label>
+        <label class="ortho-label" title="Leave a footprint on the map every few seconds as the video plays — shows ground coverage and overlap"><input type="checkbox" id="fp-trail"> Coverage trail</label>
+        <span class="ortho-label">every</span><input class="ortho-input" id="fp-trail-every" type="number" value="2" min="0.2" step="0.5" style="width:50px"><span class="ortho-label">s</span>
+        <button class="btn" id="fp-fill" style="font-size:11px; padding:2px 8px" title="Draw footprints for the whole flight at once, using the interval">▦ Whole flight</button>
+        <button class="btn" id="fp-clear" style="font-size:11px; padding:2px 8px">✕ Clear</button>
+        <span class="ortho-label" id="fp-trail-count"></span>
+        <span class="ortho-label" style="margin-left:auto" title="Oblique views: rays that would hit the ground beyond this distance (or never, above the horizon) are cut here">Max range</span><input class="ortho-input" id="fp-range" type="number" value="300" min="20" step="50" style="width:60px"><span class="ortho-label">m</span>
+      </div>
+      <div class="ortho-row">
+        <span class="ortho-label" id="fp-readout" style="color:#e6edf3; white-space:normal">Play or scrub the video to see the footprint.</span>
+        <span class="ortho-label" style="margin-left:auto; color:#6e7681; cursor:help" title="Calibrate with the HFoV / Pitch / Hdg± controls under the video. Assumes flat ground at takeoff height — hills and buildings shift the real footprint. GSD is for the video resolution, not still photos.">ⓘ flat-ground estimate</span>
+      </div>
+    </div>
+
     <div class="tag-list-panel" id="tag-list-panel">
       <div class="tag-list-header">
         📍 Tagged Features
@@ -746,6 +937,20 @@
     </div>
 
     <div id="map"></div>
+
+    <!-- 3D flight view (replaces the map while active) -->
+    <div id="view3d">
+      <canvas id="v3d-canvas"></canvas>
+      <div class="v3d-controls">
+        <label class="ortho-label">Vertical <input type="range" id="v3d-exag" min="1" max="10" step="0.5" value="1" style="width:80px; vertical-align:middle"> <span id="v3d-exag-val">×1</span></label>
+        <label class="ortho-label" title="Keep the camera centred on the drone while the video plays"><input type="checkbox" id="v3d-follow"> Follow</label>
+        <button class="btn" id="v3d-top" style="font-size:10px; padding:2px 6px">Top</button>
+        <button class="btn" id="v3d-side" style="font-size:10px; padding:2px 6px">Side</button>
+        <button class="btn" id="v3d-reset" style="font-size:10px; padding:2px 6px">Reset</button>
+      </div>
+      <div class="v3d-hint">drag: rotate · right/shift-drag: pan · wheel: zoom · click track: jump video</div>
+      <canvas id="v3d-profile"></canvas>
+    </div>
   </div>
 </div>
 
@@ -796,6 +1001,77 @@
 </div>
 
 <!-- Feature tag modal -->
+<!-- Inspection report builder (full-window) -->
+<div id="report-view">
+  <div class="rp-top">
+    <button class="btn" id="rp-close">◀ Video</button>
+    <b style="color:#58a6ff">📝 Inspection Report</b>
+    <span class="rp-muted" id="rp-count">0 observations</span>
+    <span class="rp-hint" id="rp-tool-hint" style="display:none"></span>
+    <button class="btn" id="rp-add" style="margin-left:auto" title="Add the frame currently shown in the video (R)">＋ Add current frame</button>
+    <button class="btn btn-primary" id="rp-print" title="Opens the print dialog — choose “Save as PDF” as the destination">🖨 Print / Save PDF</button>
+  </div>
+  <div class="rp-scroll">
+    <div class="rp-restore" id="rp-restore" style="display:none"></div>
+    <section class="rp-head">
+      <div class="rp-fields">
+        <label>Title<input id="rp-title" type="text" class="rp-in" style="min-width:320px"></label>
+        <label>Prepared by<input id="rp-inspector" type="text" class="rp-in" placeholder="Name"></label>
+        <label>Date<input id="rp-date" type="text" class="rp-in" placeholder="YYYY-MM-DD" style="width:110px"></label>
+        <label title="Sets the camera field of view used for footprints, map cones, horizon tilt and measurements">Drone / camera<select id="rp-model" class="rp-in" style="padding:5px 6px"></select></label>
+        <label title="Horizontal field of view of the video (degrees). Picking a drone fills this in.">HFoV °<input id="rp-hfov" type="number" class="rp-in" min="20" max="160" step="0.5" style="width:70px"></label>
+      </div>
+      <div class="rp-headgrid">
+        <div><div class="rp-sec">FLIGHT SUMMARY</div><div id="rp-summary"></div></div>
+        <div><div class="rp-sec">MAP</div><img id="rp-map" alt="Flight map" style="display:none">
+          <div class="rp-muted" style="margin-top:4px">Orange = each capture's camera field of view on the ground (flat-ground estimate). A dashed far edge means the view continues to the horizon and is cut short on this map. Set each frame's Tilt below (or HFoV / Hdg± under the video) to calibrate.</div></div>
+      </div>
+      <div class="rp-sec" style="display:flex; align-items:center; gap:8px; margin-top:12px">AREA DESCRIPTION
+        <button class="btn" id="rp-describe" style="font-size:11px; padding:2px 8px" title="Uses OpenStreetMap to name the place and list mapped features (water, parks, land use, roads, buildings) around the flight">↻ Describe from flight location</button>
+        <span class="rp-muted" id="rp-area-status"></span></div>
+      <textarea id="rp-area" class="rp-in" rows="5" placeholder="Describe the site: location, land cover, access, conditions… or click “Describe from flight location” for a starting draft."></textarea>
+    </section>
+    <div class="rp-pitchwarn" id="rp-pitchwarn" style="display:none">⚠ This SRT records no camera tilt, so each frame starts out assumed to be looking <b>straight down</b>. For oblique shots, set the <b>Tilt</b> on each frame (type it, or use <b>⌖ Click horizon</b> on the horizon line) so the diagrams, footprints, map cones and measurements are correct. Pick your drone first (<b>🚁</b> in the top bar, or <b>Drone / camera</b> above).</div>
+    <div class="rp-cols-h"><span>FRAME</span><span>LOCATION DATA</span><span>NOTES</span></div>
+    <div id="rp-rows"></div>
+  </div>
+</div>
+
+<!-- Frame-grab menu -->
+<div id="grab-menu" class="grab-menu">
+  <button data-grab="plain">📥 Download frame <small>geotagged JPG to your Downloads folder</small></button>
+  <button data-grab="overlay">🧾 Download frame + telemetry overlay <small>caption, compass, scale bar</small></button>
+  <button data-grab="batch">🎞 Extract frames every N seconds… <small>ZIP for WebODM / Metashape</small></button>
+  <label class="grab-menu-opt"><input type="checkbox" id="grab-also-download"> Also download a geotagged JPG with every 📸 capture</label>
+  <div class="grab-menu-note">📸 / G captures the frame into the report tray</div>
+</div>
+
+<!-- Batch frame extraction -->
+<div class="tag-modal-bg" id="batch-modal-bg" style="display:none">
+  <div class="tag-modal" style="width:min(440px, 92vw)">
+    <h3>🎞 Extract frames to ZIP</h3>
+    <div class="batch-grid">
+      <span class="fov-label">Every</span>
+      <span><input type="number" class="fov-input" id="batch-every" value="2" min="0.1" step="0.5" style="width:64px"> <span class="fov-label">seconds</span></span>
+      <span class="fov-label">From</span>
+      <span><input type="text" class="fov-input" id="batch-from" placeholder="0:00" style="width:64px"> <button class="btn" id="batch-from-now" style="font-size:10px; padding:2px 6px">current time</button></span>
+      <span class="fov-label">To</span>
+      <span><input type="text" class="fov-input" id="batch-to" placeholder="end" style="width:64px"> <span class="fov-label">(m:ss or seconds; blank = end)</span></span>
+      <span class="fov-label">Quality</span>
+      <span><select class="fov-input" id="batch-quality" style="width:auto"><option value="0.85">Smaller (85)</option><option value="0.92" selected>Standard (92)</option><option value="0.97">Max (97)</option></select></span>
+      <span class="fov-label">Overlay</span>
+      <span><label class="fov-label"><input type="checkbox" id="batch-overlay"> burn in telemetry caption (not for photogrammetry)</label></span>
+    </div>
+    <div class="fov-label" id="batch-estimate" style="white-space:normal"></div>
+    <div class="batch-bar"><div id="batch-progress"></div></div>
+    <div class="fov-label" id="batch-status" style="white-space:normal; min-height:14px"></div>
+    <div class="tag-modal-btns">
+      <button class="btn" id="batch-cancel-btn">Close</button>
+      <button class="btn btn-primary" id="batch-start-btn">Extract</button>
+    </div>
+  </div>
+</div>
+
 <div class="tag-modal-bg" id="tag-modal-bg" style="display:none">
   <div class="tag-modal">
     <h3>Tag Feature</h3>
@@ -854,6 +1130,10 @@ function parseDjiSrt(text) {
     const payload = lines.slice(2).join(' ');
 
     const frame = { t: startSec };
+
+    // Wall-clock timestamp line (e.g. "2026-06-03 11:06:37,745,635") — used for frame-grab EXIF
+    let dm = payload.match(/(\d{4})[-.\/](\d{2})[-.\/](\d{2})[ T]+(\d{2}):(\d{2}):(\d{2})(?:[,.](\d{1,3}))?/);
+    if (dm) frame.dateTime = `${dm[1]}-${dm[2]}-${dm[3]} ${dm[4]}:${dm[5]}:${dm[6]}` + (dm[7] ? `.${dm[7].padEnd(3,'0')}` : '');
 
     // ── Format A: newer DJI firmware ──────────────────────────────────────
     // [iso:100] [shutter:1/1000] [fnum:280] [ev:0] [ct:5500]
@@ -1338,6 +1618,8 @@ function updateMapLegend() {
 // ═══════════════════════════════════════════════
 
 const video = document.getElementById('video');
+let videoFileName = 'video';   // used to name frame grabs
+let srtFileName = '';
 const dropOverlay = document.getElementById('drop-overlay');
 const hud = document.getElementById('hud');
 
@@ -1349,6 +1631,7 @@ function routeFiles(files) {
   const srtFile   = list.find(f => /\.srt$/i.test(f.name)) || list.find(f => /\.txt$/i.test(f.name));
   const logFile   = list.find(f => /\.csv$/i.test(f.name));
   if (videoFile) {
+    videoFileName = videoFile.name;
     video.src = URL.createObjectURL(videoFile);
     video.style.display = 'block';
     dropOverlay.style.display = 'none';
@@ -1361,6 +1644,7 @@ function routeFiles(files) {
   });
   (async () => {
     if (srtFile) {
+      srtFileName = srtFile.name;
       const txt = await readText(srtFile);
       if (looksLikeDjiFlightRecord(txt)) {
         alert(`${srtFile.name} looks like an encrypted DJI flight record, not an SRT.\n\n`
@@ -1388,6 +1672,7 @@ document.getElementById('combined-input').addEventListener('change', e => {
 document.getElementById('video-input').addEventListener('change', e => {
   const file = e.target.files[0];
   if (!file) return;
+  videoFileName = file.name;
   video.src = URL.createObjectURL(file);
   video.style.display = 'block';
   dropOverlay.style.display = 'none';
@@ -1432,6 +1717,7 @@ function loadTelemetry(srtText) {
   document.getElementById('map-status').textContent = `${frames.length} frames loaded`;
   document.getElementById('tel-strip').classList.add('visible');
   showChartControls();
+  if (typeof onTelemetryLoaded === 'function') onTelemetryLoaded();
 }
 
 function updateBadge(text) {
@@ -1621,6 +1907,9 @@ function syncTelemetry(t) {
 
   // ── Camera footprint overlay (independent of click-tag mode) ────────
   updateFootprint(f);
+
+  // ── 3D view / altitude profile ────────
+  if (typeof view3dOnFrame === 'function') view3dOnFrame(t, f);
 }
 
 // ═══════════════════════════════════════════════
@@ -2189,12 +2478,15 @@ function setOrthoStatus(msg, color = '#8b949e') {
 
 // Keyboard shortcuts
 document.addEventListener('keydown', e => {
-  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
   if (e.code === 'Space') { e.preventDefault(); playBtn.click(); }
   if (e.code === 'ArrowLeft') document.getElementById('skip-back-btn').click();
   if (e.code === 'ArrowRight') document.getElementById('skip-fwd-btn').click();
   if (e.code === 'KeyM') muteBtn.click();
   if (e.code === 'KeyT') openTagModal();
+  if (e.code === 'KeyG' || e.code === 'KeyR') { e.preventDefault(); addToReport(); }
+  if (e.code === 'Digit3' && telFrames.length) toggle3D();
   if (e.code === 'KeyC') { const btn = document.getElementById('click-tag-btn'); if (btn.style.display !== 'none') btn.click(); }
 });
 
@@ -2378,13 +2670,13 @@ function getVideoContentRect() {
 //   t = -alt / ray[U]      → ground offset = t * ray[E, N]
 //
 // projectUV is shared by pixelToGeo (click) and updateFootprint (4 corners).
-function projectUV(u, v, frame) {
+function projectUV(u, v, frame, opts) {
   // Apply horizontal mirror if toggled (fixes cameras with reversed u-axis convention)
   const ue = mirrorH ? -u : u;
   u = ue;
   const hFovDeg = parseFloat(document.getElementById('fov-input').value) || 73;
   const hFovRad = hFovDeg * Math.PI / 180;
-  const aspect  = video.videoWidth / video.videoHeight;
+  const aspect  = (video.videoWidth && video.videoHeight) ? video.videoWidth / video.videoHeight : 16 / 9;
   const vFovRad = 2 * Math.atan(Math.tan(hFovRad / 2) / aspect);
 
   const alt = frame.altRel ?? frame.altAbs ?? 0;
@@ -2420,21 +2712,33 @@ function projectUV(u, v, frame) {
     u*th*rgt[2] - v*tv*cup[2] + fwd[2],
   ];
 
-  // Ray must point downward to intersect ground
-  if (ray[2] >= 0) return null;
-
-  const t = -alt / ray[2];
-  const E_world = t * ray[0];
-  const N_world = t * ray[1];
-
-  // Cap at 5 km to avoid extreme projections at very shallow angles
-  if (Math.abs(E_world) > 5000 || Math.abs(N_world) > 5000) return null;
+  let E_world, N_world, clipped = false;
+  const clipRange = opts && opts.clipRange;
+  if (ray[2] < 0) {
+    const t = -alt / ray[2];
+    E_world = t * ray[0];
+    N_world = t * ray[1];
+  }
+  const horiz = E_world !== undefined ? Math.hypot(E_world, N_world) : Infinity;
+  if (clipRange && horiz > clipRange) {
+    // Ray hits ground beyond the range (or never — above the horizon): stop it at clipRange
+    // along its horizontal direction so oblique views still draw a (truncated) footprint.
+    const hl = Math.hypot(ray[0], ray[1]) || 1;
+    E_world = ray[0] / hl * clipRange;
+    N_world = ray[1] / hl * clipRange;
+    clipped = true;
+  } else {
+    // Ray must point downward to intersect ground
+    if (ray[2] >= 0) return null;
+    // Cap at 5 km to avoid extreme projections at very shallow angles
+    if (Math.abs(E_world) > 5000 || Math.abs(N_world) > 5000) return null;
+  }
 
   const R   = 6371000;
   const lat = frame.lat + (N_world / R) * (180 / Math.PI);
   const lon = frame.lon + (E_world / (R * Math.cos(frame.lat * Math.PI / 180))) * (180 / Math.PI);
 
-  return { lat, lon, pitch: pDeg, yaw: psiDeg, usedLivePitch };
+  return { lat, lon, pitch: pDeg, yaw: psiDeg, usedLivePitch, clipped, E: E_world, N: N_world };
 }
 
 function pixelToGeo(clientX, clientY, frame) {
@@ -2454,32 +2758,114 @@ function pixelToGeo(clientX, clientY, frame) {
 // Camera footprint polygon — projects all 4 corners of the video frame to ground.
 // Updated every frame in syncTelemetry when showFootprint is true.
 // Lets you visually dial in HFoV (scale) and heading offset (rotation) without clicking.
-function updateFootprint(frame) {
-  if (!showFootprint || !frame || !video.videoWidth) {
-    if (footprintLayer) { map.removeLayer(footprintLayer); footprintLayer = null; }
-    return;
-  }
+// Extras: view-cone rays (drone → corners), a coverage trail, range clipping for oblique
+// views (top edge above the horizon is cut at "max range" and drawn dashed), and a live
+// readout of footprint size + video GSD.
+let footprintCone  = null;          // L.layerGroup of 4 polylines drone → corners
+let footprintTrail = null;          // L.layerGroup of past footprints (coverage)
+let footprintTrailKeys = new Set();
+const fpOpts = { cone: true, trail: false, trailEvery: 2, clipRange: 300 };
+
+function footprintCorners(frame) {
+  const o = { clipRange: fpOpts.clipRange };
   // UV corners: TL, TR, BR, BL
-  const corners = [
-    projectUV(-1, -1, frame),
-    projectUV( 1, -1, frame),
-    projectUV( 1,  1, frame),
-    projectUV(-1,  1, frame),
-  ];
+  return [projectUV(-1, -1, frame, o), projectUV(1, -1, frame, o),
+          projectUV( 1,  1, frame, o), projectUV(-1, 1, frame, o)];
+}
+
+function clearFootprintLive() {
+  if (footprintLayer) { map.removeLayer(footprintLayer); footprintLayer = null; }
+  if (footprintCone)  { map.removeLayer(footprintCone);  footprintCone  = null; }
+}
+
+function setFpReadout(html) {
+  const el = document.getElementById('fp-readout');
+  if (el) el.innerHTML = html;
+}
+
+function footprintStats(frame) {
+  const L_ = projectUV(-1, 0, frame), R_ = projectUV(1, 0, frame);
+  const T_ = projectUV(0, -1, frame), B_ = projectUV(0, 1, frame);
+  const C_ = projectUV(0, 0, frame);
+  const width = (L_ && R_) ? haversine(L_.lat, L_.lon, R_.lat, R_.lon) : null;
+  const depth = (T_ && B_) ? haversine(T_.lat, T_.lon, B_.lat, B_.lon) : null;
+  const slant = C_ ? Math.hypot(haversine(frame.lat, frame.lon, C_.lat, C_.lon), frame.altRel ?? frame.altAbs ?? 0) : null;
+  const gsd = (width && video.videoWidth) ? width / video.videoWidth * 100 : null;   // cm / px across the centre row
+  return { width, depth, gsd, slant, center: C_ };
+}
+
+function addTrailFootprint(frame) {
+  const corners = footprintCorners(frame);
+  if (corners.some(c => !c)) return;
+  if (!footprintTrail) footprintTrail = L.layerGroup();
+  if (showFootprint && !map.hasLayer(footprintTrail)) footprintTrail.addTo(map);
+  L.polygon(corners.map(c => [c.lat, c.lon]), {
+    color: '#d29922', weight: 0.6, opacity: 0.45,
+    fillColor: '#d29922', fillOpacity: 0.06, interactive: false,
+  }).addTo(footprintTrail);
+}
+
+function clearFootprintTrail() {
+  if (footprintTrail) footprintTrail.clearLayers();
+  footprintTrailKeys = new Set();
+  updateTrailCount();
+}
+function updateTrailCount() {
+  const el = document.getElementById('fp-trail-count');
+  if (el) el.textContent = footprintTrailKeys.size ? `${footprintTrailKeys.size} footprints` : '';
+}
+
+function updateFootprint(frame) {
+  if (!showFootprint || !frame) { clearFootprintLive(); return; }
+  const corners = footprintCorners(frame);
   if (corners.some(c => !c)) {
-    if (footprintLayer) { map.removeLayer(footprintLayer); footprintLayer = null; }
+    clearFootprintLive();
+    setFpReadout('<span style="color:#d29922">No ground footprint — altitude &lt; 0.5 m or camera looking up.</span>');
     return;
   }
   const latlngs = corners.map(c => [c.lat, c.lon]);
+  const clipped = corners.some(c => c.clipped);
   if (!footprintLayer) {
     footprintLayer = L.polygon(latlngs, {
       color: '#f0883e', weight: 2, opacity: 0.9,
       fillColor: '#f0883e', fillOpacity: 0.07,
-      interactive: false, dashArray: null,
+      interactive: false, dashArray: clipped ? '6 5' : null,
     }).addTo(map);
   } else {
     footprintLayer.setLatLngs(latlngs);
+    footprintLayer.setStyle({ dashArray: clipped ? '6 5' : null });
   }
+
+  // View cone: rays from the drone to each image corner
+  if (fpOpts.cone) {
+    if (!footprintCone) {
+      footprintCone = L.layerGroup(latlngs.map(() =>
+        L.polyline([[frame.lat, frame.lon], [frame.lat, frame.lon]],
+          { color: '#f0883e', weight: 1, opacity: 0.7, dashArray: '2 4', interactive: false })
+      )).addTo(map);
+    }
+    const rays = footprintCone.getLayers();
+    latlngs.forEach((ll, i) => rays[i].setLatLngs([[frame.lat, frame.lon], ll]));
+  } else if (footprintCone) { map.removeLayer(footprintCone); footprintCone = null; }
+
+  // Coverage trail — one footprint every N seconds of video time
+  if (fpOpts.trail) {
+    const key = Math.floor(frame.t / fpOpts.trailEvery);
+    if (!footprintTrailKeys.has(key)) {
+      footprintTrailKeys.add(key);
+      addTrailFootprint(frame);
+      updateTrailCount();
+    }
+  }
+
+  // Readout
+  const st = footprintStats(frame);
+  const m = v => v == null ? '—' : (v >= 100 ? v.toFixed(0) : v.toFixed(1));
+  let txt = `<b>${m(st.width)} × ${m(st.depth)} m</b> on the ground`;
+  if (st.gsd) txt += ` · GSD ≈ <b>${st.gsd.toFixed(st.gsd < 10 ? 1 : 0)} cm/px</b> (centre, ${video.videoWidth}px video)`;
+  if (st.slant) txt += ` · slant range ${m(st.slant)} m`;
+  if (clipped) txt += ` · <span style="color:#d29922">far edge cut at ${fpOpts.clipRange} m (dashed)</span>`;
+  setFpReadout(txt);
 }
 
 function setClickTagMode(active) {
@@ -2489,7 +2875,7 @@ function setClickTagMode(active) {
   const wrapper = document.getElementById('video-wrapper');
   btn.style.borderColor = active ? '#f0883e' : '';
   btn.style.color       = active ? '#f0883e' : '';
-  fovRow.style.display  = active ? 'flex' : 'none';
+  fovRow.style.display  = (active || showFootprint) ? 'flex' : 'none';
   wrapper.classList.toggle('click-tag-active', active);
   if (!active && hoverGeoMarker) {
     map.removeLayer(hoverGeoMarker);
@@ -2510,9 +2896,11 @@ document.getElementById('drone-model-select').addEventListener('change', e => {
 
 // Re-render footprint immediately when projection controls change (works while video is paused)
 function refreshFootprintNow() {
-  if (!showFootprint || !telFrames.length) return;
+  if (!telFrames.length) return;
+  if (!showFootprint) { if (typeof view3dRedraw === 'function') view3dRedraw(); return; }
   const f = getFrameAt(video.currentTime);
   if (f) updateFootprint(f);
+  if (typeof view3dRedraw === 'function') view3dRedraw();
 }
 ['fov-input', 'pitch-override-input', 'heading-offset-input'].forEach(id => {
   document.getElementById(id)?.addEventListener('input', refreshFootprintNow);
@@ -2536,14 +2924,44 @@ document.getElementById('toggle-footprint').addEventListener('click', () => {
   const btn = document.getElementById('toggle-footprint');
   btn.style.borderColor = showFootprint ? '#f0883e' : '';
   btn.style.color       = showFootprint ? '#f0883e' : '';
-  if (!showFootprint && footprintLayer) {
-    map.removeLayer(footprintLayer);
-    footprintLayer = null;
-  } else if (showFootprint && telFrames.length) {
-    // Render immediately at current position rather than waiting for next frame
-    const f = getFrameAt(video.currentTime);
-    if (f) updateFootprint(f);
+  document.getElementById('footprint-panel').classList.toggle('visible', showFootprint);
+  // FOV / pitch / heading-offset controls live in the video toolbar — show them while calibrating
+  document.getElementById('fov-row').style.display = (showFootprint || clickTagMode) ? 'flex' : 'none';
+  if (!showFootprint) {
+    clearFootprintLive();
+    if (footprintTrail) map.removeLayer(footprintTrail);
+  } else {
+    if (footprintTrail) footprintTrail.addTo(map);
+    if (telFrames.length) {
+      // Render immediately at current position rather than waiting for next frame
+      const f = getFrameAt(video.currentTime);
+      if (f) updateFootprint(f);
+    }
   }
+  if (typeof view3dRedraw === 'function') view3dRedraw();
+});
+
+document.getElementById('fp-cone').addEventListener('change', e => { fpOpts.cone = e.target.checked; refreshFootprintNow(); });
+document.getElementById('fp-trail').addEventListener('change', e => { fpOpts.trail = e.target.checked; refreshFootprintNow(); });
+document.getElementById('fp-trail-every').addEventListener('change', e => {
+  fpOpts.trailEvery = Math.max(0.2, parseFloat(e.target.value) || 2);
+});
+document.getElementById('fp-range').addEventListener('change', e => {
+  fpOpts.clipRange = Math.max(20, parseFloat(e.target.value) || 300);
+  refreshFootprintNow();
+});
+document.getElementById('fp-clear').addEventListener('click', clearFootprintTrail);
+document.getElementById('fp-fill').addEventListener('click', () => {
+  if (!telFrames.length) return;
+  clearFootprintTrail();
+  const every = fpOpts.trailEvery;
+  for (const f of telFrames) {
+    const key = Math.floor(f.t / every);
+    if (footprintTrailKeys.has(key)) continue;
+    footprintTrailKeys.add(key);
+    addTrailFootprint(f);
+  }
+  updateTrailCount();
 });
 
 // Click on video → project pixel → open tag modal
@@ -2629,6 +3047,1933 @@ document.getElementById('export-tags-btn').addEventListener('click', () => {
   a.download = 'feature_tags.csv';
   a.click();
 });
+</script>
+
+<script>
+// ═══════════════════════════════════════════════
+// FRAME GRABS — current frame → JPG (geotagged EXIF + DJI-style XMP),
+// optional telemetry overlay, and batch extraction to a ZIP for photogrammetry
+// ═══════════════════════════════════════════════
+
+const grabState = { overlay: false, quality: 0.92, busy: false, cancel: false, alsoDownload: false };
+
+// Linear interpolation of position/altitude between SRT samples (headings: nearest sample).
+// Matters for 1 Hz SRTs, where a grab can fall up to a second between records.
+function interpolateFrame(t) {
+  if (!telFrames.length) return null;
+  let lo = 0, hi = telFrames.length - 1;
+  while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (telFrames[mid].t <= t) lo = mid; else hi = mid - 1; }
+  const a = telFrames[lo], b = telFrames[lo + 1];
+  if (!b || t <= a.t) return a;
+  const k = Math.max(0, Math.min(1, (t - a.t) / ((b.t - a.t) || 1)));
+  const lerp = (x, y) => (x === undefined || y === undefined) ? (k < 0.5 ? x : y) : x + (y - x) * k;
+  const near = k < 0.5 ? a : b;
+  return { ...near, t, lat: lerp(a.lat, b.lat), lon: lerp(a.lon, b.lon),
+           altRel: lerp(a.altRel, b.altRel), altAbs: lerp(a.altAbs, b.altAbs) };
+}
+
+function grabBaseName() { return (videoFileName || 'video').replace(/\.[^.]+$/, ''); }
+function grabTimeTag(t) {
+  const ms = Math.round(t * 1000);
+  const m = Math.floor(ms / 60000), s = Math.floor(ms / 1000) % 60, r = ms % 1000;
+  return `${String(m).padStart(3, '0')}m${String(s).padStart(2, '0')}s${String(r).padStart(3, '0')}`;
+}
+function fmtTimeMs(t) {
+  const m = Math.floor(t / 60), s = t - m * 60;
+  return `${m}:${s.toFixed(3).padStart(6, '0')}`;
+}
+const norm360g = d => ((d % 360) + 360) % 360;
+
+// Pitch actually used: live SRT gimbal pitch, else nothing (we don't guess for metadata)
+function grabFrameInfo(f) {
+  if (!f) return null;
+  const headingOffset = parseFloat(document.getElementById('heading-offset-input')?.value) || 0;
+  const cam = f.cameraHeading ?? null;
+  return {
+    lat: f.lat, lon: f.lon,
+    altRel: f.altRel, altAbs: f.altAbs,
+    hSpeed: f.hSpeed, vSpeed: f.vSpeed,
+    flightYaw: f.flightHeading ?? null, headingSource: f.headingSource,
+    camYaw: cam !== null ? norm360g(cam + headingOffset) : null,
+    pitch: f.gimbalPitch, roll: f.gimbalRoll,
+    dateTime: f.dateTime || null,
+  };
+}
+
+function drawGrabOverlay(ctx, w, h, f, t) {
+  const info = grabFrameInfo(f);
+  const barH = Math.max(34, Math.round(h * 0.06));
+  const fs = Math.round(barH * 0.34);
+  ctx.fillStyle = 'rgba(13,17,23,0.72)';
+  ctx.fillRect(0, h - barH, w, barH);
+  ctx.textBaseline = 'middle';
+  ctx.font = `600 ${fs}px ui-monospace, Menlo, Consolas, monospace`;
+  const pad = Math.round(fs * 0.8);
+  const line1 = [videoFileName, info?.dateTime, `t ${fmtTimeMs(t)}`].filter(Boolean).join('  ·  ');
+  let line2 = 'No telemetry loaded';
+  if (info) {
+    const parts = [`${info.lat.toFixed(6)}°, ${info.lon.toFixed(6)}°`];
+    if (info.altRel !== undefined) parts.push(`Alt ${info.altRel.toFixed(1)} m` + (info.altAbs !== undefined && info.altAbs !== info.altRel ? ` (${info.altAbs.toFixed(1)} m abs)` : ''));
+    if (info.hSpeed !== undefined) parts.push(`Spd ${info.hSpeed.toFixed(1)} m/s`);
+    if (info.flightYaw !== null) parts.push(`${info.headingSource === 'gps' ? 'Trk' : 'Hdg'} ${String(Math.round(info.flightYaw)).padStart(3, '0')}°`);
+    if (info.camYaw !== null) parts.push(`Cam ${String(Math.round(info.camYaw)).padStart(3, '0')}°`);
+    if (info.pitch !== undefined) parts.push(`Pitch ${info.pitch.toFixed(0)}°`);
+    line2 = parts.join('  ·  ');
+  }
+  ctx.fillStyle = '#8b949e'; ctx.fillText(line1, pad, h - barH * 0.72);
+  ctx.fillStyle = '#e6edf3'; ctx.fillText(line2, pad, h - barH * 0.30);
+
+  if (!info) return;
+  // Compass (top-right): north arrow in image space for a camera whose image top faces camYaw.
+  const yaw = info.camYaw ?? (info.headingSource !== 'gps' ? info.flightYaw : null);
+  if (yaw !== null) {
+    const r = Math.round(h * 0.045), cx = w - r * 2.3, cy = r * 2.3;
+    ctx.save();
+    ctx.fillStyle = 'rgba(13,17,23,0.6)'; ctx.beginPath(); ctx.arc(cx, cy, r * 1.9, 0, Math.PI * 2); ctx.fill();
+    ctx.translate(cx, cy); ctx.rotate(-yaw * Math.PI / 180);
+    ctx.fillStyle = '#f85149';
+    ctx.beginPath(); ctx.moveTo(0, -r); ctx.lineTo(r * 0.35, 0); ctx.lineTo(-r * 0.35, 0); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#e6edf3';
+    ctx.beginPath(); ctx.moveTo(0, r); ctx.lineTo(r * 0.35, 0); ctx.lineTo(-r * 0.35, 0); ctx.closePath(); ctx.fill();
+    ctx.font = `700 ${Math.round(r * 0.55)}px sans-serif`; ctx.textAlign = 'center';
+    ctx.fillStyle = '#f85149'; ctx.fillText('N', 0, -r * 1.55);
+    ctx.restore();
+    ctx.textAlign = 'left';
+  }
+  // Scale bar — only when SRT says the gimbal is (near) nadir; flat-ground estimate
+  if (info.pitch !== undefined && info.pitch <= -80) {
+    const L_ = projectUV(-1, 0, f), R_ = projectUV(1, 0, f);
+    if (L_ && R_) {
+      const mPerPx = haversine(L_.lat, L_.lon, R_.lat, R_.lon) / w;
+      const target = mPerPx * w * 0.18;
+      const p10 = Math.pow(10, Math.floor(Math.log10(target)));
+      const nice = [1, 2, 5, 10].map(k => k * p10).filter(v => v <= target).pop() || p10;
+      const px = nice / mPerPx, x0 = pad, y0 = h - barH - fs * 1.4;
+      ctx.fillStyle = 'rgba(13,17,23,0.6)'; ctx.fillRect(x0 - fs * 0.4, y0 - fs * 1.3, px + fs * 0.8, fs * 2);
+      ctx.fillStyle = '#e6edf3'; ctx.fillRect(x0, y0, px, Math.max(3, fs * 0.22));
+      ctx.font = `600 ${Math.round(fs * 0.8)}px sans-serif`;
+      ctx.fillText(`${nice >= 1 ? nice : nice.toFixed(1)} m (approx.)`, x0, y0 - fs * 0.5);
+    }
+  }
+}
+
+function captureCanvas(overlay, f, t) {
+  const w = video.videoWidth, h = video.videoHeight;
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const ctx = c.getContext('2d');
+  ctx.drawImage(video, 0, 0, w, h);
+  if (overlay) drawGrabOverlay(ctx, w, h, f, t);
+  return c;
+}
+const canvasToJpeg = (c, q) => new Promise((res, rej) =>
+  c.toBlob(b => b ? b.arrayBuffer().then(ab => res(new Uint8Array(ab))) : rej(new Error('JPEG encode failed')), 'image/jpeg', q));
+
+// ── Minimal EXIF (TIFF, big-endian) writer: IFD0 + Exif IFD + GPS IFD ──
+function buildExifSegment(meta) {
+  const enc = new TextEncoder();
+  const L4 = v => [(v >>> 24) & 255, (v >>> 16) & 255, (v >>> 8) & 255, v & 255];
+  const E = (tag, type, count, bytes) => ({ tag, type, count, bytes: Uint8Array.from(bytes) });
+  const asc = (tag, s) => { const b = [...enc.encode(String(s).replace(/[^\x20-\x7e]/g, '?')), 0]; return E(tag, 2, b.length, b); };
+  const rat = (tag, arr) => E(tag, 5, arr.length, arr.flatMap(([n, d]) => [...L4(n), ...L4(d)]));
+  const lng = (tag, v) => E(tag, 4, 1, L4(v));
+  const byt = (tag, arr) => E(tag, 1, arr.length, arr);
+  const und = (tag, bytes) => E(tag, 7, bytes.length, bytes);
+  const exifDate = s => s ? s.slice(0, 19).replace(/^(\d{4})-(\d{2})-(\d{2})/, '$1:$2:$3') : null;
+  const dms = v => {
+    v = Math.abs(v); const d = Math.floor(v); const mf = (v - d) * 60; const m = Math.floor(mf);
+    const s = Math.min(599999, Math.round((mf - m) * 60 * 10000));
+    return [[d, 1], [m, 1], [s, 10000]];
+  };
+
+  const ifd0 = [asc(0x010E, meta.description || ''), asc(0x0131, 'Drone Video Viewer (frame grab)')];
+  const dt = exifDate(meta.dateTime);
+  if (dt) ifd0.push(asc(0x0132, dt));
+  const exif = [lng(0xA002, meta.width), lng(0xA003, meta.height)];
+  if (dt) exif.push(asc(0x9003, dt));
+  if (meta.comment) exif.push(und(0x9286, [...enc.encode('ASCII\0\0\0'), ...enc.encode(meta.comment.replace(/[^\x20-\x7e]/g, '?'))]));
+  let gps = null;
+  if (meta.lat !== undefined && meta.lon !== undefined) {
+    gps = [byt(0x0000, [2, 3, 0, 0]),
+           asc(0x0001, meta.lat >= 0 ? 'N' : 'S'), rat(0x0002, dms(meta.lat)),
+           asc(0x0003, meta.lon >= 0 ? 'E' : 'W'), rat(0x0004, dms(meta.lon))];
+    if (meta.alt !== undefined && Number.isFinite(meta.alt)) {
+      gps.push(byt(0x0005, [meta.alt < 0 ? 1 : 0]), rat(0x0006, [[Math.round(Math.abs(meta.alt) * 100), 100]]));
+    }
+    if (meta.imgDir !== null && meta.imgDir !== undefined) {
+      gps.push(asc(0x0010, 'T'), rat(0x0011, [[Math.round(norm360g(meta.imgDir) * 100), 100]]));
+    }
+    gps.push(asc(0x0012, 'WGS-84'));
+  }
+  // pointers (values filled after layout; sizes don't depend on them)
+  ifd0.push(lng(0x8769, 0)); if (gps) ifd0.push(lng(0x8825, 0));
+
+  const dataLen = es => es.reduce((n, e) => n + (e.bytes.length > 4 ? e.bytes.length + (e.bytes.length & 1) : 0), 0);
+  const ifdSize = es => 2 + 12 * es.length + 4 + dataLen(es);
+  const off0 = 8, offExif = off0 + ifdSize(ifd0), offGps = offExif + ifdSize(exif);
+  ifd0.find(e => e.tag === 0x8769).bytes = Uint8Array.from(L4(offExif));
+  if (gps) ifd0.find(e => e.tag === 0x8825).bytes = Uint8Array.from(L4(offGps));
+
+  const total = offGps + (gps ? ifdSize(gps) : 0);
+  const out = new Uint8Array(total);
+  out.set([0x4D, 0x4D, 0x00, 0x2A, 0, 0, 0, 8]);
+  const writeIFD = (es, off) => {
+    es.sort((a, b) => a.tag - b.tag);
+    let p = off, dataP = off + 2 + 12 * es.length + 4;
+    out[p++] = es.length >> 8; out[p++] = es.length & 255;
+    for (const e of es) {
+      out[p++] = e.tag >> 8; out[p++] = e.tag & 255;
+      out[p++] = 0; out[p++] = e.type;
+      out.set(L4(e.count), p); p += 4;
+      if (e.bytes.length <= 4) { out.set(e.bytes, p); p += 4; }
+      else { out.set(L4(dataP), p); p += 4; out.set(e.bytes, dataP); dataP += e.bytes.length + (e.bytes.length & 1); }
+    }
+    out.set([0, 0, 0, 0], p);   // no next IFD
+  };
+  writeIFD(ifd0, off0); writeIFD(exif, offExif); if (gps) writeIFD(gps, offGps);
+
+  const hdr = [...enc.encode('Exif'), 0, 0];
+  const len = 2 + hdr.length + out.length;
+  return Uint8Array.from([0xFF, 0xE1, len >> 8, len & 255, ...hdr, ...out]);
+}
+
+// DJI-style XMP (drone-dji namespace) — read by ODM/WebODM, Pix4D, Metashape for gimbal angles
+function buildXmpSegment(info) {
+  if (!info) return null;
+  const f = (v, d = 2, sign = true) => (v === undefined || v === null || !Number.isFinite(v)) ? null : ((sign && v >= 0 ? '+' : '') + v.toFixed(d));
+  const attrs = {
+    GpsLatitude: f(info.lat, 7, false), GpsLongitude: f(info.lon, 7, false),
+    AbsoluteAltitude: f(info.altAbs), RelativeAltitude: f(info.altRel),
+    GimbalYawDegree: f(info.camYaw !== null ? (info.camYaw > 180 ? info.camYaw - 360 : info.camYaw) : null),
+    GimbalPitchDegree: f(info.pitch), GimbalRollDegree: f(info.roll),
+    FlightYawDegree: f(info.flightYaw !== null && info.headingSource !== 'gps' ? (info.flightYaw > 180 ? info.flightYaw - 360 : info.flightYaw) : null),
+  };
+  const a = Object.entries(attrs).filter(([, v]) => v !== null).map(([k, v]) => ` drone-dji:${k}="${v}"`).join('');
+  const xml = `<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?><x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about="" xmlns:drone-dji="http://www.dji.com/drone-dji/1.0/"${a}/></rdf:RDF></x:xmpmeta><?xpacket end="w"?>`;
+  const enc = new TextEncoder();
+  const body = [...enc.encode('http://ns.adobe.com/xap/1.0/'), 0, ...enc.encode(xml)];
+  const len = 2 + body.length;
+  return Uint8Array.from([0xFF, 0xE1, len >> 8, len & 255, ...body]);
+}
+
+function insertJpegSegments(jpeg, segs) {
+  let pos = 2;                                            // after SOI
+  if (jpeg[2] === 0xFF && jpeg[3] === 0xE0) pos = 4 + ((jpeg[4] << 8) | jpeg[5]);   // drop JFIF APP0
+  const parts = [jpeg.subarray(0, 2), ...segs.filter(Boolean), jpeg.subarray(pos)];
+  const out = new Uint8Array(parts.reduce((n, p) => n + p.length, 0));
+  let o = 0; for (const p of parts) { out.set(p, o); o += p.length; }
+  return out;
+}
+
+async function makeGrabJpeg(t, overlay, quality) {
+  const f = telFrames.length ? interpolateFrame(t) : null;
+  const canvas = captureCanvas(overlay, f, t);
+  const jpeg = await canvasToJpeg(canvas, quality);
+  const info = grabFrameInfo(f);
+  const meta = {
+    width: canvas.width, height: canvas.height,
+    description: `${videoFileName} @ ${fmtTimeMs(t)}`,
+    dateTime: info?.dateTime,
+  };
+  if (info) {
+    Object.assign(meta, {
+      lat: info.lat, lon: info.lon,
+      alt: info.altAbs ?? info.altRel,
+      imgDir: info.camYaw ?? (info.headingSource !== 'gps' ? info.flightYaw : null),
+    });
+    const c = [`video_t=${t.toFixed(3)}s`];
+    if (info.altRel !== undefined) c.push(`alt_rel=${info.altRel.toFixed(2)}m`);
+    if (info.altAbs !== undefined) c.push(`alt_abs=${info.altAbs.toFixed(2)}m`);
+    if (info.camYaw !== null) c.push(`gimbal_yaw=${info.camYaw.toFixed(1)}`);
+    if (info.pitch !== undefined) c.push(`gimbal_pitch=${info.pitch.toFixed(1)}`);
+    if (info.flightYaw !== null) c.push(`${info.headingSource === 'gps' ? 'gps_track' : 'drone_yaw'}=${info.flightYaw.toFixed(1)}`);
+    if (info.hSpeed !== undefined) c.push(`h_speed=${info.hSpeed.toFixed(2)}m/s`);
+    meta.comment = c.join(' ');
+  }
+  const bytes = insertJpegSegments(jpeg, [buildExifSegment(meta), buildXmpSegment(info)]);
+  return { bytes, info, t, name: `${grabBaseName()}_${grabTimeTag(t)}${overlay ? '_overlay' : ''}.jpg` };
+}
+
+function downloadBlob(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+
+function flashGrab(msg) {
+  const w = document.getElementById('video-wrapper');
+  const el = document.createElement('div');
+  el.className = 'grab-flash';
+  el.textContent = msg;
+  w.appendChild(el);
+  setTimeout(() => el.remove(), 1400);
+}
+
+async function grabCurrentFrame(overlay) {
+  if (!video.videoWidth) { alert('Load a video first.'); return; }
+  grabState.overlay = overlay;
+  try {
+    const g = await makeGrabJpeg(video.currentTime, overlay, grabState.quality);
+    downloadBlob(new Blob([g.bytes], { type: 'image/jpeg' }), g.name);
+    flashGrab(g.info ? '📸 Saved (geotagged)' : '📸 Saved (no telemetry — not geotagged)');
+  } catch (err) {
+    alert('Could not save frame: ' + err.message);
+  }
+}
+function quickGrab() { grabCurrentFrame(grabState.overlay); }
+
+// ── Grab menu ──
+const grabMenu = document.getElementById('grab-menu');
+document.getElementById('grab-btn').addEventListener('click', e => {
+  e.stopPropagation();
+  if (grabMenu.style.display === 'block') { grabMenu.style.display = 'none'; return; }
+  const r = e.currentTarget.getBoundingClientRect();
+  grabMenu.style.display = 'block';
+  const mh = grabMenu.offsetHeight, mw = grabMenu.offsetWidth;
+  grabMenu.style.left = Math.max(8, Math.min(window.innerWidth - mw - 8, r.left)) + 'px';
+  grabMenu.style.top = (r.top - mh - 6 > 8 ? r.top - mh - 6 : r.bottom + 6) + 'px';
+});
+document.addEventListener('click', e => { if (!grabMenu.contains(e.target)) grabMenu.style.display = 'none'; });
+grabMenu.querySelectorAll('[data-grab]').forEach(b => b.addEventListener('click', () => {
+  grabMenu.style.display = 'none';
+  const m = b.dataset.grab;
+  if (m === 'plain') grabCurrentFrame(false);
+  else if (m === 'overlay') grabCurrentFrame(true);
+  else if (m === 'batch') openBatchModal();
+
+}));
+
+// ── Store-only ZIP writer (JPEGs don't compress further; no library needed) ──
+const CRC_TABLE = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(bytes) { let c = 0xFFFFFFFF; for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+class ZipWriter {
+  constructor() { this.parts = []; this.central = []; this.offset = 0; this.count = 0;
+    const d = new Date();
+    this.dosTime = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+    this.dosDate = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate(); }
+  add(name, data) {
+    if (typeof data === 'string') data = new TextEncoder().encode(data);
+    const nm = new TextEncoder().encode(name), crc = crc32(data), sz = data.length;
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true);
+    lh.setUint16(10, this.dosTime, true); lh.setUint16(12, this.dosDate, true);
+    lh.setUint32(14, crc, true); lh.setUint32(18, sz, true); lh.setUint32(22, sz, true);
+    lh.setUint16(26, nm.length, true); lh.setUint16(28, 0, true);
+    this.parts.push(lh.buffer, nm, data);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true);
+    ch.setUint16(10, 0, true); ch.setUint16(12, this.dosTime, true); ch.setUint16(14, this.dosDate, true);
+    ch.setUint32(16, crc, true); ch.setUint32(20, sz, true); ch.setUint32(24, sz, true);
+    ch.setUint16(28, nm.length, true); ch.setUint32(42, this.offset, true);
+    this.central.push(ch.buffer, nm);
+    this.offset += 30 + nm.length + sz; this.count++;
+  }
+  get size() { return this.offset; }
+  blob() {
+    const cdSize = this.central.reduce((n, p) => n + (p.byteLength ?? p.length), 0);
+    const end = new DataView(new ArrayBuffer(22));
+    end.setUint32(0, 0x06054b50, true); end.setUint16(8, this.count, true); end.setUint16(10, this.count, true);
+    end.setUint32(12, cdSize, true); end.setUint32(16, this.offset, true);
+    return new Blob([...this.parts, ...this.central, end.buffer], { type: 'application/zip' });
+  }
+}
+
+// ── Batch extraction ──
+function parseTimeInput(s) {
+  s = String(s).trim(); if (!s) return null;
+  if (s.includes(':')) { const p = s.split(':').map(Number); return p.reduce((a, v) => a * 60 + v, 0); }
+  const v = parseFloat(s); return Number.isFinite(v) ? v : null;
+}
+function batchPlan() {
+  const dur = video.duration || 0;
+  const every = Math.max(0.1, parseFloat(document.getElementById('batch-every').value) || 2);
+  let a = parseTimeInput(document.getElementById('batch-from').value) ?? 0;
+  let b = parseTimeInput(document.getElementById('batch-to').value) ?? dur;
+  a = Math.max(0, Math.min(dur, a)); b = Math.max(a, Math.min(dur - 0.05, b));
+  const times = []; for (let t = a; t <= b + 1e-6 && times.length < 5000; t += every) times.push(+t.toFixed(3));
+  return { times, every, a, b };
+}
+function updateBatchEstimate() {
+  if (!video.videoWidth) return;
+  const { times } = batchPlan();
+  const mpx = video.videoWidth * video.videoHeight / 1e6;
+  const q = parseFloat(document.getElementById('batch-quality').value);
+  const perMB = mpx * (q >= 0.95 ? 0.55 : q >= 0.9 ? 0.35 : 0.22);   // rough JPEG size per frame
+  const total = perMB * times.length;
+  const warn = total > 1500 ? ' — <span style="color:#f85149">large: pick a longer interval or shorter range</span>' : '';
+  document.getElementById('batch-estimate').innerHTML =
+    `${times.length} frames · ${video.videoWidth}×${video.videoHeight} · ≈ ${total < 1000 ? total.toFixed(0) + ' MB' : (total / 1000).toFixed(1) + ' GB'} ZIP${warn}`;
+}
+function openBatchModal() {
+  if (!video.videoWidth) { alert('Load a video first.'); return; }
+  document.getElementById('batch-to').placeholder = formatTime(video.duration);
+  document.getElementById('batch-progress').style.width = '0%';
+  document.getElementById('batch-status').textContent = telFrames.length ? '' : '⚠ No SRT loaded — frames will not be geotagged.';
+  document.getElementById('batch-modal-bg').style.display = 'flex';
+  updateBatchEstimate();
+}
+['batch-every', 'batch-from', 'batch-to', 'batch-quality'].forEach(id =>
+  document.getElementById(id).addEventListener('input', updateBatchEstimate));
+document.getElementById('batch-cancel-btn').addEventListener('click', () => {
+  if (grabState.busy) grabState.cancel = true;
+  else document.getElementById('batch-modal-bg').style.display = 'none';
+});
+document.getElementById('batch-from-now').addEventListener('click', () => {
+  document.getElementById('batch-from').value = video.currentTime.toFixed(1); updateBatchEstimate();
+});
+
+function seekExact(t) {
+  return new Promise(res => {
+    const done = () => { video.removeEventListener('seeked', done); res(); };
+    video.addEventListener('seeked', done);
+    video.currentTime = t;
+  }).then(() => new Promise(res => {
+    // wait until the decoded frame is actually presented (Chrome/Edge/Safari); fallback timeout
+    let fin = false; const go = () => { if (!fin) { fin = true; res(); } };
+    if (video.requestVideoFrameCallback) video.requestVideoFrameCallback(go);
+    setTimeout(go, 250);
+  }));
+}
+
+document.getElementById('batch-start-btn').addEventListener('click', async () => {
+  if (grabState.busy) return;
+  const { times, every } = batchPlan();
+  if (!times.length) return;
+  const overlay = document.getElementById('batch-overlay').checked;
+  const quality = parseFloat(document.getElementById('batch-quality').value);
+  const status = document.getElementById('batch-status'), bar = document.getElementById('batch-progress');
+  const startBtn = document.getElementById('batch-start-btn'), cancelBtn = document.getElementById('batch-cancel-btn');
+  const wasPaused = video.paused, t0 = video.currentTime;
+  video.pause(); playBtn.textContent = '▶';
+  grabState.busy = true; grabState.cancel = false;
+  startBtn.disabled = true; cancelBtn.textContent = 'Stop';
+  const zip = new ZipWriter();
+  const base = grabBaseName();
+  const csv = ['image,video_time_s,datetime,latitude,longitude,alt_rel_m,alt_abs_m,gimbal_yaw_deg,gimbal_pitch_deg,gimbal_roll_deg,flight_yaw_deg,heading_source,h_speed_ms'];
+  const geo = ['EPSG:4326'];
+  const v = x => (x === undefined || x === null || !Number.isFinite(x)) ? '' : (+x.toFixed(7)).toString();
+  try {
+    for (let i = 0; i < times.length; i++) {
+      if (grabState.cancel) break;
+      await seekExact(times[i]);
+      const g = await makeGrabJpeg(times[i], overlay, quality);
+      if (zip.size + g.bytes.length > 3.9e9) { status.textContent = 'Stopped at the 4 GB ZIP limit.'; break; }
+      const name = `images/${base}_${String(i + 1).padStart(4, '0')}_${grabTimeTag(times[i])}.jpg`;
+      zip.add(name, g.bytes);
+      const fname = name.slice(7), inf = g.info;
+      if (inf) {
+        csv.push([fname, times[i].toFixed(3), inf.dateTime || '', v(inf.lat), v(inf.lon), v(inf.altRel), v(inf.altAbs),
+                  v(inf.camYaw), v(inf.pitch), v(inf.roll), v(inf.flightYaw), inf.headingSource || '', v(inf.hSpeed)].join(','));
+        geo.push(`${fname} ${v(inf.lon)} ${v(inf.lat)} ${v(inf.altAbs ?? inf.altRel)}`);
+      } else csv.push(`${fname},${times[i].toFixed(3)}`);
+      bar.style.width = `${((i + 1) / times.length * 100).toFixed(1)}%`;
+      status.textContent = `Frame ${i + 1} / ${times.length} · ${(zip.size / 1e6).toFixed(0)} MB`;
+    }
+    if (zip.count) {
+      const nImages = zip.count;
+      zip.add('frames.csv', csv.join('\n') + '\n');
+      if (telFrames.length) zip.add('geo.txt', geo.join('\n') + '\n');
+      zip.add('README.txt',
+`Frames extracted from ${videoFileName} with Drone Video Viewer
+Interval: every ${every} s of video · ${nImages} images${overlay ? ' (with telemetry overlay — not suitable for photogrammetry)' : ''}
+
+images/    JPGs with EXIF GPS (lat/lon/alt, image direction, timestamp) and DJI-style XMP gimbal angles
+frames.csv every image with the SRT telemetry used to tag it
+geo.txt    OpenDroneMap / WebODM geolocation file (EPSG:4326: image lon lat alt)
+
+Notes: positions are interpolated between SRT records; altitude is the SRT absolute altitude when
+present, otherwise height above takeoff. Video frames have rolling shutter, motion blur and video
+compression — fine for quick models and teaching, but stills from a mapping mission are better.
+For photogrammetry aim for ~70-80% forward overlap: interval (s) ≈ 0.25 × footprint depth (m) ÷ speed (m/s).
+`);
+      downloadBlob(zip.blob(), `${base}_frames_every${every}s.zip`);
+      status.textContent = `✓ Saved ${base}_frames_every${every}s.zip (${(zip.size / 1e6).toFixed(0)} MB)` + (grabState.cancel ? ' — stopped early' : '');
+    } else status.textContent = 'Stopped — nothing saved.';
+  } catch (err) {
+    status.textContent = 'Error: ' + err.message;
+  } finally {
+    grabState.busy = false; startBtn.disabled = false; cancelBtn.textContent = 'Close';
+    await seekExact(t0);
+    if (!wasPaused) { video.play(); playBtn.textContent = '⏸'; }
+  }
+});
+
+
+// ═══════════════════════════════════════════════
+// 3D FLIGHT VIEW + ALTITUDE PROFILE
+// Dependency-free canvas renderer: orbit camera, ground grid, altitude-coloured
+// track with ground shadow and curtain, home point, live drone + camera footprint.
+// ═══════════════════════════════════════════════
+
+const v3d = {
+  visible: false, pts: [], lat0: 0, lon0: 0, maxZ: 1, minZ: 0, extent: 100,
+  az: 210, el: 32, dist: 300, target: [0, 0, 0], exag: 1, follow: false,
+  cur: null, raf: 0, hover: null, profDist: [],
+};
+const v3dCanvas = document.getElementById('v3d-canvas');
+const v3dProf = document.getElementById('v3d-profile');
+const R_EARTH = 6371000;
+
+function v3dLocal(lat, lon) {
+  return [(lon - v3d.lon0) * Math.PI / 180 * R_EARTH * Math.cos(v3d.lat0 * Math.PI / 180),
+          (lat - v3d.lat0) * Math.PI / 180 * R_EARTH];
+}
+const v3dAlt = f => f.altRel ?? (f.altAbs !== undefined ? f.altAbs - (v3d.absBase ?? 0) : 0);
+
+function v3dBuild() {
+  const n = telFrames.length;
+  if (!n) { v3d.pts = []; return; }
+  v3d.lat0 = telFrames[0].lat; v3d.lon0 = telFrames[0].lon;
+  v3d.absBase = Math.min(...telFrames.map(f => f.altAbs ?? Infinity));
+  if (!Number.isFinite(v3d.absBase)) v3d.absBase = 0;
+  const step = Math.max(1, Math.ceil(n / 4000));
+  const pts = [];
+  let cum = 0, prev = null;
+  for (let i = 0; i < n; i += step) {
+    const f = telFrames[i];
+    const [x, y] = v3dLocal(f.lat, f.lon);
+    if (prev) cum += Math.hypot(x - prev[0], y - prev[1]);
+    pts.push({ x, y, z: v3dAlt(f), t: f.t, d: cum });
+    prev = [x, y];
+  }
+  if ((n - 1) % step) {   // make sure the last frame is included
+    const f = telFrames[n - 1]; const [x, y] = v3dLocal(f.lat, f.lon);
+    cum += Math.hypot(x - prev[0], y - prev[1]);
+    pts.push({ x, y, z: v3dAlt(f), t: f.t, d: cum });
+  }
+  v3d.pts = pts;
+  v3d.maxZ = Math.max(1, ...pts.map(p => p.z));
+  v3d.minZ = Math.min(0, ...pts.map(p => p.z));
+  const xs = pts.map(p => p.x), ys = pts.map(p => p.y);
+  v3d.bx = [Math.min(...xs), Math.max(...xs)]; v3d.by = [Math.min(...ys), Math.max(...ys)];
+  v3d.extent = Math.max(30, v3d.bx[1] - v3d.bx[0], v3d.by[1] - v3d.by[0]);
+  v3dResetView();
+}
+
+function v3dResetView() {
+  if (!v3d.pts.length) return;
+  v3d.target = [(v3d.bx[0] + v3d.bx[1]) / 2, (v3d.by[0] + v3d.by[1]) / 2, v3d.maxZ * v3d.exag * 0.35];
+  v3d.az = 210; v3d.el = 32;
+  v3d.dist = Math.max(v3d.extent, v3d.maxZ * v3d.exag) * 1.55;
+  view3dRedraw();
+}
+
+function v3dCamera(W, H) {
+  const az = v3d.az * Math.PI / 180, el = v3d.el * Math.PI / 180, T = v3d.target;
+  const eye = [T[0] + v3d.dist * Math.cos(el) * Math.sin(az),
+               T[1] + v3d.dist * Math.cos(el) * Math.cos(az),
+               T[2] + v3d.dist * Math.sin(el)];
+  let f = [T[0] - eye[0], T[1] - eye[1], T[2] - eye[2]];
+  const fl = Math.hypot(...f); f = f.map(v => v / fl);
+  let r = [f[1], -f[0], 0]; const rl = Math.hypot(...r) || 1; r = r.map(v => v / rl);
+  const u = [r[1] * f[2] - r[2] * f[1], r[2] * f[0] - r[0] * f[2], r[0] * f[1] - r[1] * f[0]];
+  const focal = H / (2 * Math.tan(22.5 * Math.PI / 180));
+  const near = Math.max(0.5, v3d.dist * 0.01);
+  const toCam = p => { const d = [p[0] - eye[0], p[1] - eye[1], p[2] - eye[2]];
+    return [d[0] * r[0] + d[1] * r[1] + d[2] * r[2], d[0] * u[0] + d[1] * u[1] + d[2] * u[2], d[0] * f[0] + d[1] * f[1] + d[2] * f[2]]; };
+  const scr = c => [W / 2 + focal * c[0] / c[2], H / 2 - focal * c[1] / c[2]];
+  const proj = p => { const c = toCam(p); return c[2] < near ? null : scr(c); };
+  // segment with near-plane clipping
+  const seg = (a, b) => {
+    let ca = toCam(a), cb = toCam(b);
+    if (ca[2] < near && cb[2] < near) return null;
+    if (ca[2] < near) { const k = (near - ca[2]) / (cb[2] - ca[2]); ca = ca.map((v, i) => v + (cb[i] - v) * k); }
+    else if (cb[2] < near) { const k = (near - cb[2]) / (ca[2] - cb[2]); cb = cb.map((v, i) => v + (ca[i] - v) * k); }
+    return [scr(ca), scr(cb)];
+  };
+  return { proj, seg, r, f, focal };
+}
+
+function view3dRedraw() {
+  if (!v3d.visible || v3d.raf) return;
+  v3d.raf = requestAnimationFrame(() => { v3d.raf = 0; v3dDraw(); v3dDrawProfile(); });
+}
+
+function v3dSizeCanvas(c) {
+  const dpr = window.devicePixelRatio || 1;
+  const W = c.clientWidth, H = c.clientHeight;
+  if (c.width !== Math.round(W * dpr) || c.height !== Math.round(H * dpr)) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); }
+  const ctx = c.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { ctx, W, H };
+}
+
+const altColor = (z, a = 1) => { const pct = v3d.maxZ > 0 ? Math.max(0, Math.min(1, z / v3d.maxZ)) : 0; return `hsla(${(1 - pct) * 240},80%,55%,${a})`; };
+
+function niceStep(span, target = 8) {
+  const raw = span / target, p = Math.pow(10, Math.floor(Math.log10(raw)));
+  return [1, 2, 5, 10].map(k => k * p).find(v => v >= raw) || p * 10;
+}
+
+function v3dDraw() {
+  const { ctx, W, H } = v3dSizeCanvas(v3dCanvas);
+  ctx.fillStyle = '#0d1117'; ctx.fillRect(0, 0, W, H);
+  if (!v3d.pts.length) {
+    ctx.fillStyle = '#8b949e'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Load an SRT to see the 3D flight path', W / 2, H / 2); ctx.textAlign = 'left';
+    return;
+  }
+  const cam = v3dCamera(W, H), ex = v3d.exag;
+  const P = (x, y, z) => cam.proj([x, y, z * ex]);
+  const line = (a, b) => { const s = cam.seg([a[0], a[1], a[2] * ex], [b[0], b[1], b[2] * ex]); if (s) { ctx.moveTo(...s[0]); ctx.lineTo(...s[1]); } };
+
+  // Ground grid
+  const pad = v3d.extent * 0.15;
+  const gx0 = v3d.bx[0] - pad, gx1 = v3d.bx[1] + pad, gy0 = v3d.by[0] - pad, gy1 = v3d.by[1] + pad;
+  const gs = niceStep(Math.max(gx1 - gx0, gy1 - gy0), 10);
+  ctx.strokeStyle = '#21262d'; ctx.lineWidth = 1; ctx.beginPath();
+  for (let x = Math.ceil(gx0 / gs) * gs; x <= gx1; x += gs) line([x, gy0, 0], [x, gy1, 0]);
+  for (let y = Math.ceil(gy0 / gs) * gs; y <= gy1; y += gs) line([gx0, y, 0], [gx1, y, 0]);
+  ctx.stroke();
+  ctx.strokeStyle = '#30363d'; ctx.beginPath();
+  line([gx0, gy0, 0], [gx1, gy0, 0]); line([gx1, gy0, 0], [gx1, gy1, 0]); line([gx1, gy1, 0], [gx0, gy1, 0]); line([gx0, gy1, 0], [gx0, gy0, 0]);
+  ctx.stroke();
+
+  const pts = v3d.pts;
+  // Ground shadow
+  ctx.strokeStyle = 'rgba(139,148,158,0.35)'; ctx.lineWidth = 1.2; ctx.beginPath();
+  for (let i = 1; i < pts.length; i++) line([pts[i - 1].x, pts[i - 1].y, 0], [pts[i].x, pts[i].y, 0]);
+  ctx.stroke();
+  // Curtain
+  const every = Math.max(1, Math.floor(pts.length / 160));
+  ctx.lineWidth = 1;
+  for (let i = 0; i < pts.length; i += every) {
+    ctx.strokeStyle = altColor(pts[i].z, 0.16); ctx.beginPath();
+    line([pts[i].x, pts[i].y, 0], [pts[i].x, pts[i].y, pts[i].z]); ctx.stroke();
+  }
+  // Track — group consecutive segments into ~24 colour bands for speed
+  ctx.lineWidth = 2.4; ctx.lineCap = 'round';
+  let band = -1;
+  for (let i = 1; i < pts.length; i++) {
+    const b = Math.round(Math.max(0, pts[i].z) / v3d.maxZ * 24);
+    if (b !== band) { if (band >= 0) ctx.stroke(); band = b; ctx.strokeStyle = altColor(b / 24 * v3d.maxZ); ctx.beginPath(); }
+    line([pts[i - 1].x, pts[i - 1].y, pts[i - 1].z], [pts[i].x, pts[i].y, pts[i].z]);
+  }
+  ctx.stroke();
+
+  // Start + home markers
+  const label = (p, txt, col) => { if (!p) return; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(p[0], p[1], 5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#e6edf3'; ctx.font = '600 11px sans-serif'; ctx.fillText(txt, p[0] + 7, p[1] - 6); };
+  if (homePoint) { const [hx, hy] = v3dLocal(homePoint.lat, homePoint.lon); label(P(hx, hy, 0), 'H', '#3fb950'); }
+  label(P(pts[0].x, pts[0].y, pts[0].z), 'start', '#8b949e');
+  const lp = pts[pts.length - 1];
+  if (Math.hypot(lp.x - pts[0].x, lp.y - pts[0].y, lp.z - pts[0].z) > v3d.extent * 0.04) label(P(lp.x, lp.y, lp.z), 'end', '#8b949e');
+
+  // Current drone + footprint
+  const f = v3d.cur;
+  if (f) {
+    const [x, y] = v3dLocal(f.lat, f.lon), z = v3dAlt(f);
+    if (showFootprint) {
+      const cs = footprintCorners(f);
+      if (cs.every(Boolean)) {
+        const g = cs.map(c => [x + c.E, y + c.N, 0]);
+        ctx.strokeStyle = 'rgba(240,136,62,0.75)'; ctx.lineWidth = 1; ctx.setLineDash([3, 4]); ctx.beginPath();
+        g.forEach(c => line([x, y, z], c)); ctx.stroke(); ctx.setLineDash([]);
+        const sp = g.map(c => P(...c));
+        if (sp.every(Boolean)) {
+          ctx.fillStyle = 'rgba(240,136,62,0.15)'; ctx.strokeStyle = '#f0883e'; ctx.lineWidth = 1.6;
+          ctx.beginPath(); sp.forEach((p, i) => i ? ctx.lineTo(...p) : ctx.moveTo(...p)); ctx.closePath(); ctx.fill(); ctx.stroke();
+        }
+      }
+    }
+    ctx.strokeStyle = 'rgba(230,237,243,0.55)'; ctx.setLineDash([2, 3]); ctx.lineWidth = 1; ctx.beginPath();
+    line([x, y, 0], [x, y, z]); ctx.stroke(); ctx.setLineDash([]);
+    const hdg = f.flightHeading;
+    if (hdg !== null && hdg !== undefined) {
+      const L = v3d.extent * 0.04, h = hdg * Math.PI / 180;
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.beginPath();
+      line([x, y, z], [x + Math.sin(h) * L, y + Math.cos(h) * L, z]); ctx.stroke();
+    }
+    const dp = P(x, y, z), gp = P(x, y, 0);
+    if (gp) { ctx.fillStyle = 'rgba(230,237,243,0.5)'; ctx.beginPath(); ctx.arc(gp[0], gp[1], 2.5, 0, Math.PI * 2); ctx.fill(); }
+    if (dp) {
+      ctx.fillStyle = '#1f6feb'; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(dp[0], dp[1], 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#e6edf3'; ctx.font = '600 11px ui-monospace, monospace';
+      ctx.fillText(`${z.toFixed(1)} m`, dp[0] + 9, dp[1] + 4);
+    }
+  }
+
+  // Hover pick
+  if (v3d.hover) {
+    const p = v3d.hover; const sp = P(p.x, p.y, p.z);
+    if (sp) { ctx.strokeStyle = '#e6edf3'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(sp[0], sp[1], 7, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = 'rgba(13,17,23,0.85)'; ctx.fillRect(sp[0] + 10, sp[1] - 26, 150, 20);
+      ctx.fillStyle = '#e6edf3'; ctx.font = '11px ui-monospace, monospace';
+      ctx.fillText(`${formatTime(p.t)} · ${p.z.toFixed(1)} m · click`, sp[0] + 14, sp[1] - 12); }
+  }
+
+  // North arrow (screen direction of +Y at the target)
+  const c0 = cam.proj([v3d.target[0], v3d.target[1], 0]), c1 = cam.proj([v3d.target[0], v3d.target[1] + gs, 0]);
+  if (c0 && c1) {
+    const a = Math.atan2(c1[1] - c0[1], c1[0] - c0[0]), cx = W - 34, cy = 34;
+    ctx.save(); ctx.translate(cx, cy);
+    ctx.fillStyle = 'rgba(22,27,34,0.85)'; ctx.beginPath(); ctx.arc(0, 0, 20, 0, Math.PI * 2); ctx.fill();
+    ctx.rotate(a + Math.PI / 2);
+    ctx.fillStyle = '#f85149'; ctx.beginPath(); ctx.moveTo(0, -14); ctx.lineTo(5, 0); ctx.lineTo(-5, 0); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#8b949e'; ctx.beginPath(); ctx.moveTo(0, 14); ctx.lineTo(5, 0); ctx.lineTo(-5, 0); ctx.closePath(); ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = '#f85149'; ctx.font = '700 10px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('N', cx + Math.cos(a) * 26, cy + Math.sin(a) * 26 + 3); ctx.textAlign = 'left';
+  }
+  // Legend
+  ctx.fillStyle = '#8b949e'; ctx.font = '10px sans-serif';
+  ctx.fillText(`grid ${gs >= 1000 ? gs / 1000 + ' km' : gs + ' m'} · vertical ×${ex} · max ${v3d.maxZ.toFixed(0)} m`, 10, H - 10);
+  const gw = 90, gx = W - gw - 12, gy = H - 18;
+  const grad = ctx.createLinearGradient(gx, 0, gx + gw, 0);
+  for (let k = 0; k <= 4; k++) grad.addColorStop(k / 4, `hsl(${(1 - k / 4) * 240},80%,55%)`);
+  ctx.fillStyle = grad; ctx.fillRect(gx, gy, gw, 6);
+  ctx.fillStyle = '#8b949e'; ctx.fillText('0', gx - 9, gy + 7); ctx.fillText(`${v3d.maxZ.toFixed(0)} m`, gx + gw + 3 - 40, gy - 3);
+}
+
+// ── Altitude profile (altitude vs. distance along track) ──
+function v3dProfileGeom() {
+  const W = v3dProf.clientWidth, H = v3dProf.clientHeight;
+  const PL = 44, PR = 12, PT = 10, PB = 18;
+  const total = v3d.pts.length ? v3d.pts[v3d.pts.length - 1].d : 1;
+  const zr = [Math.min(0, v3d.minZ), v3d.maxZ * 1.08];
+  return { W, H, PL, PR, PT, PB, total: total || 1, zr,
+    xd: d => PL + d / (total || 1) * (W - PL - PR),
+    yz: z => PT + (1 - (z - zr[0]) / (zr[1] - zr[0])) * (H - PT - PB) };
+}
+function v3dNearestByT(t) {
+  const p = v3d.pts; if (!p.length) return null;
+  let lo = 0, hi = p.length - 1;
+  while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (p[mid].t <= t) lo = mid; else hi = mid - 1; }
+  return p[lo];
+}
+function v3dDrawProfile() {
+  const { ctx } = v3dSizeCanvas(v3dProf);
+  const g = v3dProfileGeom(), { W, H, PL, PR, PT, PB } = g;
+  ctx.fillStyle = '#0d1117'; ctx.fillRect(0, 0, W, H);
+  if (!v3d.pts.length) return;
+  ctx.font = '9px monospace'; ctx.strokeStyle = '#21262d'; ctx.lineWidth = 1;
+  const zs = niceStep(g.zr[1] - g.zr[0], 3);
+  ctx.textAlign = 'right'; ctx.fillStyle = '#58a6ff';
+  for (let z = Math.ceil(g.zr[0] / zs) * zs; z <= g.zr[1]; z += zs) {
+    const y = g.yz(z); ctx.beginPath(); ctx.moveTo(PL, y); ctx.lineTo(W - PR, y); ctx.stroke();
+    ctx.fillText(`${z}m`, PL - 4, y + 3);
+  }
+  const ds = niceStep(g.total, Math.max(2, Math.floor((W - PL - PR) / 80)));
+  ctx.textAlign = 'center'; ctx.fillStyle = '#8b949e';
+  for (let d = 0; d <= g.total + 1e-6; d += ds) ctx.fillText(d >= 1000 ? `${(d / 1000).toFixed(d % 1000 ? 1 : 0)} km` : `${d} m`, g.xd(d), H - 5);
+  ctx.textAlign = 'left';
+  const pts = v3d.pts;
+  ctx.beginPath(); ctx.moveTo(g.xd(0), g.yz(Math.max(g.zr[0], 0)));
+  pts.forEach(p => ctx.lineTo(g.xd(p.d), g.yz(p.z)));
+  ctx.lineTo(g.xd(g.total), g.yz(Math.max(g.zr[0], 0))); ctx.closePath();
+  ctx.fillStyle = 'rgba(88,166,255,0.12)'; ctx.fill();
+  ctx.lineWidth = 1.6;
+  let band = -1;
+  for (let i = 1; i < pts.length; i++) {
+    const b = Math.round(Math.max(0, pts[i].z) / v3d.maxZ * 24);
+    if (b !== band) { if (band >= 0) ctx.stroke(); band = b; ctx.strokeStyle = altColor(b / 24 * v3d.maxZ); ctx.beginPath(); ctx.moveTo(g.xd(pts[i - 1].d), g.yz(pts[i - 1].z)); }
+    ctx.lineTo(g.xd(pts[i].d), g.yz(pts[i].z));
+  }
+  ctx.stroke();
+  // max altitude marker
+  const mx = pts.reduce((a, p) => p.z > a.z ? p : a, pts[0]);
+  ctx.fillStyle = '#8b949e';
+  const my = g.yz(mx.z);
+  ctx.fillText(`max ${mx.z.toFixed(1)} m`, Math.min(W - 70, g.xd(mx.d) + 4), my - 3 < PT + 20 ? my + 12 : my - 3);
+  // playhead
+  if (v3d.cur) {
+    const p = v3dNearestByT(v3d.cur.t);
+    if (p) {
+      const x = g.xd(p.d);
+      ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(x, PT); ctx.lineTo(x, H - PB); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = '#1f6feb'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(x, g.yz(v3dAlt(v3d.cur)), 4, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    }
+  }
+  if (v3d.profHover) {
+    const p = v3d.profHover, x = g.xd(p.d);
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.beginPath(); ctx.moveTo(x, PT); ctx.lineTo(x, H - PB); ctx.stroke();
+    const txt = `${p.d >= 1000 ? (p.d / 1000).toFixed(2) + ' km' : p.d.toFixed(0) + ' m'} · ${p.z.toFixed(1)} m · ${formatTime(p.t)}`;
+    ctx.fillStyle = '#e6edf3'; ctx.font = '10px monospace';
+    ctx.fillText(txt, Math.min(W - PR - ctx.measureText(txt).width, x + 6), PT + 9);
+  }
+  ctx.fillStyle = '#6e7681'; ctx.font = '9px sans-serif'; ctx.textAlign = 'right';
+  ctx.fillText('ALTITUDE PROFILE · distance along track · click to jump', W - PR, H - PB - 4); ctx.textAlign = 'left';
+}
+function v3dProfPick(e) {
+  const g = v3dProfileGeom(), r = v3dProf.getBoundingClientRect();
+  const d = Math.max(0, Math.min(1, (e.clientX - r.left - g.PL) / (g.W - g.PL - g.PR))) * g.total;
+  const p = v3d.pts; let lo = 0, hi = p.length - 1;
+  while (lo < hi) { const mid = (lo + hi) >> 1; if (p[mid].d < d) lo = mid + 1; else hi = mid; }
+  return p[lo];
+}
+v3dProf.addEventListener('mousemove', e => { if (!v3d.pts.length) return; v3d.profHover = v3dProfPick(e); view3dRedraw(); });
+v3dProf.addEventListener('mouseleave', () => { v3d.profHover = null; view3dRedraw(); });
+v3dProf.addEventListener('click', e => { if (!v3d.pts.length) return; const p = v3dProfPick(e); v3dSeek(p.t); });
+
+function v3dSeek(t) {
+  if (video.duration) video.currentTime = Math.max(0, Math.min(video.duration - 0.01, t));
+  else { syncTelemetry(t); }
+}
+
+// ── Mouse: drag = orbit, right/shift-drag = pan, wheel = zoom, click path = seek ──
+let v3dDrag = null;
+v3dCanvas.addEventListener('contextmenu', e => e.preventDefault());
+v3dCanvas.addEventListener('mousedown', e => {
+  v3dDrag = { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, pan: e.button === 2 || e.shiftKey };
+  v3dCanvas.style.cursor = 'grabbing';
+});
+window.addEventListener('mousemove', e => {
+  if (!v3dDrag) return;
+  const dx = e.clientX - v3dDrag.x, dy = e.clientY - v3dDrag.y;
+  v3dDrag.x = e.clientX; v3dDrag.y = e.clientY;
+  if (v3dDrag.pan) {
+    const { r, f, focal } = v3dCamera(v3dCanvas.clientWidth, v3dCanvas.clientHeight);
+    const s = v3d.dist / focal;
+    const fg = [f[0], f[1]]; const fl = Math.hypot(...fg) || 1;
+    v3d.target[0] += (-dx * r[0]) * s + (dy * fg[0] / fl) * s;
+    v3d.target[1] += (-dx * r[1]) * s + (dy * fg[1] / fl) * s;
+    setFollow(false);
+  } else {
+    v3d.az = (v3d.az - dx * 0.4 + 360) % 360;
+    v3d.el = Math.max(3, Math.min(89, v3d.el + dy * 0.3));
+  }
+  view3dRedraw();
+});
+window.addEventListener('mouseup', e => {
+  if (!v3dDrag) return;
+  const moved = Math.hypot(e.clientX - v3dDrag.sx, e.clientY - v3dDrag.sy);
+  v3dDrag = null; v3dCanvas.style.cursor = '';
+  if (moved < 4 && v3d.hover) v3dSeek(v3d.hover.t);
+});
+v3dCanvas.addEventListener('mousemove', e => {
+  if (v3dDrag || !v3d.pts.length) return;
+  const r = v3dCanvas.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+  const cam = v3dCamera(r.width, r.height);
+  let best = null, bd = 12 * 12;
+  const stride = Math.max(1, Math.floor(v3d.pts.length / 1500));
+  for (let i = 0; i < v3d.pts.length; i += stride) {
+    const p = v3d.pts[i], s = cam.proj([p.x, p.y, p.z * v3d.exag]);
+    if (!s) continue;
+    const d = (s[0] - mx) ** 2 + (s[1] - my) ** 2;
+    if (d < bd) { bd = d; best = p; }
+  }
+  if (best !== v3d.hover) { v3d.hover = best; v3dCanvas.style.cursor = best ? 'pointer' : ''; view3dRedraw(); }
+});
+v3dCanvas.addEventListener('mouseleave', () => { if (v3d.hover) { v3d.hover = null; view3dRedraw(); } });
+v3dCanvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  v3d.dist = Math.max(5, Math.min(v3d.extent * 20, v3d.dist * Math.exp(e.deltaY * 0.0012)));
+  view3dRedraw();
+}, { passive: false });
+v3dCanvas.addEventListener('dblclick', v3dResetView);
+
+// Touch: one finger orbit, two-finger pinch zoom
+let v3dTouch = null;
+v3dCanvas.addEventListener('touchstart', e => {
+  const t = [...e.touches].map(t => [t.clientX, t.clientY]);
+  v3dTouch = { t, dist: v3d.dist };
+}, { passive: true });
+v3dCanvas.addEventListener('touchmove', e => {
+  if (!v3dTouch) return; e.preventDefault();
+  const t = [...e.touches].map(t => [t.clientX, t.clientY]);
+  if (t.length === 1 && v3dTouch.t.length === 1) {
+    v3d.az = (v3d.az - (t[0][0] - v3dTouch.t[0][0]) * 0.4 + 360) % 360;
+    v3d.el = Math.max(3, Math.min(89, v3d.el + (t[0][1] - v3dTouch.t[0][1]) * 0.3));
+    v3dTouch.t = t;
+  } else if (t.length === 2 && v3dTouch.t.length === 2) {
+    const d0 = Math.hypot(v3dTouch.t[0][0] - v3dTouch.t[1][0], v3dTouch.t[0][1] - v3dTouch.t[1][1]);
+    const d1 = Math.hypot(t[0][0] - t[1][0], t[0][1] - t[1][1]);
+    if (d1 > 0) v3d.dist = Math.max(5, v3dTouch.dist * d0 / d1);
+  }
+  view3dRedraw();
+}, { passive: false });
+v3dCanvas.addEventListener('touchend', () => { v3dTouch = null; });
+
+function setFollow(on) {
+  v3d.follow = on;
+  document.getElementById('v3d-follow').checked = on;
+}
+document.getElementById('v3d-follow').addEventListener('change', e => { v3d.follow = e.target.checked; if (v3d.cur) view3dOnFrame(v3d.cur.t, v3d.cur); });
+document.getElementById('v3d-exag').addEventListener('input', e => {
+  const old = v3d.exag;
+  v3d.exag = parseFloat(e.target.value);
+  v3d.target[2] *= v3d.exag / old;          // keep the view centred on the same part of the flight
+  document.getElementById('v3d-exag-val').textContent = `×${v3d.exag}`;
+  view3dRedraw();
+});
+document.getElementById('v3d-reset').addEventListener('click', v3dResetView);
+document.getElementById('v3d-top').addEventListener('click', () => { v3d.el = 89; v3d.az = 180; view3dRedraw(); });
+document.getElementById('v3d-side').addEventListener('click', () => { v3d.el = 4; view3dRedraw(); });
+
+function view3dOnFrame(t, f) {
+  v3d.cur = f;
+  if (!v3d.visible) return;
+  if (v3d.follow && f) {
+    const [x, y] = v3dLocal(f.lat, f.lon);
+    v3d.target = [x, y, v3dAlt(f) * v3d.exag];
+  }
+  view3dRedraw();
+}
+
+function toggle3D(force) {
+  const on = force !== undefined ? force : !v3d.visible;
+  v3d.visible = on;
+  document.getElementById('view3d').classList.toggle('visible', on);
+  document.getElementById('map').style.display = on ? 'none' : '';
+  const btn = document.getElementById('toggle-3d');
+  btn.style.borderColor = on ? '#a371f7' : ''; btn.style.color = on ? '#a371f7' : '';
+  btn.textContent = on ? '🗺 Map' : '🧊 3D';
+  if (on) { if (!v3d.pts.length && telFrames.length) v3dBuild(); view3dRedraw(); }
+  else setTimeout(() => map.invalidateSize(), 30);
+}
+document.getElementById('toggle-3d').addEventListener('click', () => toggle3D());
+new ResizeObserver(() => view3dRedraw()).observe(document.getElementById('view3d'));
+
+// Called from loadTelemetry()
+function onTelemetryLoaded() {
+  clearFootprintTrail();
+  v3d.pts = [];
+  v3d.cur = telFrames[0] || null;
+  v3dBuild();
+  document.getElementById('toggle-3d').style.display = '';
+}
+
+</script>
+
+<script>
+// ═══════════════════════════════════════════════
+// INSPECTION REPORT BUILDER
+// Add frames → annotate (draw, measure, notes) → print / save as PDF.
+// Autosaves to this browser (IndexedDB) so a refresh doesn't lose work.
+// ═══════════════════════════════════════════════
+
+const rpt = {
+  rows: [], nextId: 1, open: false,
+  meta: { title: 'Field Observation Report', inspector: '', date: '', area: '' },
+  tool: null,            // { rowId, tool }  tool ∈ arrow | rect | ellipse | pen | text | measure
+  color: '#f85149',
+  mapUrl: null, mapKey: '',
+  saved: null,           // saved session found in IndexedDB (not yet restored)
+};
+const ANN_COLORS = ['#f85149', '#f0e130', '#3fd7ff', '#ffffff', '#3fb950'];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+// ── Telemetry helpers ──
+function frameSnapshot(f) {
+  if (!f) return null;
+  const o = {};
+  ['t', 'lat', 'lon', 'altRel', 'altAbs', 'hSpeed', 'vSpeed', 'flightHeading', 'headingSource',
+   'cameraHeading', 'gimbalPitch', 'gimbalRoll', 'dateTime', 'sats'].forEach(k => { if (f[k] !== undefined) o[k] = f[k]; });
+  return o;
+}
+function clockStr(dt) {
+  if (!dt) return null;
+  const m = dt.match(/(\d{2}):(\d{2}):(\d{2})/); if (!m) return null;
+  let h = +m[1]; const ap = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12;
+  return `${h}:${m[2]}:${m[3]} ${ap}`;
+}
+const CARD16 = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+const cardinal = d => CARD16[Math.round(norm360g(d) / 22.5) % 16];
+function currentFov() {
+  const h = parseFloat(document.getElementById('fov-input').value) || 73;
+  const aspect = (video.videoWidth && video.videoHeight) ? video.videoWidth / video.videoHeight : 16 / 9;
+  return { h, v: 2 * Math.atan(Math.tan(h * Math.PI / 360) / aspect) * 180 / Math.PI };
+}
+// Telemetry for a report row with the user's per-frame camera tilt / yaw applied
+// (many DJI SRTs — e.g. Mavic 3 / Air 3 — record no gimbal angles at all).
+function effFrame(r) {
+  if (!r || !r.frame) return null;
+  const f = { ...r.frame };
+  if (r.pitchOv !== undefined && r.pitchOv !== null) { f.gimbalPitch = r.pitchOv; f.pitchManual = true; }
+  if (r.yawOv !== undefined && r.yawOv !== null) {
+    const off = parseFloat(document.getElementById('heading-offset-input')?.value) || 0;
+    f.cameraHeading = norm360g(r.yawOv - off); f.yawManual = true;   // projectUV/yawInfo add the offset back
+  }
+  return f;
+}
+const srtHasPitch = () => telFrames.some(f => f.gimbalPitch !== undefined);
+const hasOv = v => v !== undefined && v !== null;
+function pitchInfo(f) {
+  if (!f) return null;
+  const live = f.gimbalPitch !== undefined;
+  const p = live ? f.gimbalPitch : (parseFloat(document.getElementById('pitch-override-input').value) || -90);
+  const n = Math.round(90 + p);
+  const desc = n < 10 ? 'Nadir (straight down)' : n < 30 ? 'Near nadir' : n < 60 ? 'Oblique'
+             : n < 80 ? 'High oblique' : n <= 95 ? 'Near horizontal' : 'Above horizon';
+  return { fromNadir: n, desc, live, manual: !!f.pitchManual };
+}
+function yawInfo(f) {
+  if (!f) return null;
+  const off = parseFloat(document.getElementById('heading-offset-input')?.value) || 0;
+  if (f.cameraHeading !== undefined && f.cameraHeading !== null) return { deg: norm360g(f.cameraHeading + off), src: f.yawManual ? 'set manually' : 'camera' };
+  if (f.flightHeading !== undefined && f.flightHeading !== null)
+    return { deg: norm360g(f.flightHeading + off), src: f.headingSource === 'gps' ? 'GPS track' : 'drone nose' };
+  return null;
+}
+function frameStep() {
+  const d = [];
+  for (let i = 1; i < Math.min(60, telFrames.length); i++) d.push(telFrames[i].t - telFrames[i - 1].t);
+  d.sort((a, b) => a - b);
+  const m = d[d.length >> 1];
+  return (m > 0.005 && m < 0.2) ? m : 1 / 30;
+}
+
+// ── Diagrams (SVG strings; theme 'dark' for screen, 'light' for print) ──
+function pitchSVG(pi, theme = 'dark') {
+  const C = theme === 'dark'
+    ? { bg: '#0d1117', grid: '#30363d', txt: '#8b949e', ray: '#f85149', fill: 'rgba(248,81,73,0.28)', drone: '#58a6ff' }
+    : { bg: '#ffffff', grid: '#c9d1d9', txt: '#57606a', ray: '#cf222e', fill: 'rgba(207,34,46,0.18)', drone: '#0969da' };
+  const W = 150, H = 100, dx = 34, dy = 22, gy = 86;
+  if (!pi) return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><rect width="${W}" height="${H}" fill="${C.bg}"/><text x="75" y="54" fill="${C.txt}" font-size="9" text-anchor="middle">no pitch data</text></svg>`;
+  const vf = currentFov().v, a = pi.fromNadir;
+  const end = deg => {
+    const r = deg * Math.PI / 180, sx = Math.sin(r), cy = Math.cos(r);
+    if (cy > 0.02) { const t = (gy - dy) / cy; const x = dx + t * sx; if (x < W + 60) return [x, gy]; }
+    return [dx + sx * 170, dy + cy * 170];
+  };
+  const e1 = end(a - vf / 2), e2 = end(a + vf / 2), ec = end(a);
+  const arcR = 18, ar = a * Math.PI / 180;
+  const ax = dx + arcR * Math.sin(ar), ay = dy + arcR * Math.cos(ar);
+  const lx = dx + (arcR + 9) * Math.sin(ar / 2) + 2, ly = dy + (arcR + 9) * Math.cos(ar / 2) + 3;
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="background:${C.bg}">
+    <defs><clipPath id="pc"><rect width="${W}" height="${H}"/></clipPath></defs>
+    <g clip-path="url(#pc)">
+    <line x1="0" y1="${gy}" x2="${W}" y2="${gy}" stroke="${C.grid}" stroke-width="1.5"/>
+    <line x1="${dx}" y1="${dy}" x2="${W}" y2="${dy}" stroke="${C.grid}" stroke-dasharray="1 3"/>
+    <text x="${W - 4}" y="${dy - 3}" fill="${C.txt}" font-size="7" text-anchor="end">horizon</text>
+    <text x="${W - 4}" y="${gy + 10}" fill="${C.txt}" font-size="7" text-anchor="end">ground</text>
+    <line x1="${dx}" y1="${dy}" x2="${dx}" y2="${gy}" stroke="${C.txt}" stroke-dasharray="2 3"/>
+    <polygon points="${dx},${dy} ${e1[0]},${e1[1]} ${e2[0]},${e2[1]}" fill="${C.fill}" stroke="${C.ray}" stroke-width="1"/>
+    <line x1="${dx}" y1="${dy}" x2="${ec[0]}" y2="${ec[1]}" stroke="${C.ray}" stroke-dasharray="3 3"/>
+    <path d="M ${dx} ${dy + arcR} A ${arcR} ${arcR} 0 0 0 ${ax} ${ay}" fill="none" stroke="${C.txt}"/>
+    <text x="${lx}" y="${ly}" fill="${C.txt}" font-size="8">${a}°</text>
+    <rect x="${dx - 9}" y="${dy - 6}" width="18" height="6" rx="2" fill="none" stroke="${C.drone}" stroke-width="1.5"/>
+    <circle cx="${dx - 11}" cy="${dy - 8}" r="3" fill="none" stroke="${C.drone}"/><circle cx="${dx + 11}" cy="${dy - 8}" r="3" fill="none" stroke="${C.drone}"/>
+    </g></svg>`;
+}
+function yawSVG(yi, flightYaw, theme = 'dark') {
+  const C = theme === 'dark'
+    ? { bg: '#0d1117', ring: '#30363d', txt: '#8b949e', ray: '#f85149', fill: 'rgba(248,81,73,0.32)', drone: '#58a6ff', fl: '#e6edf3' }
+    : { bg: '#ffffff', ring: '#c9d1d9', txt: '#57606a', ray: '#cf222e', fill: 'rgba(207,34,46,0.2)', drone: '#0969da', fl: '#24292f' };
+  const S = 100, c = 50, R = 38;
+  let wedge = '', fl = '';
+  if (yi) {
+    const hf = currentFov().h;
+    const pt = (deg, r) => [c + r * Math.sin(deg * Math.PI / 180), c - r * Math.cos(deg * Math.PI / 180)];
+    const a = pt(yi.deg - hf / 2, R - 3), b = pt(yi.deg + hf / 2, R - 3);
+    wedge = `<path d="M ${c} ${c} L ${a[0]} ${a[1]} A ${R - 3} ${R - 3} 0 0 1 ${b[0]} ${b[1]} Z" fill="${C.fill}" stroke="${C.ray}"/>`;
+  }
+  if (flightYaw !== null && flightYaw !== undefined && yi && yi.src === 'camera') {
+    const e = [c + (R - 6) * Math.sin(flightYaw * Math.PI / 180), c - (R - 6) * Math.cos(flightYaw * Math.PI / 180)];
+    fl = `<line x1="${c}" y1="${c}" x2="${e[0]}" y2="${e[1]}" stroke="${C.fl}" stroke-dasharray="2 3"/>`;
+  }
+  return `<svg viewBox="0 0 ${S} ${S}" width="${S}" height="${S}" style="background:${C.bg}">
+    <circle cx="${c}" cy="${c}" r="${R}" fill="none" stroke="${C.ring}"/>
+    <text x="${c}" y="9" fill="${C.ray}" font-size="8" font-weight="700" text-anchor="middle">N</text>
+    <text x="${S - 4}" y="${c + 3}" fill="${C.txt}" font-size="7" text-anchor="end">E</text>
+    <text x="${c}" y="${S - 2}" fill="${C.txt}" font-size="7" text-anchor="middle">S</text>
+    <text x="4" y="${c + 3}" fill="${C.txt}" font-size="7">W</text>
+    ${wedge}${fl}
+    <rect x="${c - 4}" y="${c - 4}" width="8" height="8" transform="rotate(45 ${c} ${c})" fill="none" stroke="${C.drone}" stroke-width="1.5"/>
+    ${yi ? '' : `<text x="${c}" y="${c + 18}" fill="${C.txt}" font-size="7" text-anchor="middle">no heading</text>`}
+  </svg>`;
+}
+
+// ── Measurements ──
+function measureGround(r, a, b) {
+  const ef = effFrame(r);
+  if (!ef) return null;
+  const ga = projectUV(a[0] * 2 - 1, a[1] * 2 - 1, ef);
+  const gb = projectUV(b[0] * 2 - 1, b[1] * 2 - 1, ef);
+  if (!ga || !gb) return null;
+  return haversine(ga.lat, ga.lon, gb.lat, gb.lon);
+}
+const fmtDist = d => d == null ? 'n/a' : d >= 1000 ? `${(d / 1000).toFixed(2)} km` : d >= 100 ? `${d.toFixed(0)} m` : `${d.toFixed(1)} m`;
+
+// ── Annotation rendering (normalised 0–1 image coords) ──
+function drawAnns(ctx, r, W, H, temp) {
+  const lw = Math.max(2, W * 0.004);
+  const P = p => [p[0] * W, p[1] * H];
+  let mi = 0;
+  const list = temp ? [...r.anns, temp] : r.anns;
+  for (const a of list) {
+    ctx.save();
+    ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.strokeStyle = a.color; ctx.fillStyle = a.color;
+    ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = lw * 1.2;
+    if (a.type === 'arrow') {
+      const [x1, y1] = P(a.pts[0]), [x2, y2] = P(a.pts[1]);
+      const ang = Math.atan2(y2 - y1, x2 - x1), hl = lw * 5;
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x2, y2);
+      ctx.lineTo(x2 - hl * Math.cos(ang - 0.45), y2 - hl * Math.sin(ang - 0.45));
+      ctx.lineTo(x2 - hl * Math.cos(ang + 0.45), y2 - hl * Math.sin(ang + 0.45));
+      ctx.closePath(); ctx.fill();
+    } else if (a.type === 'rect') {
+      const [x1, y1] = P(a.pts[0]), [x2, y2] = P(a.pts[1]);
+      ctx.strokeRect(Math.min(x1, x2), Math.min(y1, y2), Math.abs(x2 - x1), Math.abs(y2 - y1));
+    } else if (a.type === 'ellipse') {
+      const [x1, y1] = P(a.pts[0]), [x2, y2] = P(a.pts[1]);
+      ctx.beginPath(); ctx.ellipse((x1 + x2) / 2, (y1 + y2) / 2, Math.abs(x2 - x1) / 2 || 1, Math.abs(y2 - y1) / 2 || 1, 0, 0, Math.PI * 2); ctx.stroke();
+    } else if (a.type === 'pen') {
+      ctx.beginPath(); a.pts.forEach((p, i) => { const [x, y] = P(p); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.stroke();
+    } else if (a.type === 'text') {
+      const fs = Math.max(12, W * 0.028), [x, y] = P(a.pts[0]);
+      ctx.font = `700 ${fs}px -apple-system, Segoe UI, sans-serif`; ctx.textBaseline = 'middle';
+      ctx.shadowBlur = 0; ctx.lineWidth = fs * 0.18; ctx.strokeStyle = 'rgba(0,0,0,0.75)';
+      ctx.strokeText(a.text, x, y); ctx.fillText(a.text, x, y);
+    } else if (a.type === 'measure') {
+      mi++;
+      const [x1, y1] = P(a.pts[0]), [x2, y2] = P(a.pts[1] || a.pts[0]);
+      ctx.strokeStyle = ctx.fillStyle = '#f0e130';
+      ctx.setLineDash([lw * 3, lw * 2]);
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.setLineDash([]);
+      [[x1, y1], [x2, y2]].forEach(([x, y]) => { ctx.beginPath(); ctx.arc(x, y, lw * 1.6, 0, Math.PI * 2); ctx.fill(); });
+      if (a.pts[1]) {
+        const fs = Math.max(11, W * 0.022);
+        const label = `M${mi}  ≈ ${fmtDist(a.dist)}`;
+        ctx.font = `700 ${fs}px ui-monospace, Menlo, monospace`; ctx.textBaseline = 'middle';
+        const tw = ctx.measureText(label).width, mx = (x1 + x2) / 2, my = (y1 + y2) / 2 - fs * 1.1;
+        ctx.shadowBlur = 0; ctx.fillStyle = 'rgba(13,17,23,0.85)';
+        ctx.fillRect(mx - tw / 2 - fs * 0.4, my - fs * 0.7, tw + fs * 0.8, fs * 1.4);
+        ctx.fillStyle = '#f0e130'; ctx.textAlign = 'center'; ctx.fillText(label, mx, my);
+      }
+    }
+    ctx.restore();
+  }
+}
+
+// Full-resolution composite (image + annotations) for print
+function compositeRow(r, maxW = 1800) {
+  return new Promise(res => {
+    const img = new Image();
+    img.onload = () => {
+      const k = Math.min(1, maxW / img.naturalWidth);
+      const W = Math.round(img.naturalWidth * k), H = Math.round(img.naturalHeight * k);
+      const c = document.createElement('canvas'); c.width = W; c.height = H;
+      const ctx = c.getContext('2d'); ctx.drawImage(img, 0, 0, W, H);
+      drawAnns(ctx, r, W, H);
+      res(c.toDataURL('image/jpeg', 0.88));
+    };
+    img.onerror = () => res(r.url);
+    img.src = r.url;
+  });
+}
+
+// ── Capture / rows ──
+async function captureFrameBlob() {
+  const c = captureCanvas(false, null, video.currentTime);
+  const blob = await new Promise(res => c.toBlob(res, 'image/jpeg', 0.92));
+  return { blob, w: c.width, h: c.height };
+}
+function rowFromCapture(cap, t) {
+  const frame = frameSnapshot(telFrames.length ? interpolateFrame(t) : null);
+  const last = [...rpt.rows].reverse().find(r => hasOv(r.pitchOv) && r.video === videoFileName);
+  return { id: rpt.nextId++, t, video: videoFileName, frame,
+           pitchOv: frame && frame.gimbalPitch === undefined && last ? last.pitchOv : undefined,
+           blob: cap.blob, url: URL.createObjectURL(cap.blob), w: cap.w, h: cap.h, notes: '', anns: [] };
+}
+async function addToReport() {
+  if (!video.videoWidth) { alert('Load a video first.'); return; }
+  const t = video.currentTime;
+  const dup = rpt.rows.findIndex(r => r.video === videoFileName && Math.abs(r.t - t) < 0.02);
+  if (dup >= 0) { flashGrab(`Already captured (#${dup + 1})`); highlightTray(rpt.rows[dup].id); return; }
+  const cap = await captureFrameBlob();          // grab the frame first so playback doesn't move it
+  const r = rowFromCapture(cap, t);
+  rpt.rows.push(r);
+  rpt.saved = null;
+  shutterFlash();
+  updateReportBadge(); saveReportSoon();
+  if (grabState.alsoDownload) grabCurrentFrame(false);
+  if (rpt.open) { renderRows(); refreshReportHeader(); document.getElementById(`rp-row-${r.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+  else { flashGrab(`📸 Captured #${rpt.rows.length}`); highlightTray(r.id); }
+}
+function shutterFlash() {
+  const w = document.getElementById('video-wrapper');
+  const el = document.createElement('div'); el.className = 'shutter-flash';
+  w.appendChild(el); setTimeout(() => el.remove(), 350);
+}
+
+// ── Capture tray (under the video) ──
+function renderTray() {
+  const tray = document.getElementById('capture-tray'), strip = document.getElementById('ct-strip');
+  const n = rpt.rows.length;
+  document.getElementById('ct-count').textContent = n;
+  tray.classList.toggle('visible', n > 0 || !!rpt.saved);
+  if (!n && rpt.saved) {
+    strip.innerHTML = `<span class="ct-restore">💾 ${rpt.saved.rows.length} capture${rpt.saved.rows.length === 1 ? '' : 's'} saved in this browser on ${new Date(rpt.saved.savedAt).toLocaleDateString()}
+      <button class="btn" id="ct-restore-btn" style="font-size:11px; padding:2px 8px">Restore</button></span>`;
+    document.getElementById('ct-restore-btn').onclick = restoreSaved;
+    return;
+  }
+  strip.innerHTML = '';
+  rpt.rows.forEach((r, i) => {
+    const it = document.createElement('div');
+    it.className = 'ct-item'; it.dataset.id = r.id;
+    const has = r.notes.trim() || r.anns.length;
+    it.title = `#${i + 1} · ${fmtTimeMs(r.t)}${r.video !== videoFileName ? ' · ' + r.video : ''}${r.notes ? '\n' + r.notes.slice(0, 120) : ''}\nClick to view in the video`;
+    it.innerHTML = `<img src="${r.url}" alt=""><span class="ct-n">${i + 1}</span><span class="ct-t">${formatTime(r.t)}</span>${has ? '<span class="ct-dot" title="Has notes or markup"></span>' : ''}<button class="ct-x" title="Remove from report">×</button>`;
+    it.addEventListener('click', e => {
+      if (e.target.classList.contains('ct-x')) { deleteRow(r); return; }
+      if (r.video === videoFileName) { video.pause(); playBtn.textContent = '▶'; video.currentTime = r.t; }
+    });
+    strip.appendChild(it);
+  });
+}
+function highlightTray(id) {
+  const it = document.querySelector(`.ct-item[data-id="${id}"]`);
+  if (!it) return;
+  it.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+  it.classList.add('flash'); setTimeout(() => it.classList.remove('flash'), 900);
+}
+async function nudgeRow(r, dt) {
+  if (r.video !== videoFileName) { alert(`This frame came from ${r.video}. Load that video to move through its frames.`); return; }
+  if (r.anns.length && !confirm('Moving to another frame clears the drawings and measurements on this image (notes are kept). Continue?')) return;
+  const t = Math.max(0, Math.min((video.duration || r.t) - 0.01, r.t + dt));
+  await seekExact(t);
+  const cap = await captureFrameBlob();
+  URL.revokeObjectURL(r.url);
+  Object.assign(r, { t, blob: cap.blob, url: URL.createObjectURL(cap.blob), w: cap.w, h: cap.h, anns: [],
+                     frame: frameSnapshot(telFrames.length ? interpolateFrame(t) : null) });
+  replaceRow(r); refreshReportHeader(); saveReportSoon(); renderTray();
+}
+function moveRow(r, d) {
+  const i = rpt.rows.indexOf(r), j = i + d;
+  if (j < 0 || j >= rpt.rows.length) return;
+  [rpt.rows[i], rpt.rows[j]] = [rpt.rows[j], rpt.rows[i]];
+  renderRows(); refreshReportHeader(); saveReportSoon();
+}
+function deleteRow(r) {
+  if ((r.notes || r.anns.length) && !confirm(`Remove observation #${rpt.rows.indexOf(r) + 1} and its notes from the report?`)) return;
+  rpt.rows = rpt.rows.filter(x => x !== r);
+  if (rpt.tool && rpt.tool.rowId === r.id) rpt.tool = null;
+  renderRows(); refreshReportHeader(); updateReportBadge(); saveReportSoon();
+}
+function updateReportBadge() {
+  const n = rpt.rows.length;
+  document.getElementById('report-count').textContent = n ? ` (${n})` : '';
+  document.getElementById('rp-count').textContent = `${n} observation${n === 1 ? '' : 's'}`;
+  renderTray();
+}
+
+// ── Row UI ──
+function dataBlockHTML(r) {
+  const f = effFrame(r);
+  if (!f) return `<div class="rp-dl"><span>VIDEO</span><b>${esc(fmtTimeMs(r.t))}</b></div><div class="rp-muted">No telemetry for this frame.</div>`;
+  const pi = pitchInfo(f), yi = yawInfo(f);
+  const rows = [
+    ['CLOCK', clockStr(f.dateTime) || '—'],
+    ['VIDEO', fmtTimeMs(r.t)],
+    ['LAT', f.lat.toFixed(6)], ['LON', f.lon.toFixed(6)],
+    ['ALT', f.altRel !== undefined ? `${f.altRel.toFixed(1)} m` + (f.altAbs !== undefined && f.altAbs !== f.altRel ? ` <i>(${f.altAbs.toFixed(1)} abs)</i>` : '') : '—'],
+    ['PITCH', `${pi.fromNadir}° from nadir · ${pi.desc}${pi.manual ? ' <i>(set manually)</i>' : pi.live ? '' : ' <i class="rp-warn">(assumed — set tilt below)</i>'}`],
+    ['YAW', yi ? `${Math.round(yi.deg)}° · ${cardinal(yi.deg)}${yi.src !== 'camera' ? ` <i>(${yi.src})</i>` : ''}` : '—'],
+  ];
+  if (f.hSpeed !== undefined) rows.push(['SPEED', `${f.hSpeed.toFixed(1)} m/s`]);
+  rows.push(['VIEW', fpText(f)]);
+  return `<div class="rp-dl">${rows.map(([k, v]) => `<span>${k}</span><b>${v}</b>`).join('')}</div>
+    <div class="rp-diags">
+      <div><div class="rp-diag-t">PITCH (SIDE VIEW)</div>${pitchSVG(pi)}</div>
+      <div><div class="rp-diag-t">YAW (TOP VIEW)</div>${yawSVG(yi, f.flightHeading)}<div class="rp-diag-c">${yi ? `${Math.round(yi.deg)}° (${cardinal(yi.deg)})` : ''}</div></div>
+    </div>
+    <div class="rp-cam ${!pi.live || pi.manual ? 'need' : ''}">
+      <span class="rp-diag-t" style="margin:0">CAMERA</span>
+      <label>Tilt <input type="number" class="rp-num-in" data-cam="tilt" min="0" max="120" step="1" value="${pi.fromNadir}" title="Degrees from straight down: 0 = nadir, 90 = looking at the horizon"> ° from nadir</label>
+      <button class="rp-mini" data-tool="horizon" title="Click the horizon line in the image and the tilt is calculated from it (uses the HFoV setting)">⌖ Click horizon</button>
+      <label>Yaw <input type="number" class="rp-num-in" data-cam="yaw" min="0" max="359" step="1" value="${yi ? Math.round(yi.deg) : ''}" title="Compass direction the camera faces (0 = north, 90 = east)"> °</label>
+      ${hasOv(r.pitchOv) || hasOv(r.yawOv) ? `<button class="rp-mini" data-cam="auto" title="Go back to the SRT / default values">↺ Auto</button>` : ''}
+      ${rpt.rows.length > 1 && hasOv(r.pitchOv) ? `<button class="rp-mini" data-cam="all" title="Use this tilt for every frame that has no gimbal pitch in the SRT">Tilt → all frames</button>` : ''}
+    </div>`;
+}
+function setRowCamera(r, { tilt, yaw } = {}) {
+  if (tilt !== undefined) r.pitchOv = tilt === null ? undefined : Math.max(-90, Math.min(30, tilt - 90));
+  if (yaw !== undefined) r.yawOv = yaw === null ? undefined : norm360g(yaw);
+  for (const a of r.anns) if (a.type === 'measure' && a.pts[1]) a.dist = measureGround(r, a.pts[0], a.pts[1]);
+  refreshDataBlock(r);
+  const el = document.getElementById(`rp-row-${r.id}`);
+  if (el) afterAnnChange(r, el);
+  refreshReportHeader();
+  saveReportSoon();
+}
+function refreshDataBlock(r) {
+  const el = document.getElementById(`rp-row-${r.id}`);
+  if (!el) return;
+  el.querySelector('.rp-data').innerHTML = dataBlockHTML(r);
+  wireDataBlock(r, el);
+  updateToolStates();
+}
+function wireDataBlock(r, el) {
+  const d = el.querySelector('.rp-data');
+  d.querySelector('[data-cam="tilt"]')?.addEventListener('change', e => { const v = parseFloat(e.target.value); if (Number.isFinite(v)) setRowCamera(r, { tilt: v }); });
+  d.querySelector('[data-cam="yaw"]')?.addEventListener('change', e => { const v = parseFloat(e.target.value); if (Number.isFinite(v)) setRowCamera(r, { yaw: v }); });
+  d.querySelector('[data-cam="auto"]')?.addEventListener('click', () => setRowCamera(r, { tilt: null, yaw: null }));
+  d.querySelector('[data-cam="all"]')?.addEventListener('click', () => {
+    rpt.rows.forEach(x => { if (x !== r && x.frame && x.frame.gimbalPitch === undefined) { x.pitchOv = r.pitchOv; setRowCamera(x, {}); } });
+  });
+  d.querySelector('[data-tool="horizon"]')?.addEventListener('click', () => {
+    rpt.tool = (rpt.tool && rpt.tool.rowId === r.id && rpt.tool.tool === 'horizon') ? null : { rowId: r.id, tool: 'horizon' };
+    rpt.pending = null; updateToolStates();
+  });
+}
+// Ground footprint of the whole frame (flat-ground estimate) — width × depth through the image centre
+function fpText(f) {
+  const st = footprintStats(f), cs = footprintCorners(f);
+  if (!cs.every(Boolean)) return 'no ground footprint';
+  const clipped = cs.some(c => c.clipped);
+  const d = v => v == null ? '?' : v >= 100 ? v.toFixed(0) : v.toFixed(1);
+  const size = st.depth == null ? `${d(st.width)} m wide at centre · view reaches the horizon` : `${d(st.width)} × ${d(st.depth)} m footprint`;
+  return size + (st.gsd ? ` · ${st.gsd.toFixed(st.gsd < 10 ? 1 : 0)} cm/px at centre` : '') +
+    (clipped && st.depth != null ? ' <i>(top of frame beyond horizon)</i>' : '');
+}
+function measuresHTML(r) {
+  const ms = r.anns.filter(a => a.type === 'measure');
+  if (!ms.length) return '';
+  return `<div class="rp-measures">${ms.map((m, i) => `<span>M${i + 1} ≈ <b>${fmtDist(m.dist)}</b></span>`).join('')}
+    <span class="rp-muted" title="Projected through the camera model onto flat ground at takeoff height using the HFoV / pitch / heading settings. Accuracy drops for oblique views, slopes and tall objects.">ⓘ flat-ground estimate</span></div>`;
+}
+function buildRow(r, i) {
+  const el = document.createElement('div');
+  el.className = 'rp-row'; el.id = `rp-row-${r.id}`;
+  const step = frameStep();
+  el.innerHTML = `
+    <div class="rp-frame">
+      <div class="rp-frame-bar">
+        <button class="rp-mini" data-act="up" title="Move up">▲</button>
+        <button class="rp-mini" data-act="down" title="Move down">▼</button>
+        <span class="rp-num">#${i + 1}</span>
+        <span class="rp-nudge">
+          <button class="rp-mini" data-nudge="-2" title="Back 2 seconds">« 2s</button>
+          <button class="rp-mini" data-nudge="${-step}" title="Previous frame">‹ 1f</button>
+          <button class="rp-mini" data-nudge="${step}" title="Next frame">1f ›</button>
+          <button class="rp-mini" data-nudge="2" title="Forward 2 seconds">2s »</button>
+        </span>
+        <button class="rp-mini" data-act="seek" title="Show this moment in the video" style="margin-left:auto">▶ video</button>
+      </div>
+      <div class="rp-imgwrap"><img src="${r.url}" alt="Frame ${i + 1}"><canvas class="rp-ann"></canvas></div>
+    </div>
+    <div class="rp-data">${dataBlockHTML(r)}</div>
+    <div class="rp-notes">
+      <textarea placeholder="Add a note about this frame…">${esc(r.notes)}</textarea>
+      <div class="rp-tools">
+        <button class="rp-tool rp-measure-btn" data-tool="measure" title="Click two points on the image">↔ Measure distance</button>
+      </div>
+      <div class="rp-tools">
+        <span class="rp-muted" style="margin-right:2px">Draw</span>
+        <button class="rp-tool" data-tool="arrow" title="Arrow">↗</button>
+        <button class="rp-tool" data-tool="rect" title="Box">▭</button>
+        <button class="rp-tool" data-tool="ellipse" title="Circle / ellipse">◯</button>
+        <button class="rp-tool" data-tool="pen" title="Freehand">✎</button>
+        <button class="rp-tool" data-tool="text" title="Text label">T</button>
+        <span class="rp-swatches">${ANN_COLORS.map(c => `<button class="rp-sw" data-color="${c}" style="background:${c}" title="Colour"></button>`).join('')}</span>
+        <button class="rp-tool" data-act="undo" title="Undo last mark">↶</button>
+        <button class="rp-tool" data-act="clear" title="Clear all marks">✕</button>
+      </div>
+      <div class="rp-mbox">${measuresHTML(r)}</div>
+      <button class="rp-del" data-act="delete">🗑 Delete row</button>
+    </div>`;
+
+  const ta = el.querySelector('textarea');
+  ta.addEventListener('input', () => { r.notes = ta.value; saveReportSoon(); });
+  ta.addEventListener('change', renderTray);
+  el.querySelectorAll('[data-nudge]').forEach(b => b.addEventListener('click', () => nudgeRow(r, parseFloat(b.dataset.nudge))));
+  el.querySelector('[data-act="up"]').addEventListener('click', () => moveRow(r, -1));
+  el.querySelector('[data-act="down"]').addEventListener('click', () => moveRow(r, 1));
+  el.querySelector('[data-act="seek"]').addEventListener('click', () => { if (r.video === videoFileName) { video.currentTime = r.t; closeReport(); } });
+  el.querySelector('[data-act="delete"]').addEventListener('click', () => deleteRow(r));
+  el.querySelector('[data-act="undo"]').addEventListener('click', () => { r.anns.pop(); afterAnnChange(r, el); });
+  el.querySelector('[data-act="clear"]').addEventListener('click', () => { if (r.anns.length && confirm('Clear all drawings and measurements on this image?')) { r.anns = []; afterAnnChange(r, el); } });
+  wireDataBlock(r, el);
+  el.querySelectorAll('.rp-notes [data-tool]').forEach(b => b.addEventListener('click', () => {
+    const t = b.dataset.tool;
+    rpt.tool = (rpt.tool && rpt.tool.rowId === r.id && rpt.tool.tool === t) ? null : { rowId: r.id, tool: t };
+    rpt.pending = null; updateToolStates();
+  }));
+  el.querySelectorAll('[data-color]').forEach(b => b.addEventListener('click', () => { rpt.color = b.dataset.color; updateToolStates(); }));
+  wireAnnCanvas(r, el);
+  return el;
+}
+function flashRow(r, msg) {
+  const el = document.getElementById(`rp-row-${r.id}`); if (!el) return;
+  const w = el.querySelector('.rp-imgwrap'), t = document.createElement('div');
+  t.className = 'grab-flash'; t.textContent = msg; w.appendChild(t); setTimeout(() => t.remove(), 1400);
+}
+function afterAnnChange(r, el) {
+  el = el || document.getElementById(`rp-row-${r.id}`);
+  if (!el) return;
+  redrawRowCanvas(r, el);
+  el.querySelector('.rp-mbox').innerHTML = measuresHTML(r);
+  saveReportSoon(); renderTray();
+}
+function replaceRow(r) {
+  const old = document.getElementById(`rp-row-${r.id}`);
+  if (old) old.replaceWith(buildRow(r, rpt.rows.indexOf(r)));
+  updateToolStates();
+}
+function renderRows() {
+  const box = document.getElementById('rp-rows');
+  box.innerHTML = '';
+  if (!rpt.rows.length) {
+    box.innerHTML = `<div class="rp-empty">No frames yet. Pause the video on something worth recording and press <b>📸</b> (or <b>G</b>, or <b>＋ Add current frame</b> above).</div>`;
+  }
+  rpt.rows.forEach((r, i) => box.appendChild(buildRow(r, i)));
+  updateToolStates();
+}
+function updateToolStates() {
+  document.querySelectorAll('.rp-row').forEach(el => {
+    const id = +el.id.replace('rp-row-', '');
+    const active = rpt.tool && rpt.tool.rowId === id;
+    el.querySelectorAll('[data-tool]').forEach(b => b.classList.toggle('on', !!active && rpt.tool.tool === b.dataset.tool));
+    el.querySelectorAll('[data-color]').forEach(b => b.classList.toggle('on', b.dataset.color === rpt.color));
+    const cv = el.querySelector('.rp-ann');
+    cv.classList.toggle('active', !!active);
+    el.classList.toggle('editing', !!active);
+  });
+  const hint = document.getElementById('rp-tool-hint');
+  if (rpt.tool) {
+    const msg = { measure: 'Click two points on the image to measure the ground distance between them.', text: 'Click where the label should go.',
+                  horizon: 'Click on the horizon line in the image to set the camera tilt.',
+                  pen: 'Drag to draw.', arrow: 'Drag from tail to tip.', rect: 'Drag a box.', ellipse: 'Drag to draw an ellipse.' }[rpt.tool.tool];
+    hint.textContent = `Observation #${rpt.rows.findIndex(r => r.id === rpt.tool.rowId) + 1}: ${msg}  (Esc to stop)`;
+    hint.style.display = '';
+  } else hint.style.display = 'none';
+}
+function redrawRowCanvas(r, el, temp) {
+  const img = el.querySelector('img'), cv = el.querySelector('.rp-ann');
+  const W = img.clientWidth, H = img.clientHeight;
+  if (!W || !H) return;
+  const dpr = window.devicePixelRatio || 1;
+  if (cv.width !== Math.round(W * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  drawAnns(ctx, r, W, H, temp);
+}
+function wireAnnCanvas(r, el) {
+  const img = el.querySelector('img'), cv = el.querySelector('.rp-ann');
+  img.addEventListener('load', () => redrawRowCanvas(r, el));
+  const norm = e => { const b = cv.getBoundingClientRect(); return [Math.max(0, Math.min(1, (e.clientX - b.left) / b.width)), Math.max(0, Math.min(1, (e.clientY - b.top) / b.height))]; };
+  let drawing = null;
+  cv.addEventListener('pointerdown', e => {
+    if (!rpt.tool || rpt.tool.rowId !== r.id) return;
+    e.preventDefault();
+    const p = norm(e), tool = rpt.tool.tool;
+    if (tool === 'horizon') {
+      // A point on the horizon sits at elevation 0, so tan(pitch) = v · tan(vfov/2)  (v: −1 top … +1 bottom)
+      const v = p[1] * 2 - 1, tv = Math.tan(currentFov().v * Math.PI / 360);
+      const pitch = Math.atan(v * tv) * 180 / Math.PI;
+      rpt.tool = null; updateToolStates();
+      setRowCamera(r, { tilt: Math.round((pitch + 90) * 10) / 10 });
+      flashRow(r, `Tilt set to ${Math.round(pitch + 90)}° from nadir`);
+      return;
+    }
+    if (tool === 'text') {
+      const s = prompt('Label text:');
+      if (s && s.trim()) { r.anns.push({ type: 'text', color: rpt.color, pts: [p], text: s.trim().slice(0, 80) }); afterAnnChange(r, el); }
+      return;
+    }
+    if (tool === 'measure') {
+      if (!rpt.pending) { rpt.pending = { type: 'measure', pts: [p] }; redrawRowCanvas(r, el, rpt.pending); }
+      else {
+        const a = rpt.pending.pts[0];
+        r.anns.push({ type: 'measure', pts: [a, p], dist: measureGround(r, a, p) });
+        rpt.pending = null; afterAnnChange(r, el);
+      }
+      return;
+    }
+    drawing = { type: tool, color: rpt.color, pts: tool === 'pen' ? [p] : [p, p] };
+    cv.setPointerCapture(e.pointerId);
+  });
+  cv.addEventListener('pointermove', e => {
+    if (!rpt.tool || rpt.tool.rowId !== r.id) return;
+    const p = norm(e);
+    if (drawing) {
+      if (drawing.type === 'pen') drawing.pts.push(p); else drawing.pts[1] = p;
+      redrawRowCanvas(r, el, drawing);
+    } else if (rpt.pending) {
+      const d = measureGround(r, rpt.pending.pts[0], p);
+      redrawRowCanvas(r, el, { type: 'measure', pts: [rpt.pending.pts[0], p], dist: d });
+    }
+  });
+  cv.addEventListener('pointerup', () => {
+    if (!drawing) return;
+    const d = drawing; drawing = null;
+    const [a, b] = [d.pts[0], d.pts[d.pts.length - 1]];
+    if (d.type === 'pen' ? d.pts.length > 2 : Math.hypot(a[0] - b[0], a[1] - b[1]) > 0.005) r.anns.push(d);
+    afterAnnChange(r, el);
+  });
+}
+window.addEventListener('resize', () => { if (rpt.open) rpt.rows.forEach(r => { const el = document.getElementById(`rp-row-${r.id}`); if (el) redrawRowCanvas(r, el); }); });
+
+// ── Flight summary ──
+function flightSummary() {
+  if (!telFrames.length) return [];
+  const f0 = telFrames[0], f1 = telFrames[telFrames.length - 1];
+  let dist = 0;
+  const step = Math.max(1, Math.floor(telFrames.length / 3000));
+  for (let i = step; i < telFrames.length; i += step) dist += haversine(telFrames[i - step].lat, telFrames[i - step].lon, telFrames[i].lat, telFrames[i].lon);
+  const alts = telFrames.map(f => f.altRel).filter(v => v !== undefined);
+  const lats = telFrames.map(f => f.lat), lons = telFrames.map(f => f.lon);
+  const [la0, la1, lo0, lo1] = [Math.min(...lats), Math.max(...lats), Math.min(...lons), Math.max(...lons)];
+  const ew = haversine((la0 + la1) / 2, lo0, (la0 + la1) / 2, lo1), ns = haversine(la0, lo0, la1, lo0);
+  const out = [];
+  if (f0.dateTime) out.push(['Date', f0.dateTime.slice(0, 10)]);
+  const c0 = clockStr(f0.dateTime), c1 = clockStr(f1.dateTime);
+  if (c0) out.push(['Recording', `${c0} – ${c1}`]);
+  out.push(['Duration', formatTime(f1.t - f0.t)]);
+  out.push(['Distance flown', fmtDist(dist)]);
+  if (alts.length) out.push(['Altitude (above takeoff)', `${Math.min(...alts).toFixed(1)} – ${Math.max(...alts).toFixed(1)} m`]);
+  out.push(['Extent', `${fmtDist(ew)} E–W × ${fmtDist(ns)} N–S`]);
+  out.push(['Centre', `${((la0 + la1) / 2).toFixed(6)}, ${((lo0 + lo1) / 2).toFixed(6)}`]);
+  if (homePoint) out.push(['Home / takeoff', `${homePoint.lat.toFixed(6)}, ${homePoint.lon.toFixed(6)}`]);
+  out.push(['Video', esc(videoFileName)]);
+  if (typeof srtFileName !== 'undefined' && srtFileName) out.push(['Telemetry', esc(srtFileName)]);
+  const fov = currentFov(), sel = document.getElementById('drone-model-select');
+  const opt = sel && sel.selectedIndex > 0 ? sel.options[sel.selectedIndex] : null;
+  const model = opt && Math.abs(parseFloat(opt.value) - fov.h) < 0.01 ? ` · ${esc(opt.textContent.trim())}` : '';
+  out.push(['Camera FOV', `${fov.h.toFixed(1)}° H × ${fov.v.toFixed(1)}° V${model}`]);
+  const live = telFrames.some(f => f.gimbalPitch !== undefined);
+  const off = parseFloat(document.getElementById('heading-offset-input')?.value) || 0;
+  out.push(['Camera angles', (live ? 'gimbal pitch from SRT' : rpt.rows.some(r => hasOv(r.pitchOv)) ? 'tilt set per frame (SRT has no gimbal pitch)' : `pitch assumed ${document.getElementById('pitch-override-input').value}°`) +
+    (telFrames.some(f => f.cameraHeading !== undefined && f.cameraHeading !== null) ? ', gimbal yaw from SRT' : ', yaw from drone heading') +
+    (off ? `, heading offset ${off > 0 ? '+' : ''}${off}°` : '')]);
+  out.push(['Observations', String(rpt.rows.length)]);
+  return out;
+}
+
+// ── Static map (Esri imagery tiles + track + numbered pins) → data URL ──
+function loadTile(url) {
+  return new Promise(res => {
+    const img = new Image(); img.crossOrigin = 'anonymous';
+    const to = setTimeout(() => res(null), 7000);
+    img.onload = () => { clearTimeout(to); res(img); };
+    img.onerror = () => { clearTimeout(to); res(null); };
+    img.src = url;
+  });
+}
+async function renderStaticMap(W, H, withTiles = true) {
+  const pts = [];
+  const step = Math.max(1, Math.floor(telFrames.length / 2000));
+  for (let i = 0; i < telFrames.length; i += step) pts.push([telFrames[i].lat, telFrames[i].lon]);
+  // Oblique views reach the horizon; on the overview map, cut cones at ~60% of the flight's size
+  // (30 m min) so they show direction and spread without shrinking the track to a dot.
+  const tl = pts.map(p => p[0]), tn = pts.map(p => p[1]);
+  const extM = pts.length ? Math.max(haversine(Math.min(...tl), Math.min(...tn), Math.max(...tl), Math.min(...tn)),
+                                     haversine(Math.min(...tl), Math.min(...tn), Math.min(...tl), Math.max(...tn))) : 100;
+  const savedClip = fpOpts.clipRange;
+  fpOpts.clipRange = Math.max(30, Math.min(savedClip, extM * 0.6));
+  const obs = rpt.rows.map((r, i) => {
+    const ef = effFrame(r);
+    if (!ef) return null;
+    const cs = footprintCorners(ef);
+    const fp = cs.every(Boolean) ? { ll: cs.map(c => [c.lat, c.lon]), clipped: cs.some(c => c.clipped) } : null;
+    return { lat: ef.lat, lon: ef.lon, n: i + 1, yaw: yawInfo(ef), fp };
+  }).filter(Boolean);
+  const mapClip = fpOpts.clipRange;
+  fpOpts.clipRange = savedClip;
+  const all = [...pts, ...obs.map(o => [o.lat, o.lon]), ...obs.flatMap(o => o.fp ? o.fp.ll : [])];
+  if (!all.length) return null;
+  const wx = (lon, z) => (lon + 180) / 360 * 256 * 2 ** z;
+  const wy = (lat, z) => { const s = Math.sin(lat * Math.PI / 180); return (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * 256 * 2 ** z; };
+  const la = all.map(p => p[0]), lo = all.map(p => p[1]);
+  const [la0, la1, lo0, lo1] = [Math.min(...la), Math.max(...la), Math.min(...lo), Math.max(...lo)];
+  const pad = 50;
+  let z = 19;
+  while (z > 2 && ((wx(lo1, z) - wx(lo0, z)) > W - 2 * pad || (wy(la0, z) - wy(la1, z)) > H - 2 * pad)) z--;
+  const cx = (wx(lo0, z) + wx(lo1, z)) / 2, cy = (wy(la0, z) + wy(la1, z)) / 2;
+  const ox = cx - W / 2, oy = cy - H / 2;
+  const S = 2;   // render at 2× for print sharpness
+  const c = document.createElement('canvas'); c.width = W * S; c.height = H * S;
+  const ctx = c.getContext('2d'); ctx.scale(S, S);
+  ctx.fillStyle = '#e8ebef'; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = '#d0d7de'; ctx.lineWidth = 1;
+  for (let x = -(ox % 64); x < W; x += 64) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+  for (let y = -(oy % 64); y < H; y += 64) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+  let tilesOk = false;
+  if (withTiles) {
+    const jobs = [];
+    for (let tx = Math.floor(ox / 256); tx <= Math.floor((ox + W) / 256); tx++)
+      for (let ty = Math.floor(oy / 256); ty <= Math.floor((oy + H) / 256); ty++)
+        jobs.push(loadTile(`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${ty}/${tx}`)
+          .then(img => { if (img) { ctx.drawImage(img, tx * 256 - ox, ty * 256 - oy, 256, 256); tilesOk = true; } }));
+    await Promise.all(jobs);
+  }
+  const X = lon => wx(lon, z) - ox, Y = lat => wy(lat, z) - oy;
+  // track
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  [['rgba(0,0,0,0.55)', 5], ['#ffd33d', 2.4]].forEach(([col, w]) => {
+    ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath();
+    pts.forEach((p, i) => i ? ctx.lineTo(X(p[1]), Y(p[0])) : ctx.moveTo(X(p[1]), Y(p[0]))); ctx.stroke();
+  });
+  if (homePoint) {
+    ctx.fillStyle = '#2da44e'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(X(homePoint.lon), Y(homePoint.lat), 8, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = '700 10px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('H', X(homePoint.lon), Y(homePoint.lat) + 0.5);
+  }
+  // observation pins with view-direction tick
+  // camera field of view: view-cone rays + ground footprint for each observation
+  for (const o of obs) {
+    if (!o.fp) continue;
+    const x = X(o.lon), y = Y(o.lat), q = o.fp.ll.map(([la, lo]) => [X(lo), Y(la)]);
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,0.75)'; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+    ctx.beginPath(); q.forEach(([qx, qy]) => { ctx.moveTo(x, y); ctx.lineTo(qx, qy); }); ctx.stroke();
+    ctx.setLineDash(o.fp.clipped ? [6, 4] : []);
+    ctx.fillStyle = 'rgba(240,136,62,0.22)'; ctx.strokeStyle = '#f0883e'; ctx.lineWidth = 2;
+    ctx.beginPath(); q.forEach(([qx, qy], i) => i ? ctx.lineTo(qx, qy) : ctx.moveTo(qx, qy)); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.setLineDash([]);
+    const cx = q.reduce((a, p) => a + p[0], 0) / 4, cy = q.reduce((a, p) => a + p[1], 0) / 4;
+    if (Math.hypot(cx - x, cy - y) > 26) {
+      ctx.font = '700 10px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,0.7)'; ctx.strokeText(String(o.n), cx, cy);
+      ctx.fillStyle = '#ffb77a'; ctx.fillText(String(o.n), cx, cy);
+    }
+    ctx.restore();
+  }
+  for (const o of obs) {
+    const x = X(o.lon), y = Y(o.lat);
+    if (o.yaw && !o.fp) {
+      const a = o.yaw.deg * Math.PI / 180;
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.sin(a) * 24, y - Math.cos(a) * 24); ctx.stroke();
+    }
+    ctx.fillStyle = '#cf222e'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(x, y, 11, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = '700 11px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(String(o.n), x, y + 0.5);
+  }
+  // north arrow
+  ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.beginPath(); ctx.arc(W - 26, 28, 17, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#cf222e'; ctx.beginPath(); ctx.moveTo(W - 26, 15); ctx.lineTo(W - 21, 30); ctx.lineTo(W - 31, 30); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#24292f'; ctx.font = '700 9px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('N', W - 26, 38);
+  // scale bar
+  const mpp = 156543.03392 * Math.cos(((la0 + la1) / 2) * Math.PI / 180) / 2 ** z;
+  const target = mpp * W * 0.2, p10 = 10 ** Math.floor(Math.log10(target));
+  const nice = [1, 2, 5, 10].map(k => k * p10).filter(v => v <= target).pop() || p10, bw = nice / mpp;
+  ctx.fillStyle = 'rgba(255,255,255,0.88)'; ctx.fillRect(10, H - 30, bw + 20, 22);
+  ctx.fillStyle = '#24292f'; ctx.fillRect(20, H - 14, bw, 3);
+  ctx.font = '600 10px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText(nice >= 1000 ? `${nice / 1000} km` : `${nice} m`, 20, H - 18);
+  if (obs.some(o => o.fp && o.fp.clipped)) {
+    const note = `Dashed edge: view continues to the horizon (cut at ${Math.round(mapClip)} m)`;
+    ctx.font = '9px sans-serif'; ctx.textAlign = 'left';
+    const nw = ctx.measureText(note).width;
+    ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.fillRect(10, 8, nw + 10, 15);
+    ctx.fillStyle = '#24292f'; ctx.fillText(note, 15, 19);
+  }
+  ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.font = '9px sans-serif'; ctx.textAlign = 'right';
+  const attr = tilesOk ? 'Imagery © Esri, Maxar, Earthstar Geographics' : 'Basemap unavailable (offline)';
+  const aw = ctx.measureText(attr).width; ctx.fillRect(W - aw - 10, H - 14, aw + 10, 14);
+  ctx.fillStyle = '#24292f'; ctx.fillText(attr, W - 5, H - 4);
+  try { return c.toDataURL('image/jpeg', 0.9); }
+  catch (e) { return withTiles ? renderStaticMap(W, H, false) : null; }   // tiles without CORS → draw without basemap
+}
+let mapTimer = 0;
+function refreshReportMap(force) {
+  const key = rpt.rows.map(r => r.frame ? `${r.frame.lat.toFixed(6)},${r.frame.lon.toFixed(6)},${r.pitchOv ?? ''},${r.yawOv ?? ''}` : '-').join('|') + '|' + telFrames.length + '|' + (homePoint ? homePoint.lat : '') +
+    '|' + ['fov-input', 'pitch-override-input', 'heading-offset-input'].map(id => document.getElementById(id).value).join(',') + '|' + mirrorH + '|' + fpOpts.clipRange;
+  if (!force && key === rpt.mapKey && rpt.mapUrl) return Promise.resolve(rpt.mapUrl);
+  clearTimeout(mapTimer);
+  return new Promise(res => {
+    mapTimer = setTimeout(async () => {
+      rpt.mapUrl = telFrames.length ? await renderStaticMap(760, 440) : null;
+      rpt.mapKey = key;
+      const img = document.getElementById('rp-map');
+      if (img) { img.src = rpt.mapUrl || ''; img.style.display = rpt.mapUrl ? '' : 'none'; }
+      res(rpt.mapUrl);
+    }, force ? 0 : 400);
+  });
+}
+
+// ── Area description from location (OpenStreetMap Nominatim + Overpass) ──
+async function fetchJSON(url, opts = {}, ms = 15000) {
+  const ac = new AbortController(); const to = setTimeout(() => ac.abort(), ms);
+  try { const r = await fetch(url, { ...opts, signal: ac.signal }); if (!r.ok) throw new Error(r.status); return await r.json(); }
+  finally { clearTimeout(to); }
+}
+async function describeArea() {
+  if (!telFrames.length) { alert('Load an SRT first.'); return; }
+  const status = document.getElementById('rp-area-status');
+  const ta = document.getElementById('rp-area');
+  if (ta.value.trim() && !confirm('Replace the current area description with an automatic one?')) return;
+  status.textContent = 'Looking up location…';
+  const lats = telFrames.map(f => f.lat), lons = telFrames.map(f => f.lon);
+  const [la0, la1, lo0, lo1] = [Math.min(...lats), Math.max(...lats), Math.min(...lons), Math.max(...lons)];
+  const clat = (la0 + la1) / 2, clon = (lo0 + lo1) / 2;
+  const sum = Object.fromEntries(flightSummary());
+  const ew = haversine(clat, lo0, clat, lo1), ns = haversine(la0, lo0, la1, lo0);
+  const parts = [];
+
+  // 1. Place name
+  let place = null;
+  try {
+    const j = await fetchJSON(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=16&addressdetails=1&lat=${clat}&lon=${clon}`, { headers: { 'Accept-Language': 'en' } });
+    const a = j.address || {};
+    const local = a.leisure || a.park || a.natural || a.tourism || a.amenity || a.road || '';
+    const area = a.neighbourhood || a.suburb || a.hamlet || a.village || '';
+    const town = a.city || a.town || a.village || a.municipality || '';
+    place = [local, area !== town ? area : '', town, a.county, a.state, a.country].filter(Boolean).filter((v, i, arr) => arr.indexOf(v) === i).join(', ');
+  } catch (e) {
+    try {   // fallback: Esri World Geocoder
+      const j = await fetchJSON(`https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode?f=json&location=${clon},${clat}`);
+      place = j.address ? [j.address.Neighborhood, j.address.City, j.address.Subregion, j.address.Region, j.address.CountryCode].filter(Boolean).join(', ') : null;
+    } catch (e2) { /* offline */ }
+  }
+  parts.push(place ? `Location: near ${place}.` : `Location: ${clat.toFixed(5)}, ${clon.toFixed(5)} (place-name lookup unavailable — add the site name).`);
+
+  parts.push(`The recorded flight${sum.Date ? ` on ${sum.Date}` : ''}${sum.Recording ? ` (${sum.Recording})` : ''} covered an area of roughly ${fmtDist(ew)} east–west by ${fmtDist(ns)} north–south, centred at ${clat.toFixed(5)}, ${clon.toFixed(5)}, flying ${sum['Distance flown']} of track` +
+    (sum['Altitude (above takeoff)'] ? ` at ${sum['Altitude (above takeoff)']} above the takeoff point.` : '.'));
+
+  // 2. Mapped features in/around the flight box
+  status.textContent = 'Looking up mapped features…';
+  try {
+    const padLat = 120 / 111320, padLon = 120 / (111320 * Math.cos(clat * Math.PI / 180));
+    const bb = `${la0 - padLat},${lo0 - padLon},${la1 + padLat},${lo1 + padLon}`;
+    const q = `[out:json][timeout:20];(
+      nwr["waterway"]["name"](${bb}); nwr["natural"](${bb}); nwr["water"](${bb});
+      nwr["leisure"](${bb}); nwr["landuse"](${bb}); nwr["boundary"="protected_area"](${bb});
+      way["highway"]["name"](${bb}); way["railway"]["name"](${bb}); nwr["bridge"="yes"]["name"](${bb});
+      way["building"](${bb}); nwr["amenity"]["name"](${bb}); nwr["man_made"](${bb}););out tags 1500;`;
+    const j = await fetchJSON('https://overpass-api.de/api/interpreter', { method: 'POST', body: 'data=' + encodeURIComponent(q) }, 25000);
+    const g = { water: new Set(), green: new Set(), natural: new Set(), landuse: new Set(), roads: new Set(), places: new Set(), struct: new Set() };
+    let buildings = 0;
+    const nice = s => s.replace(/_/g, ' ');
+    for (const el of j.elements || []) {
+      const t = el.tags || {}, n = t.name;
+      if (t.building) { buildings++; continue; }
+      if (t.waterway || t.water || t.natural === 'water') { g.water.add(n || nice(t.waterway || t.water || 'water body')); continue; }
+      if (t.leisure || t.boundary === 'protected_area') { g.green.add(n ? `${n}` : nice(t.leisure || 'protected area')); continue; }
+      if (t.natural) { g.natural.add(n ? `${n} (${nice(t.natural)})` : nice(t.natural)); continue; }
+      if (t.landuse) { g.landuse.add(nice(t.landuse)); continue; }
+      if (t.highway || t.railway) { if (n) g.roads.add(n); continue; }
+      if (t.man_made) { g.struct.add(n || nice(t.man_made)); continue; }
+      if (t.amenity && n) g.places.add(n);
+    }
+    const lst = (s, k = 6) => { const a = [...s]; return a.slice(0, k).join(', ') + (a.length > k ? ` and ${a.length - k} more` : ''); };
+    const f = [];
+    if (g.water.size) f.push(`water — ${lst(g.water)}`);
+    if (g.green.size) f.push(`parks / recreation / reserves — ${lst(g.green)}`);
+    if (g.natural.size) f.push(`natural cover — ${lst(g.natural)}`);
+    if (g.landuse.size) f.push(`land use — ${lst(g.landuse, 8)}`);
+    if (g.roads.size) f.push(`roads, paths & rail — ${lst(g.roads)}`);
+    if (g.struct.size) f.push(`structures — ${lst(g.struct)}`);
+    if (g.places.size) f.push(`named places — ${lst(g.places, 4)}`);
+    f.push(buildings ? `buildings — about ${buildings} mapped` : 'no mapped buildings');
+    parts.push(`Mapped features in and around the flight area: ${f.join('; ')}.`);
+    parts.push('(Place names and features © OpenStreetMap contributors — verify on site.)');
+    status.textContent = '✓ Description generated — edit as needed.';
+  } catch (e) {
+    status.textContent = place ? '✓ Place found; feature lookup unavailable — edit as needed.' : '⚠ Offline or lookup blocked — basic description only.';
+  }
+  ta.value = parts.join('\n\n');
+  rpt.meta.area = ta.value; saveReportSoon();
+}
+
+// ── Report view open/close + header ──
+function refreshReportHeader() {
+  const s = flightSummary();
+  const warn = document.getElementById('rp-pitchwarn');
+  if (warn) warn.style.display = telFrames.length && !srtHasPitch() && rpt.rows.some(r => r.frame && !hasOv(r.pitchOv)) ? '' : 'none';
+  document.getElementById('rp-summary').innerHTML = s.length
+    ? `<div class="rp-dl">${s.map(([k, v]) => `<span>${k.toUpperCase()}</span><b>${v}</b>`).join('')}</div>`
+    : '<div class="rp-muted">Load an SRT to add a flight summary and map.</div>';
+  refreshReportMap();
+  updateReportBadge();
+}
+// Drone / camera picker in the report header — mirrors the Model / HFoV controls under the video
+function syncCameraPicker() {
+  const src = document.getElementById('drone-model-select');
+  for (const [id, label] of [['rp-model', 'Choose drone…'], ['hdr-model', 'Drone…']]) {
+    const dst = document.getElementById(id);
+    if (!dst.options.length) dst.innerHTML = src.innerHTML.replace('Model…', label);
+    dst.selectedIndex = src.selectedIndex;
+  }
+  document.getElementById('rp-hfov').value = document.getElementById('fov-input').value;
+}
+function applyCameraChange() {
+  const fovIn = document.getElementById('fov-input');
+  fovIn.dispatchEvent(new Event('input'));                  // refresh live footprint on the main map
+  rpt.meta.hfov = fovIn.value;
+  rpt.meta.modelIndex = document.getElementById('drone-model-select').selectedIndex;
+  for (const r of rpt.rows) {
+    for (const a of r.anns) if (a.type === 'measure' && a.pts[1]) a.dist = measureGround(r, a.pts[0], a.pts[1]);
+    refreshDataBlock(r);
+    const el = document.getElementById(`rp-row-${r.id}`);
+    if (el) { redrawRowCanvas(r, el); el.querySelector('.rp-mbox').innerHTML = measuresHTML(r); }
+  }
+  refreshReportHeader(); saveReportSoon();
+}
+function pickDrone(idx) {
+  const src = document.getElementById('drone-model-select');
+  src.selectedIndex = idx;
+  if (src.value) document.getElementById('fov-input').value = src.value;
+  syncCameraPicker();
+  applyCameraChange();
+}
+document.getElementById('rp-model').addEventListener('change', e => pickDrone(e.target.selectedIndex));
+document.getElementById('hdr-model').addEventListener('change', e => pickDrone(e.target.selectedIndex));
+// the Model list under the video keeps the header / report pickers in step
+document.getElementById('drone-model-select').addEventListener('change', () => { syncCameraPicker(); applyCameraChange(); });
+document.getElementById('fov-input').addEventListener('change', () => { syncCameraPicker(); if (rpt.open) applyCameraChange(); });
+syncCameraPicker();
+document.getElementById('rp-hfov').addEventListener('change', e => {
+  const v = parseFloat(e.target.value);
+  if (!Number.isFinite(v)) return;
+  document.getElementById('fov-input').value = v;
+  const src = document.getElementById('drone-model-select');
+  if (src.value && Math.abs(parseFloat(src.value) - v) > 0.01) src.selectedIndex = 0;
+  syncCameraPicker();
+  applyCameraChange();
+});
+function openReport() {
+  rpt.open = true;
+  syncCameraPicker();
+  document.getElementById('report-view').classList.add('visible');
+  const m = rpt.meta;
+  if (!m.date && telFrames[0]?.dateTime) m.date = telFrames[0].dateTime.slice(0, 10);
+  document.getElementById('rp-title').value = m.title;
+  document.getElementById('rp-inspector').value = m.inspector;
+  document.getElementById('rp-date').value = m.date;
+  document.getElementById('rp-area').value = m.area;
+  showRestoreBanner();
+  renderRows(); refreshReportHeader();
+}
+function closeReport() {
+  rpt.open = false; rpt.tool = null; rpt.pending = null;
+  document.getElementById('report-view').classList.remove('visible');
+}
+document.getElementById('report-btn').addEventListener('click', () => rpt.open ? closeReport() : openReport());
+document.getElementById('rp-close').addEventListener('click', closeReport);
+document.getElementById('rp-add').addEventListener('click', addToReport);
+document.getElementById('capture-btn').addEventListener('click', addToReport);
+document.getElementById('ct-open').addEventListener('click', openReport);
+document.getElementById('grab-also-download').addEventListener('change', e => { grabState.alsoDownload = e.target.checked; });
+document.getElementById('rp-describe').addEventListener('click', describeArea);
+document.getElementById('rp-print').addEventListener('click', printReport);
+[['rp-title', 'title'], ['rp-inspector', 'inspector'], ['rp-date', 'date'], ['rp-area', 'area']].forEach(([id, k]) =>
+  document.getElementById(id).addEventListener('input', e => { rpt.meta[k] = e.target.value; saveReportSoon(); }));
+document.addEventListener('keydown', e => {
+  if (!rpt.open || e.key !== 'Escape') return;
+  if (rpt.tool) { rpt.tool = null; rpt.pending = null; updateToolStates(); rpt.rows.forEach(r => { const el = document.getElementById(`rp-row-${r.id}`); if (el) redrawRowCanvas(r, el); }); }
+  else if (!['INPUT', 'TEXTAREA'].includes(e.target.tagName)) closeReport();
+});
+
+// ── Print / Save as PDF ──
+async function printReport() {
+  if (!rpt.rows.length && !confirm('The report has no observations yet. Print the summary page anyway?')) return;
+  const btn = document.getElementById('rp-print');
+  btn.disabled = true; btn.textContent = 'Preparing…';
+  try {
+    const mapUrl = telFrames.length ? await renderStaticMap(1000, 560) : null;
+    const imgs = [];
+    for (const r of rpt.rows) imgs.push(await compositeRow(r));
+    const m = rpt.meta, s = flightSummary();
+    const metaLine = [m.inspector && `Prepared by ${esc(m.inspector)}`, m.date && esc(m.date)].filter(Boolean).join(' · ');
+    let html = `<div class="pr-head"><h1>${esc(m.title || 'Field Observation Report')}</h1>${metaLine ? `<div class="pr-meta">${metaLine}</div>` : ''}</div>`;
+    if (s.length || mapUrl) {
+      html += `<section class="pr-summary"><div><h2>Flight summary</h2><table>${s.map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join('')}</table></div>
+        ${mapUrl ? `<figure><img src="${mapUrl}"><figcaption>Flight track (yellow), home point (H) and numbered observations. Orange areas show each frame's camera field of view projected onto the ground (flat-ground estimate; a dashed far edge means the view continues to the horizon and is cut short on the map).</figcaption></figure>` : ''}</section>`;
+    }
+    if (m.area.trim()) html += `<section class="pr-area"><h2>Area description</h2>${m.area.trim().split(/\n\s*\n/).map(p => `<p>${esc(p).replace(/\n/g, '<br>')}</p>`).join('')}</section>`;
+    if (rpt.rows.length) html += `<h2 class="pr-obs-h">Observations (${rpt.rows.length})</h2>`;
+    rpt.rows.forEach((r, i) => {
+      const f = effFrame(r), pi = pitchInfo(f), yi = yawInfo(f);
+      const ms = r.anns.filter(a => a.type === 'measure');
+      const data = f ? [
+        ['Clock', clockStr(f.dateTime) || '—'], ['Video time', fmtTimeMs(r.t)],
+        ['Latitude', f.lat.toFixed(6)], ['Longitude', f.lon.toFixed(6)],
+        ['Altitude', f.altRel !== undefined ? `${f.altRel.toFixed(1)} m above takeoff` : '—'],
+        ['Camera pitch', `${pi.fromNadir}° from nadir · ${pi.desc}${pi.manual ? ' (set manually)' : pi.live ? '' : ' (assumed)'}`],
+        ['Camera yaw', yi ? `${Math.round(yi.deg)}° ${cardinal(yi.deg)}${yi.src !== 'camera' ? ` (${yi.src})` : ''}` : '—'],
+        ['Field of view', fpText(f).replace(/<\/?i>/g, '')],
+      ] : [['Video time', fmtTimeMs(r.t)], ['Location', 'no telemetry']];
+      html += `<article class="pr-obs">
+        <h3>Observation ${i + 1}<span>${f && clockStr(f.dateTime) ? clockStr(f.dateTime) + ' · ' : ''}${esc(r.video)} @ ${fmtTimeMs(r.t)}</span></h3>
+        <img class="pr-img" src="${imgs[i]}">
+        <div class="pr-cols">
+          <div class="pr-data"><table>${data.map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join('')}</table>
+            ${f ? `<div class="pr-diags">${pitchSVG(pi, 'light')}${yawSVG(yi, f.flightHeading, 'light')}</div>` : ''}</div>
+          <div class="pr-notes"><h4>Notes</h4>${r.notes.trim() ? r.notes.trim().split(/\n\s*\n/).map(p => `<p>${esc(p).replace(/\n/g, '<br>')}</p>`).join('') : '<p class="pr-muted">—</p>'}
+            ${ms.length ? `<h4>Measurements</h4><ul>${ms.map((mm, k) => `<li>M${k + 1}: ≈ ${fmtDist(mm.dist)}</li>`).join('')}</ul><p class="pr-muted">Flat-ground estimates from the camera model; verify critical dimensions on site.</p>` : ''}
+          </div>
+        </div></article>`;
+    });
+    html += `<footer class="pr-foot">Generated ${new Date().toLocaleString()} with Drone Video Viewer. Positions from DJI SRT telemetry (consumer GNSS, typically ±2–5 m); altitudes are relative to the takeoff point.</footer>`;
+    const div = document.createElement('div');
+    div.id = 'print-report'; div.innerHTML = html;
+    document.body.appendChild(div);
+    await Promise.all([...div.querySelectorAll('img')].map(im => im.decode ? im.decode().catch(() => {}) : null));
+    const cleanup = () => { div.remove(); window.removeEventListener('afterprint', cleanup); };
+    window.addEventListener('afterprint', cleanup);
+    window.print();
+  } finally {
+    btn.disabled = false; btn.textContent = '🖨 Print / Save PDF';
+  }
+}
+
+// ── Autosave (IndexedDB, this browser only) ──
+const RPT_DB = 'dvv-report';
+function idbOpen() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open(RPT_DB, 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('state');
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  });
+}
+async function idbDo(mode, fn) {
+  const db = await idbOpen();
+  return new Promise((res, rej) => {
+    const tx = db.transaction('state', mode), st = tx.objectStore('state');
+    const req = fn(st);
+    tx.oncomplete = () => res(req && req.result); tx.onerror = () => rej(tx.error);
+  });
+}
+let saveTimer = 0;
+function saveReportSoon() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    if (!rpt.rows.length && !rpt.meta.area && rpt.saved) return;   // don't overwrite an unrestored session with nothing
+    try {
+      await idbDo('readwrite', st => st.put({
+        savedAt: Date.now(), meta: { ...rpt.meta }, nextId: rpt.nextId,
+        rows: rpt.rows.map(({ url, ...r }) => r),
+      }, 'last'));
+    } catch (e) { /* private window / storage blocked — report still works for this session */ }
+  }, 700);
+}
+function restoreSaved() {
+  const s = rpt.saved; if (!s) return;
+  rpt.saved = null;
+  rpt.meta = { ...rpt.meta, ...s.meta };
+  if (s.meta && s.meta.hfov) {
+    document.getElementById('fov-input').value = s.meta.hfov;
+    if (s.meta.modelIndex !== undefined) document.getElementById('drone-model-select').selectedIndex = s.meta.modelIndex;
+    syncCameraPicker();
+  }
+  rpt.rows = s.rows.map(r => ({ ...r, url: URL.createObjectURL(r.blob) }));
+  rpt.nextId = Math.max(s.nextId || 1, ...rpt.rows.map(r => r.id + 1));
+  updateReportBadge();
+  if (rpt.open) openReport();
+}
+async function checkSavedReport() {
+  try {
+    const s = await idbDo('readonly', st => st.get('last'));
+    if (s && s.rows && s.rows.length && !rpt.rows.length) { rpt.saved = s; showRestoreBanner(); renderTray(); }
+  } catch (e) { /* ignore */ }
+}
+function showRestoreBanner() {
+  const b = document.getElementById('rp-restore');
+  if (!rpt.saved || rpt.rows.length) { b.style.display = 'none'; return; }
+  const vids = [...new Set(rpt.saved.rows.map(r => r.video))].join(', ');
+  b.innerHTML = `💾 A report with <b>${rpt.saved.rows.length}</b> observation${rpt.saved.rows.length === 1 ? '' : 's'} (${esc(vids)}) was saved in this browser on ${new Date(rpt.saved.savedAt).toLocaleString()}.
+    <button class="btn btn-primary" id="rp-restore-yes" style="font-size:11px; padding:2px 10px">Restore</button>
+    <button class="btn" id="rp-restore-no" style="font-size:11px; padding:2px 10px">Start new</button>`;
+  b.style.display = '';
+  document.getElementById('rp-restore-yes').onclick = () => { restoreSaved(); openReport(); };
+  document.getElementById('rp-restore-no').onclick = () => {
+    if (!confirm('Start a new report? The saved one will be replaced as soon as you add a frame.')) return;
+    rpt.saved = null; b.style.display = 'none'; renderTray();
+  };
+}
+checkSavedReport();
+
 </script>
 
 </body>

@@ -12,8 +12,6 @@ Open `drone-video-viewer.html` in any modern browser (Chrome or Firefox recommen
 
 The viewer accepts a DJI video file (`.mp4`) and its matching SRT telemetry file (`.srt`). These are recorded together automatically by DJI drones.
 
-**Don't have drone footage yet?** Sample files (`sample-mapping-flight.mp4` and `sample-mapping-flight.srt`) are included in this repository. Load them the same way as your own files to explore a real mapping flight.
-
 **Option 1 — Load Files button (recommended):** Click **📂 Load Files** in the header and select your `.mp4` and `.srt` together. Both files can be selected at once in the file picker.
 
 **Option 2 — Drag and drop:** Drag your video and SRT files onto the drop zone in the left panel. Both files can be dropped simultaneously.
@@ -36,6 +34,8 @@ The video plays back your drone footage. A HUD overlay in the upper-left corner 
 - **▶ / ⏸** — Play or pause
 - **⏪ / ⏩** — Skip backward or forward 10 seconds
 - **🔊** — Toggle mute
+- **📸** — Capture the current frame into the report tray (see [Inspection Report](#inspection-report)); works while the video is playing
+- **▾** (next to 📸) — Download options: geotagged JPG, JPG with telemetry overlay, batch extraction (see [Frame Grabs](#frame-grabs))
 - **Speed selector** — Set playback rate (0.5×, 1×, 1.5×, 2×)
 - **Progress bar** — Click or drag to scrub to any point in the flight
 
@@ -49,6 +49,8 @@ The video plays back your drone footage. A HUD overlay in the upper-left corner 
 | `M` | Toggle mute |
 | `T` | Tag feature at current drone position |
 | `C` | Toggle click-to-tag mode |
+| `G` or `R` | Capture current frame for the report |
+| `3` | Switch between map and 3D view |
 
 ### Telemetry Strip
 
@@ -65,6 +67,8 @@ A green **H** marks the home (takeoff) point when it's known — from a `HOME(..
 - **🛰 Satellite / 🗺 Street** — Toggle between satellite imagery and street map
 - **🖼 Ortho** — Open the orthomosaic overlay panel
 - **🏷 Tags** — Show or hide the tagged features list
+- **🧊 3D / 🗺 Map** — Swap the map for the 3D flight view (see [3D Flight View](#3d-flight-view--altitude-profile))
+- **📐 Footprint** — Draw the camera's ground footprint (see [Camera Footprint](#camera-footprint))
 
 ---
 
@@ -119,6 +123,85 @@ This mode translates a specific pixel in the video frame to a geographic coordin
 
 ---
 
+## Inspection Report
+
+Build a field-observation / inspection report from frames in the video, then print it or save it as a PDF.
+
+**1. Watch and capture.** Play the video and press **📸** (or `G`) whenever you see something worth recording. You can capture while the video plays, so there's no need to pause. Each capture appears as a numbered thumbnail in the **Captures** tray under the video, with its telemetry stored alongside it.
+- Click a thumbnail to jump the video back to that moment; hover and click **×** to remove it.
+- A yellow dot on a thumbnail means it already has notes or markup.
+- Pressing 📸 twice on the same frame won't add a duplicate.
+
+When you're done watching, click **📝 Report →** at the end of the tray (or **📝 Report** in the header). All your captures are there ready for annotation. **◀ Video** returns to the player, where you can keep capturing; new frames are added to the end of the report.
+
+**2. Fill in the header.**
+- **Title**, **Prepared by** and **Date** (the date is filled in from the SRT when it has timestamps).
+- **Drone / camera** and **HFoV °** set the camera's field of view. Pick your drone first; everything that depends on the lens updates when you change it (footprints, map cones, ⌖ Click horizon, measurements). It's the same setting as the **🚁** drone picker in the top bar of the main screen (always visible) and the Model / HFoV controls under the video. If your drone isn't listed, type its horizontal FOV for video mode.
+- **Flight summary** is generated automatically: date, recording time, duration, distance flown, altitude range, extent, centre and home point, file names, the **camera field of view** (horizontal × vertical, with the drone model if you picked one), where the camera angles came from (SRT gimbal data or assumed), and the number of observations.
+- **Map** shows the track on satellite imagery with numbered pins for each observation and its **camera field of view**: dashed rays from the drone and an orange footprint on the ground showing what that frame covers. A dashed far edge means the view continues to the horizon; on the overview map those cones are cut at about 60% of the flight's size so the track stays readable. Footprints follow the HFoV / Pitch / Hdg± settings under the video, so set those first.
+- **Area description:** click **↻ Describe from flight location** for a starting draft. It names the place and lists mapped water, parks/reserves, natural cover, land use, roads and paths, and an approximate building count around the flight, using OpenStreetMap. Edit it as needed, since OpenStreetMap can be incomplete. This needs an internet connection; offline you get the coordinates and flight extent only.
+
+**3. Work on each observation** (one row per frame):
+- **Frame:** ▲▼ reorder rows; **« 2s ‹ 1f 1f › 2s »** step to a nearby frame if you paused slightly off (notes are kept; drawings are cleared); **▶ video** jumps the player to that moment.
+- **Location data:** clock time, video time, latitude/longitude, altitude, camera pitch (degrees from nadir, with a plain-language description), camera yaw with compass direction, the **view** (ground footprint width × depth and cm per pixel), plus a side-view pitch diagram and a top-view yaw diagram. "(assumed)" means the SRT has no gimbal pitch and the Pitch setting under the video is being used.
+- **Camera tilt and yaw:** many DJI SRT files (Mavic 3, Air 3, Mini 4 and others) don't record the gimbal angle, so the viewer starts by assuming the camera points straight down. The PITCH line then says *(assumed — set tilt below)* and an amber banner appears above the rows. For oblique shots, fix it in the **Camera** box under the diagrams:
+  - **Tilt** — type degrees from straight down (0 = nadir, 90 = looking at the horizon), or
+  - **⌖ Click horizon** — then click on the horizon line in the image and the tilt is calculated for you (uses the HFoV setting, so pick your **Drone / camera** at the top of the report first).
+  - **Yaw** — type the direction the camera faced if the SRT heading is wrong or comes from the GPS track.
+  - **Tilt → all frames** copies the tilt to every frame without SRT pitch, and new captures inherit the last tilt you set. **↺ Auto** returns to the SRT / default values.
+  - The pitch diagram, footprint, map cones and any measurements update immediately.
+- **Notes:** type observations for that frame.
+- **↔ Measure distance:** click two points on the image to get an approximate ground distance (labelled M1, M2…). It uses the same camera model as the footprint, so set the HFoV/Pitch first. It assumes flat ground at takeoff height, so treat it as an estimate, especially for oblique views, slopes and tall objects.
+- **Draw:** arrow, box, ellipse, freehand and text label in five colours, with ↶ undo and ✕ clear. `Esc` stops the current tool.
+- **🗑 Delete row** removes the observation.
+
+**4. Print / Save PDF.** Click **🖨 Print / Save PDF** and choose **Save as PDF** as the printer. The printed report uses a clean light layout: title block, flight summary and map, area description, then one observation per page with the annotated image, location data, diagrams, notes and measurements, plus page numbers.
+
+> **Your work is autosaved in this browser.** If you close or refresh the page, click **Restore** in the Captures tray (or in **📝 Report**). The save lives only in this browser on this computer (not in your files), so print to PDF to keep a permanent copy. Private/incognito windows may not keep it.
+
+---
+
+## Frame Grabs
+
+📸 captures frames into the report. To save image files instead, click **▾** next to 📸. Each option downloads the frame you're looking at as a JPG at full video resolution to your browser's Downloads folder. Tick **Also download a geotagged JPG with every 📸 capture** to get both at once.
+
+- **Download frame** — a clean, geotagged JPG. The drone's position (interpolated between SRT records), altitude, camera direction and the SRT timestamp are written into the photo's EXIF GPS tags, so it drops straight onto a map in QGIS, ArcGIS Pro, Google Earth or Lightroom. Gimbal yaw/pitch/roll go into DJI-style XMP tags that WebODM, Metashape and Pix4D read.
+- **Download frame + telemetry overlay** — the same image with a caption bar (file, time, coordinates, altitude, speed, heading, gimbal pitch), a north arrow when the camera direction is known, and a rough scale bar when the SRT says the camera was pointing straight down. Good for reports and slides.
+- **Extract frames every N seconds…** — steps through the video and saves a ZIP containing the geotagged JPGs, `frames.csv` (all telemetry for each image), `geo.txt` (OpenDroneMap/WebODM geolocation file) and a short README. Set the interval and an optional From/To range (m:ss or seconds); the dialog estimates the frame count and ZIP size before you start, and **Stop** saves what's done so far.
+
+> **Photogrammetry from video:** For ~75% forward overlap, use an interval of about 0.25 × footprint depth ÷ speed (the footprint readout gives the depth). Video frames have motion blur, rolling shutter and compression, so expect a rougher model than from mapping stills — which is a useful lesson in itself. Leave the overlay off for frames you'll process.
+
+> If no SRT is loaded, frames are still saved but without GPS tags.
+
+---
+
+## Camera Footprint
+
+Click **📐 Footprint** in the map toolbar to project the four corners of the video frame onto the ground and draw them on the map as the video plays. The HFoV, Pitch and Hdg± calibration controls appear under the video while the footprint is on, and a panel above the map offers:
+
+- **View cone** — dashed rays from the drone to each corner of the image.
+- **Coverage trail** — leaves a footprint on the map every N seconds as the video plays, showing which ground the camera actually saw and how much consecutive views overlap. **▦ Whole flight** draws the trail for the entire flight at once; **✕ Clear** removes it.
+- **Max range** — for oblique views, the top of the frame can point at or above the horizon. Instead of hiding the footprint, the far edge is cut at this distance and drawn dashed.
+- **Readout** — footprint width × depth on the ground, the video's ground sample distance (cm per pixel at the frame centre) and the slant range to the centre of the view.
+
+The footprint uses live gimbal pitch/yaw from the SRT when the file has them; otherwise it uses the Pitch override (default −90°, straight down) and the drone's heading. It assumes flat ground at takeoff height, so hills, buildings and tree canopy shift the real footprint. Pick your drone in the **Model…** list to set the field of view.
+
+---
+
+## 3D Flight View & Altitude Profile
+
+Click **🧊 3D** (or press `3`) to replace the map with a 3D view of the flight. Click **🗺 Map** to go back.
+
+- The track is colored by altitude (same colors as the map) with a gray shadow on the ground and vertical "curtain" lines, so you can read height at a glance. The green **H** is the home point; *start* and *end* mark the ends of the recording.
+- The blue dot is the drone's current position and moves with the video; when the footprint is on, the camera's view cone and ground footprint are drawn in 3D too.
+- **Mouse:** drag to rotate, right-drag or Shift-drag to pan, scroll to zoom, double-click to reset. Click anywhere on the track to jump the video to that moment. On touch screens, drag with one finger to rotate and pinch to zoom.
+- **Vertical** — exaggerate altitude (×1 to ×10) to make small height changes visible on long, low flights.
+- **Follow** keeps the drone centered while the video plays. **Top** and **Side** jump to plan and profile views.
+
+Under the 3D view, the **altitude profile** plots altitude against distance flown along the track (rather than time, as in 📊 Charts). Hover for distance, altitude and time; click to jump the video there.
+
+---
+
 ## Orthomosaic Overlay
 
 If you have processed your flight into an orthomosaic (georeferenced aerial image), you can overlay it on the map.
@@ -154,3 +237,6 @@ If your SRT file fails to parse (badge turns red), check that it is the `.srt` f
 - Feature tags export as a CSV that can be imported directly into QGIS as a point layer (*Layer → Add Layer → Add Delimited Text Layer*).
 - The pixel projection tool works best during nadir mapping passes at a consistent altitude — ideal for demonstrating the relationship between camera geometry, altitude, and ground resolution.
 - Pair the viewer with the orthomosaic overlay to compare raw video to the processed map product from the same flight.
+- Turn on the coverage trail and 3D view together to show how altitude and gimbal pitch change what the camera sees — then try **Extract frames** and run them through WebODM to compare a video-derived model with one from a planned mapping mission.
+- The inspection report turns a flight video into a structured field-observation assignment: students pick frames, annotate and measure features, describe the site, and submit the PDF to Canvas.
+- Geotagged frame grabs give students georeferenced evidence for field observations (erosion, damage, vegetation) without a separate photo flight.
